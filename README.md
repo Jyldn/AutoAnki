@@ -1,0 +1,2 @@
+# autodict
+ Wiktioanry webscraper
