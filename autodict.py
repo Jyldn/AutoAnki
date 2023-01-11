@@ -1,6 +1,7 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from urllib.request import urlopen
 from urllib.error import HTTPError
+from urllib.parse import quote
 import logging
 import re
 
@@ -26,11 +27,15 @@ def select_lang():
     return lang_selection
 
 
-def get_word():
-    print(f"Enter word: ")
-    word_input = input()
+def get_word(lang_selection):
+    if langs[lang_selection] == "Deutsch":
+        print(f"Geben Sie ein Wort ein: ")
+        word_input = input()
+    elif langs[lang_selection] == "English":
+        print(f"Enter a word: ")
+        word_input = input()
     print("-----------")
-    return word_input
+    return quote(word_input)
 
 
 def save_page(word_input, lang_selection):
@@ -67,42 +72,88 @@ def parse_page(page, lang_selection):
     logging.info(f"Selected header: {main_header}\n{main_header.get_text()}")
     # Get all the elements between the selected header and the next header.
     elements = main_header.find_next_siblings()
-    definitions = get_defs(elements)
+    definitions = get_defs(elements, lang_selection)
+    elements = main_header.find_next_siblings()
+    definitions = get_defs(elements, lang_selection)
     return definitions
 
 
-def get_defs(elements):
+def get_defs(elements, lang_selection):
+    # German definitions are simple to find. They are listed under the keyword 'Bedeutungen'. English has no keyword, it's just the word search term repeated. However, it does seem to have a unique class, 'Latn headword'.
     definitions = []
-    for element in elements:
-        if element.get_text() == "Bedeutungen:":
-            raw_defs = element.find_next_siblings(name=['dl'], limit=1)
-            definitions.append(raw_defs)
-        elif element.name == "h2":
-            # End search when next language section is parsed.
-            return definitions
+    # GERMAN DEFINITIONS
+    if langs[lang_selection] == "Deutsch":
+        for element in elements:
+            if element.get_text() == "Bedeutungen:":
+                raw_defs = element.find_next_siblings(name=['dl'], limit=1)
+                definitions.append(raw_defs)
+            elif element.name == "h2":
+                # End search when next language section is parsed.
+                return definitions
+    # ENGLISH DEFINITIONS
+    elif langs[lang_selection] == "English":
+        eng_def_class = "Latn headword"
+        for element in elements:
+            counter = 0
+            if element.name == "ol":
+                temp_strs = []
+                for child in element.children:
+                    temp_str = ""
+                    counter += counter
+                    if type(child) is not NavigableString:
+                        for child_child in child.children:
+                            if child_child.name != "dl" and child_child.string:
+                                temp_str = temp_str + child_child.get_text()
+                    temp_strs.append(temp_str)
+                # Remove blank lines from array.
+                temp_strs = [string for string in temp_strs if string.strip() != ""]
+                # Remove all line breaks.
+                temp_strs = [s.replace('\n', '') for s in temp_strs]
+                for line in temp_strs:
+                    definitions.append(line)
+                    #print(f"- {line}")
+            if element.name == "h2":
+                # End search when next language section is parsed.
+                return definitions
     return definitions
 
 
-def print_definitions(definitions):
+def print_definitions(definitions, lang_selection):
     counter = 0
-    for defi in definitions:
-        for element in defi:
+    if langs[lang_selection] == "Deutsch":
+        for defi in definitions:
+            for element in defi:
+                counter += 1
+                print(f"Bedeutung {counter}:")
+                print(f"{element.get_text()}")
+    elif langs[lang_selection] == "English":
+        for line in definitions:
             counter += 1
-            print(f"Definition {counter}:")
-            print(f"{element.get_text()}\n")
+            print(f"{counter}: {line}")
     print()
     
 
 def get_definition_index(h2s, lang_selection):
+    # Like most things, Wiktionary does not have a standard across languages for how pages are set up with regards to styling. Therefore, different languages format things differently. 
     counter = 0
     for header in h2s:
-        header = header.get_text().split(" ")
+        header = header.get_text()
+        if langs[lang_selection] == "Deutsch":
+            header = header.split(" ")
         if len(header) > 1: 
-            split_header = header[1].split(")")
-            split_header = split_header[0] + ")"
-            logging.info(split_header)
-            if split_header == f"({langs[lang_selection]})":
-                return counter
+            if langs[lang_selection] == "Deutsch":
+                split_header = header[1].split(")")
+                split_header = split_header[0] + ")"
+                # Note the brackets necessary for German Wiktionary.
+                if split_header == f"({langs[lang_selection]})":
+                    return counter
+            elif langs[lang_selection] == "English":
+                split_header = header.split("[")
+                split_header = split_header[0]
+                if split_header == f"{langs[lang_selection]}":
+                    return counter
+            logging.info(f"HEADER: {split_header},{langs[lang_selection]}")
+            
         counter += 1
     # No definition found for the target language.
     return None
@@ -115,11 +166,11 @@ def main():
     lang_selection = select_lang()
     while True:
         # Get the word that the user wants to define.
-        word_input = get_word()
+        word_input = get_word(lang_selection)
         page = save_page(word_input, lang_selection)
         if page != None:
             definitions = parse_page(page, lang_selection)
-            print_definitions(definitions)
+            print_definitions(definitions, lang_selection)
 
 
 main()
