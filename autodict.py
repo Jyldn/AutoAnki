@@ -4,6 +4,7 @@ from urllib.error import HTTPError
 from urllib.parse import quote
 import logging
 import re
+from pprint import pprint
 
 
 langs = {
@@ -81,21 +82,32 @@ def parse_page(page, lang_selection):
 def get_defs(elements, lang_selection):
     # German definitions are simple to find. They are listed under the keyword 'Bedeutungen'. English has no keyword, it's just the word search term repeated. However, it does seem to have a unique class, 'Latn headword'.
     definitions = []
+    word_type = ""
+    counter = 0
     # GERMAN DEFINITIONS
     if langs[lang_selection] == "Deutsch":
         for element in elements:
+            if element.name == "h3":
+                word_type = element
+                #.append(word_type)
             if element.get_text() == "Bedeutungen:":
                 raw_defs = element.find_next_siblings(name=['dl'], limit=1)
+                raw_defs[0].insert(0, word_type)
+                raw_defs[0].insert(1, "\n")
                 definitions.append(raw_defs)
+                counter += 1
             elif element.name == "h2":
                 # End search when next language section is parsed.
+                #pprint(definitions)
                 return definitions
     # ENGLISH DEFINITIONS
     elif langs[lang_selection] == "English":
-        eng_def_class = "Latn headword"
         for element in elements:
             counter = 0
+            if element.name == "h4":
+                definitions.append(f"\n{element.get_text()}")
             if element.name == "ol":
+                counter = 0
                 temp_strs = []
                 for child in element.children:
                     temp_str = ""
@@ -110,8 +122,8 @@ def get_defs(elements, lang_selection):
                 # Remove all line breaks.
                 temp_strs = [s.replace('\n', '') for s in temp_strs]
                 for line in temp_strs:
-                    definitions.append(line)
-                    #print(f"- {line}")
+                    counter += 1
+                    definitions.append(f"[{counter}] {line}")
             if element.name == "h2":
                 # End search when next language section is parsed.
                 return definitions
@@ -124,12 +136,16 @@ def print_definitions(definitions, lang_selection):
         for defi in definitions:
             for element in defi:
                 counter += 1
-                print(f"Bedeutung {counter}:")
-                print(f"{element.get_text()}")
+                print(f"\nBedeutung {counter}:")
+                text = element.get_text()
+                text = re.sub(r"\[Bearbeiten\]", "", text)
+                # Remove the initial new line character.
+                text = text[1:]
+                print(text)
     elif langs[lang_selection] == "English":
         for line in definitions:
             counter += 1
-            print(f"{counter}: {line}")
+            print(f"{line}")
     print()
     
 
