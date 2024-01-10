@@ -1,0 +1,1724 @@
+<h3>devoir</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>devoir
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">devant</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">dû</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">dois</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">dois</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">doit</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">devons</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">devez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.ve/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">doivent</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwav/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">devais</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">devais</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">devait</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">devions</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">deviez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">devaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">dus</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">dus</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">dut</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">dûmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/dym/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">dûtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/dyt/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">durent</span><br/><span style="color:#7F7F7F"><span class="IPA">/dyʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">devrai</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">devras</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">devra</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">devrons</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">devrez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">devront</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">devrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">devrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">devrait</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">devrions</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁi.jɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">devriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁi.je/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">devraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">doive</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwav/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">doives</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwav/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">doive</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwav/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">devions</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">deviez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">doivent</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwav/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">dusse</span><br/><span style="color:#7F7F7F"><span class="IPA">/dys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">dusses</span><br/><span style="color:#7F7F7F"><span class="IPA">/dys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">dût</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">dussions</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">dussiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/dy.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">dussent</span><br/><span style="color:#7F7F7F"><span class="IPA">/dys/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impr-form-of" lang="fr">dois</span><br/><span style="color:#7F7F7F"><span class="IPA">/dwa/</span></span>
+</td>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impr-form-of" lang="fr">devons</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.vɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impr-form-of" lang="fr">devez</span><br/><span style="color:#7F7F7F"><span class="IPA">/də.ve/</span></span>
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================
+<h3>consacrer</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>consacrer
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">consacrant</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">consacré</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁe/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">consacre</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">consacres</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">consacre</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">consacrons</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">consacrez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">consacrent</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">consacrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">consacrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">consacrait</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">consacrions</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁi.jɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">consacriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁi.je/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">consacraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">consacrai</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">consacras</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">consacra</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">consacrâmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁam/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">consacrâtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁat/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">consacrèrent</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɛʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">consacrerai</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">consacreras</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">consacrera</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">consacrerons</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">consacrerez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">consacreront</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">consacrerais</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">consacrerais</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">consacrerait</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">consacrerions</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">consacreriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">consacreraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁə.ʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">consacre</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">consacres</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">consacre</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">consacrions</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁi.jɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">consacriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁi.je/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">consacrent</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">consacrasse</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁas/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">consacrasses</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁas/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">consacrât</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">consacrassions</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁa.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">consacrassiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁa.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">consacrassent</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁas/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impr-form-of" lang="fr">consacre</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sakʁ/</span></span>
+</td>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impr-form-of" lang="fr">consacrons</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impr-form-of" lang="fr">consacrez</span><br/><span style="color:#7F7F7F"><span class="IPA">/kɔ̃.sa.kʁe/</span></span>
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================
+<h3>regarder</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>regarder
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">regardant</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">regardé</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.de/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">regarde</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">regardes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">regarde</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">regardons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">regardez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.de/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">regardent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">regardais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">regardais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">regardait</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">regardions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.djɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">regardiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">regardaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">regardai</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.de/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">regardas</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.da/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">regarda</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.da/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">regardâmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dam/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">regardâtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dat/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">regardèrent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɛʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">regarderai</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">regarderas</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">regardera</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">regarderons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">regarderez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">regarderont</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">regarderais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">regarderais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">regarderait</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">regarderions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">regarderiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">regarderaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.də.ʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">regarde</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">regardes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">regarde</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">regardions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.djɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">regardiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">regardent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">regardasse</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.das/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">regardasses</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.das/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">regardât</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.da/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">regardassions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.da.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">regardassiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.da.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">regardassent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.das/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impr-form-of" lang="fr">regarde</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁd/</span></span>
+</td>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impr-form-of" lang="fr">regardons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.dɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impr-form-of" lang="fr">regardez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁə.ɡaʁ.de/</span></span>
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================
+<h3>être</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>être
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">étant</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">été</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.te/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">suis</span><br/><span style="color:#7F7F7F"><span class="IPA">/sɥi/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">es</span><br/><span style="color:#7F7F7F"><span class="IPA">/ɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">est</span><br/><span style="color:#7F7F7F"><span class="IPA">/ɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">sommes</span><br/><span style="color:#7F7F7F"><span class="IPA">/sɔm/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">êtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ɛt/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">sont</span><br/><span style="color:#7F7F7F"><span class="IPA">/sɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">étais</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">étais</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">était</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">étions</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">étiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">étaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/e.tɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">fus</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">fus</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">fut</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">fûmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/fym/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">fûtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/fyt/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">furent</span><br/><span style="color:#7F7F7F"><span class="IPA">/fyʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">serai</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">seras</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">sera</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">serons</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">serez</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">seront</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">serais</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">serais</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">serait</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">serions</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">seriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">seraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/sə.ʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">sois</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">sois</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">soit</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">soyons</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa.jɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">soyez</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa.je/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">soient</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">fusse</span><br/><span style="color:#7F7F7F"><span class="IPA">/fys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">fusses</span><br/><span style="color:#7F7F7F"><span class="IPA">/fys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">fût</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">fussions</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">fussiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/fy.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">fussent</span><br/><span style="color:#7F7F7F"><span class="IPA">/fys/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impr-form-of" lang="fr">sois</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa/</span></span>
+</td>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impr-form-of" lang="fr">soyons</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa.jɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impr-form-of" lang="fr">soyez</span><br/><span style="color:#7F7F7F"><span class="IPA">/swa.je/</span></span>
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================
+<h3>remplir</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>remplir
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">remplissant</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">rempli</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">remplis</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">remplis</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">remplit</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">remplissons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">remplissez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.se/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">remplissent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">remplissais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">remplissais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">remplissait</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">remplissions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">remplissiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">remplissaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">remplis</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">remplis</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">remplit</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">remplîmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plim/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">remplîtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plit/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">remplirent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pliʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">remplirai</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">rempliras</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">remplira</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">remplirons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">remplirez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">rempliront</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">remplirais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">remplirais</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">remplirait</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">remplirions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">rempliriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">rempliraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.ʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">remplisse</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">remplisses</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">remplisse</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">remplissions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">remplissiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">remplissent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>2</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">remplisse</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">remplisses</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">remplît</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">remplissions</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">remplissiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">remplissent</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.plis/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>2</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impr-form-of" lang="fr">remplis</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli/</span></span>
+</td>
+<td>—
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impr-form-of" lang="fr">remplissons</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.sɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impr-form-of" lang="fr">remplissez</span><br/><span style="color:#7F7F7F"><span class="IPA">/ʁɑ̃.pli.se/</span></span>
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================
+<h3>ménage</h3>Noun <i>m</i><ol><li>housework, housekeeping</li><li>household</li></ol><br>
+====================================
+<h3>pouvoir</h3><table class="inflection-table" style="background:#F0F0F0;width:100%;border-collapse:separate;border-spacing:2px">
+<tbody><tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="infinitif">infinitive</span>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td>pouvoir
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="1" rowspan="2" style="background:#e2e4c0"><span title="participe présent">present participle</span> or <span title="">gerund</span><sup>1</sup>
+</th>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>simple</small>
+</th>
+<td><span class="Latn form-of lang-fr ppr-form-of" lang="fr">pouvant</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɑ̃/</span></span>
+</td></tr>
+<tr>
+<th colspan="1" style="height:3em;background:#e2e4c0"><small>compound</small>
+</th>
+<th colspan="6" style="background:#DEDEDE"><i>ayant</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e2e4c0"><span title="participe passé">past participle</span>
+</th>
+<td><span class="Latn form-of lang-fr pp-form-of" lang="fr">pu</span><br/><span style="color:#7F7F7F"><span class="IPA">/py/</span></span>
+</td></tr>
+<tr>
+<th colspan="2" rowspan="2">
+</th>
+<th colspan="3" style="background:#C0C0C0">singular
+</th>
+<th colspan="3" style="background:#C0C0C0">plural
+</th></tr>
+<tr>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th>
+<th style="background:#C0C0C0;width:12.5%">first
+</th>
+<th style="background:#C0C0C0;width:12.5%">second
+</th>
+<th style="background:#C0C0C0;width:12.5%">third
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0cfe4"><span title="indicatif">indicative</span>
+</th>
+<th style="background:#c0cfe4">je (j’)
+</th>
+<th style="background:#c0cfe4">tu
+</th>
+<th style="background:#c0cfe4">il, elle, on
+</th>
+<th style="background:#c0cfe4">nous
+</th>
+<th style="background:#c0cfe4">vous
+</th>
+<th style="background:#c0cfe4">ils, elles
+</th></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|indc-form-of" lang="fr">peux</span><br/><span style="color:#7F7F7F"><span class="IPA">/pø/</span></span><sup>2</sup>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|indc-form-of" lang="fr">peux</span><br/><span style="color:#7F7F7F"><span class="IPA">/pø/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|indc-form-of" lang="fr">peut</span><br/><span style="color:#7F7F7F"><span class="IPA">/pø/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|indc-form-of" lang="fr">pouvons</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|indc-form-of" lang="fr">pouvez</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ve/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|indc-form-of" lang="fr">peuvent</span><br/><span style="color:#7F7F7F"><span class="IPA">/pœv/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="imparfait">imperfect</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|indc-form-of" lang="fr">pouvais</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|indc-form-of" lang="fr">pouvais</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|indc-form-of" lang="fr">pouvait</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|indc-form-of" lang="fr">pouvions</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|indc-form-of" lang="fr">pouviez</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|indc-form-of" lang="fr">pouvaient</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.vɛ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé simple">past historic</span><sup>4</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|phis-form-of" lang="fr">pus</span><br/><span style="color:#7F7F7F"><span class="IPA">/py/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|phis-form-of" lang="fr">pus</span><br/><span style="color:#7F7F7F"><span class="IPA">/py/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|phis-form-of" lang="fr">put</span><br/><span style="color:#7F7F7F"><span class="IPA">/py/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|phis-form-of" lang="fr">pûmes</span><br/><span style="color:#7F7F7F"><span class="IPA">/pym/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|phis-form-of" lang="fr">pûtes</span><br/><span style="color:#7F7F7F"><span class="IPA">/pyt/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|phis-form-of" lang="fr">purent</span><br/><span style="color:#7F7F7F"><span class="IPA">/pyʁ/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur simple">future</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|futr-form-of" lang="fr">pourrai</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|futr-form-of" lang="fr">pourras</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|futr-form-of" lang="fr">pourra</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁa/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|futr-form-of" lang="fr">pourrons</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|futr-form-of" lang="fr">pourrez</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁe/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|futr-form-of" lang="fr">pourront</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɔ̃/</span></span>
+</td></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel présent">conditional</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|cond-form-of" lang="fr">pourrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|cond-form-of" lang="fr">pourrais</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|cond-form-of" lang="fr">pourrait</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɛ/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|cond-form-of" lang="fr">pourrions</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|cond-form-of" lang="fr">pourriez</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|cond-form-of" lang="fr">pourraient</span><br/><span style="color:#7F7F7F"><span class="IPA">/pu.ʁɛ/</span></span>
+</td></tr>
+<tr>
+<th rowspan="5" style="background:#c0cfe4"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0cfe4"><span title="passé composé">present perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="plus-que-parfait">pluperfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect indicative of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="passé antérieur">past anterior</span><sup>4</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">past historic of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="futur antérieur">future perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">future of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0cfe4"><span title="conditionnel passé">conditional perfect</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">conditional of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#c0e4c0"><span title="subjonctif">subjunctive</span>
+</th>
+<th style="background:#c0e4c0">que je (j’)
+</th>
+<th style="background:#c0e4c0">que tu
+</th>
+<th style="background:#c0e4c0">qu’il, qu’elle
+</th>
+<th style="background:#c0e4c0">que nous
+</th>
+<th style="background:#c0e4c0">que vous
+</th>
+<th style="background:#c0e4c0">qu’ils, qu’elles
+</th></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(simple<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif présent">present</span>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|pres|subj-form-of" lang="fr">puisse</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥis/</span></span><sup>3</sup>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|pres|subj-form-of" lang="fr">puisses</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|pres|subj-form-of" lang="fr">puisse</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥis/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|pres|subj-form-of" lang="fr">puissions</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥi.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|pres|subj-form-of" lang="fr">puissiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥi.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|pres|subj-form-of" lang="fr">puissent</span><br/><span style="color:#7F7F7F"><span class="IPA">/pɥis/</span></span>
+</td></tr>
+<tr>
+<th rowspan="1" style="height:3em;background:#c0e4c0"><span title="subjonctif imparfait">imperfect</span><sup>4</sup>
+</th>
+<td><span class="Latn form-of lang-fr 1|s|impf|subj-form-of" lang="fr">pusse</span><br/><span style="color:#7F7F7F"><span class="IPA">/pys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|s|impf|subj-form-of" lang="fr">pusses</span><br/><span style="color:#7F7F7F"><span class="IPA">/pys/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|s|impf|subj-form-of" lang="fr">pût</span><br/><span style="color:#7F7F7F"><span class="IPA">/py/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 1|p|impf|subj-form-of" lang="fr">pussions</span><br/><span style="color:#7F7F7F"><span class="IPA">/py.sjɔ̃/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 2|p|impf|subj-form-of" lang="fr">pussiez</span><br/><span style="color:#7F7F7F"><span class="IPA">/py.sje/</span></span>
+</td>
+<td><span class="Latn form-of lang-fr 3|p|impf|subj-form-of" lang="fr">pussent</span><br/><span style="color:#7F7F7F"><span class="IPA">/pys/</span></span>
+</td></tr>
+<tr>
+<th rowspan="2" style="background:#c0e4c0"><small>(compound<br/>tenses)</small>
+</th>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif passé">past</span>
+</th>
+<th colspan="6" style="background:#DEDEDE">present subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th style="height:3em;background:#c0e4c0"><span title="subjonctif plus-que-parfait">pluperfect</span><sup>4</sup>
+</th>
+<th colspan="6" style="background:#DEDEDE">imperfect subjunctive of <i>avoir</i> + past participle
+</th></tr>
+<tr>
+<th colspan="2" style="background:#e4d4c0"><span title="impératif">imperative</span>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>tu</s>
+</th>
+<th style="background:#e4d4c0">–
+</th>
+<th style="background:#e4d4c0"><s>nous</s>
+</th>
+<th style="background:#e4d4c0"><s>vous</s>
+</th>
+<th style="background:#e4d4c0">–
+</th></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">simple</span>
+</th>
+<td>—
+</td>
+<td>—
+</td>
+<td>—
+</td>
+<td>—
+</td>
+<td>—
+</td>
+<td>—
+</td></tr>
+<tr>
+<th colspan="2" style="height:3em;background:#e4d4c0"><span title="">compound</span>
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<th style="background:#DEDEDE">simple imperative of <i>avoir</i> + past participle
+</th>
+<td>—
+</td></tr>
+<tr>
+<td colspan="8"><sup>1</sup> The French gerund is usable only with the preposition <i>en</i>.
+</td></tr>
+<tr>
+<td colspan="8"><sup>2</sup> <i>puis</i> when inverted.
+</td></tr>
+<tr>
+<td colspan="8"><sup>3</sup> <i>puissé</i> when inverted.
+</td></tr>
+<tr>
+<td colspan="8"><sup>4</sup> In less formal writing or speech, these tenses may be found to have been replaced in the following way:
+<ul><li>past historic → present perfect</li>
+<li>past anterior → pluperfect</li>
+<li>imperfect subjunctive → present subjunctive</li>
+<li>pluperfect subjunctive → past subjunctive</li></ul>
+<p>(Christopher Kendris [1995], <i>Master the Basics: French</i>, pp. 77, 78, 79, 81).
+</p>
+</td></tr></tbody></table>
+====================================

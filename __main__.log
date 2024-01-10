@@ -1,0 +1,7 @@
+__main__ 2024-01-10 18:16:25,296 INFO Testing the custom logger for module __main__...
+__main__ 2024-01-10 18:16:25,511 INFO Starting application.
+__main__ 2024-01-10 18:16:26,195 INFO Config file found.
+__main__ 2024-01-10 18:16:26,518 INFO Tutorial has been disabled.
+__main__ 2024-01-10 18:16:29,328 INFO Conj set True
+__main__ 2024-01-10 18:16:31,493 INFO Doing conjugation table search.
+__main__ 2024-01-10 18:16:31,493 INFO Getting conjugation table for être
