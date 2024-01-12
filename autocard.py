@@ -420,11 +420,16 @@ class Gui(QWidget):
         self.line.setObjectName("line")
         self.sidebarTopLayout.addWidget(self.line, 2, 0, 1, 1)
         
+        # Current lang label
+        self.currentLangLabel = QtWidgets.QLabel(self.sidebarInnerTopFrame)
+        self.currentLangLabel.setObjectName("currentLangLabel")
+        self.sidebarTopLayout.addWidget(self.currentLangLabel, 3, 0, 1, 0)
+        
         # Change lang
         self.changeLangBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         self.changeLangBtn.setObjectName("changeLangBtn")
         self.changeLangBtn.clicked.connect(self.__spawnLanguageDialog)
-        self.sidebarTopLayout.addWidget(self.changeLangBtn, 3, 0, 1, 0)
+        self.sidebarTopLayout.addWidget(self.changeLangBtn, 4, 0, 1, 0)
         self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.sidebarLayout.addItem(spacerItem, 1, 0, 1, 1)
@@ -433,17 +438,17 @@ class Gui(QWidget):
         # Saved words
         self.sideLabel = QtWidgets.QLabel(self.sidebarInnerTopFrame)
         self.sideLabel.setObjectName("sideLabel")
-        self.sidebarTopLayout.addWidget(self.sideLabel, 5, 0, 1, 0)
+        self.sidebarTopLayout.addWidget(self.sideLabel, 6, 0, 1, 0)
         self.line2 = QtWidgets.QFrame(self.sidebarInnerTopFrame)
         self.line2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line2.setObjectName("line2")
-        self.sidebarTopLayout.addWidget(self.line2, 4, 0, 1, 1)
+        self.sidebarTopLayout.addWidget(self.line2, 5, 0, 1, 1)
         # Button
         self.saveWord = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         self.saveWord.setObjectName("saveWord")
         self.saveWord.clicked.connect(self.saveWordToSide)
-        self.sidebarTopLayout.addWidget(self.saveWord, 6, 0, 1, 0)
+        self.sidebarTopLayout.addWidget(self.saveWord, 7, 0, 1, 0)
         
         ## Search layout
         self.searchInputFrame = QtWidgets.QFrame(self.mainFrame)
@@ -632,18 +637,22 @@ class Gui(QWidget):
         """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Dialog"))
+        # Buttons
+        self.saveWord.setText(_translate("MainWindow", "+ Add +"))
         self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
         self.settingsBtn.setText(_translate("MainWindow", "Settings"))
         self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
         self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
         self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
+        self.searchBtn.setText(_translate("MainWindow", "Search"))
+        # Radios
         self.sentenceRadio.setText(_translate("MainWindow", "Full sentence"))
         self.conjugationRadio.setText(_translate("MainWindow", "Conjugation table"))
-        self.searchBtn.setText(_translate("MainWindow", "Search"))
         self.wordRadio.setText(_translate("MainWindow", "Search words"))
+        # Labels
         self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
+        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
         self.sideLabel.setAlignment(Qt.AlignCenter)
-        self.saveWord.setText(_translate("MainWindow", "+ Add +"))
         
     def __retranslateUiAA(self, MainWindow):
         """Sets the labels for the card creation UI layout.
@@ -776,6 +785,9 @@ class Gui(QWidget):
             config.write(configfile)
             
         logger.info("New config file generated.")
+        
+        # Apply config changes
+        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
     
     def __applyConfig(self, configVars):
         """Apply the config variables to the GUI.
@@ -796,6 +808,7 @@ class Gui(QWidget):
         
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
+        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
         
     def applySettings(self, newZoomFactor, newColourMode):
         # Zoom factor needs a decimal, but the input here is a float, so divide.
@@ -1156,12 +1169,12 @@ class Gui(QWidget):
         # Create a new button for the sidebar.
         newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         newWordBtn.setObjectName(f"sideButton{id_word_pair[0]}")
-        self.sidebarTopLayout.addWidget(newWordBtn, 7+count, 0, 1, 1)
+        self.sidebarTopLayout.addWidget(newWordBtn, 8+count, 0, 1, 1)
         
         # Create remove button
         newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         newWordBtnRmv.setObjectName(f"sideButtonRmv{id_word_pair[0]}")
-        self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+count, 1, 1, 1)
+        self.sidebarTopLayout.addWidget(newWordBtnRmv, 8+count, 1, 1, 1)
         newWordBtnRmv.setText("-")
         newWordBtnRmv.setMaximumSize(QtCore.QSize(25, 16777215))
         newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(id_word_pair[0]))
