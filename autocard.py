@@ -1118,7 +1118,7 @@ class Gui(QWidget):
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(word)
+            newWordBtn.setText(f"{word} tb.")
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
@@ -1178,6 +1178,13 @@ class Gui(QWidget):
         print(id_word_pair)
         word = match.group(1)
         newWordBtn.setText(word)
+        
+        # Determine if it's a conjugation table.
+        if "<table" in id_word_pair[1]:
+            newWordBtn.setText(f"{word} tb.") 
+        
+        # Align text on buttons to the left.
+        # newWordBtn.setStyleSheet("QPushButton { text-align: left; }")
         
         # Dynamically connect button to function.
         newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[id_word_pair[0]]))
