@@ -646,7 +646,7 @@ class Gui(QWidget):
         self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
         self.searchBtn.setText(_translate("MainWindow", "Search"))
         # Radios
-        self.sentenceRadio.setText(_translate("MainWindow", "Full sentence"))
+        self.sentenceRadio.setText(_translate("MainWindow", "Phrase"))
         self.conjugationRadio.setText(_translate("MainWindow", "Conjugation table"))
         self.wordRadio.setText(_translate("MainWindow", "Search words"))
         # Labels
@@ -878,13 +878,7 @@ class Gui(QWidget):
                 return
         elif self.manualSearchMode == "sentence":
             # Sentence mode selected. Locate word and isolate.
-            keywords = self.__findKeywords(text)
-            # Notify the user to mark a word if none are present.
-            if not keywords:
-                self.searchOutputBrowser.setHtml("<p>No word marked. Please mark a word/words to get definition(s).</p>")
-                logger.warning("User has not marked a word. Please mark a word with an asterisk.")
-                return
-            self.__updateSearchTerm(keywords)
+            keywords = [text]
         
         # Send search term to API caller and update class dictionary.
         defsDictsArray = []
@@ -1123,14 +1117,14 @@ class Gui(QWidget):
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtn, 6+number, 0, 1, 1)
+            self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
             newWordBtn.setText(word)
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtnRmv, 6+number, 1, 1, 1)
+            self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
             newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
@@ -1149,14 +1143,14 @@ class Gui(QWidget):
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtn, 6+number, 0, 1, 1)
+            self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
             newWordBtn.setText(word)
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtnRmv, 6+number, 1, 1, 1)
+            self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
             newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
