@@ -13,7 +13,7 @@ import nltk
 from nltk.corpus import brown
 import spacy
 # Load the German language model
-nlp = spacy.load("de_core_news_sm")
+#nlp = spacy.load("de_core_news_sm")
 
 import os
 import pprint
@@ -26,6 +26,21 @@ import qtvscodestyle as qtvsc
 import requests
 from bs4 import BeautifulSoup
 
+import uuid
+import string
+
+import stanza
+import spacy_stanza
+# Download the stanza model if necessary
+stanza.download("de")
+
+# Initialize the pipeline
+nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma')
+
+# doc = nlp("Der aufgeregte Mann schlägt den Hund.")
+#for token in doc:
+#    print(token.text, token.lemma_, token.pos_, token.dep_, token.ent_type_)
+#print(doc.ents)
 
 
 import logging
@@ -294,7 +309,7 @@ class Gui(QWidget):
         self.conjugationMode = False
         self.currentOverallMode = "search"
         self.displayingSavable = False
-        self.savedSidebarWords = []
+        self.savedSidebarWords = {}
         self.wordOne = ""
         self.conjWord = ""
         
@@ -537,10 +552,10 @@ class Gui(QWidget):
         # Load the saved words.
         rawSavedWords = self.__readSavedWordsFile()
         # Parse the saved words.
-        savedWordsList = self.__parseSavedWords(rawSavedWords)
+        savedWordsDict = self.__parseSavedWords(rawSavedWords)
         # Generate buttons
-        for count, word in enumerate(savedWordsList):
-            self.__genSavedWordsStartup(word, count)
+        for count, id_word_pair in enumerate(savedWordsDict.items()):
+            self.__genSavedWordsStartup(id_word_pair, count)
     
     def __setupAutoAnkiLayout(self):
         """
@@ -993,6 +1008,7 @@ class Gui(QWidget):
         """Begins the process of creating anki cards from the provided file.
         """
         print("Making cards...")
+        self.searchOutputBrowser.setHtml(f"Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
         make_cards(self.currentInputFilePath, self.currentLanguage)
     
     def __spawnSettingsDialog(self):
@@ -1084,32 +1100,34 @@ class Gui(QWidget):
         """
         if self.conjugationMode:
             logger.info("Saving conjugation table")
-            # print(self.htmlContentText)
-            self.savedSidebarWords.append(self.htmlContentText)
+            
+            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
+            self.savedSidebarWords[unique_id] = self.htmlContentText
             
             word = self.conjWord
             
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
-            newWordBtn.setObjectName(f"sideButton{number}")
+            newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtn, 6+number, 0, 1, 1)
             newWordBtn.setText(word)
-            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[number-1]))
+            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            newWordBtnRmv.setObjectName(f"sideButtonRmv{number}")
+            newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtnRmv, 6+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
-            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(number-1))
+            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
             # Save word content to file (just the HTML content, not the formatted HTML string used for display)
             self.saveWordToFile(self.htmlContentText)
             
         else:
             # Save the word to class variable.
-            self.savedSidebarWords.append(self.htmlContentText)
+            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
+            self.savedSidebarWords[unique_id] = self.htmlContentText
             
             # Get the word itself.
             word = self.wordOne
@@ -1117,56 +1135,58 @@ class Gui(QWidget):
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
-            newWordBtn.setObjectName(f"sideButton{number}")
+            newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtn, 6+number, 0, 1, 1)
             newWordBtn.setText(word)
-            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[number-1]))
+            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            newWordBtnRmv.setObjectName(f"sideButtonRmv{number}")
+            newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtnRmv, 6+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
-            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(number-1))
+            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
             # Save word content to file (just the HTML content, not the formatted HTML string used for display)
             self.saveWordToFile(self.htmlContentText)
     
-    def __genSavedWordsStartup(self, content, count):
+    def __genSavedWordsStartup(self, id_word_pair, count):
         """Generate the saved words buttons on startup.
-        
-        :param savedWordsList: HTML content.
-        :type savedWordsList: str
-        """
+        """        
         # Create a new button for the sidebar.
         newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        newWordBtn.setObjectName(f"sideButton{count}")
+        newWordBtn.setObjectName(f"sideButton{id_word_pair[0]}")
         self.sidebarTopLayout.addWidget(newWordBtn, 7+count, 0, 1, 1)
         
         # Create remove button
         newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        newWordBtnRmv.setObjectName(f"sideButtonRmv{count}")
+        newWordBtnRmv.setObjectName(f"sideButtonRmv{id_word_pair[0]}")
         self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+count, 1, 1, 1)
         newWordBtnRmv.setText("-")
         newWordBtnRmv.setMaximumSize(QtCore.QSize(25, 16777215))
-        newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(count))
+        newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(id_word_pair[0]))
         
         # Regex expression that finds the first header in the string and extracts the word.
-        match = re.search(r"<h3>(\w+)</h3>", content)
+        match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
+        print(id_word_pair)
         word = match.group(1)
         newWordBtn.setText(word)
         
         # Dynamically connect button to function.
-        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[count]))
+        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[id_word_pair[0]]))
     
-    def __removeSavedWord(self, count):
+    def __removeSavedWord(self, unique_id):
         """Remove a saved word from the sidebar.
         """
         # Remove the button.
-        self.sidebarTopLayout.itemAtPosition(7+count, 0).widget().deleteLater()
-        self.sidebarTopLayout.itemAtPosition(7+count, 1).widget().deleteLater()
-        # Remove the word from the list.
-        self.savedSidebarWords.pop(count)
+        word_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButton{unique_id}")
+        remove_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{unique_id}")
+        self.sidebarTopLayout.removeWidget(word_btn)
+        self.sidebarTopLayout.removeWidget(remove_btn)
+
+        # Remove the word from the dict.
+        print(f"Deleting saved word at key {unique_id}")
+        self.savedSidebarWords.pop(unique_id)
         # Update the saved words file.
         self.__updateSavedWordsFile()
     
@@ -1175,8 +1195,8 @@ class Gui(QWidget):
         """
         # Open file
         with open("saved_words.txt", "w", encoding="utf-8") as f:
-            for word in self.savedSidebarWords:
-                f.write(word)
+            for content in self.savedSidebarWords.values():
+                f.write(content)
                 f.write("\n====================================\n")
             f.close()
     
@@ -1212,15 +1232,18 @@ class Gui(QWidget):
         
         :param content: String containing HTML content for words separated by a line of equals signs.
         :type content: str
-        :return: List of word HTML content.
-        :rtype: list
+        :return: Dictionary of word HTML content.
+        :rtype: dict
         """
         content = content.split("\n====================================\n")
         # Remove the last entry (it is empty).
         content.pop()
         # Save the retrieved words to the class variable.
-        self.savedSidebarWords = content
-        return content
+        for item in content:
+            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
+            self.savedSidebarWords[unique_id] = item
+        
+        return self.savedSidebarWords
 
 
 class GuiChangeLangWindow(object):
@@ -1424,25 +1447,26 @@ class GuiChangeLangWindow(object):
         # Check what the currently saved language is in the parent GUI object and apply that visually to the selection 
         # list.
         langIndex = self.__indexLang()
-        match langIndex:
-            case 1:
-                langItem =  item1
-            case 2:
-                langItem =  item2
-            case 3:
-                langItem =  item3
-            case 4:
-                langItem =  item4
-            case 5:
-                langItem =  item5
-            case 6:
-                langItem =  item6
-            case 7:
-                langItem =  item7
-            case 8:
-                langItem =  item8
-            case 9:
-                langItem =  item9
+        if langIndex == 1:
+            langItem =  item1
+        elif langIndex == 2:
+            langItem =  item2
+        elif langIndex == 3:
+            langItem =  item3
+        elif langIndex == 4:
+            langItem =  item4
+        elif langIndex == 5:
+            langItem =  item5
+        elif langIndex == 6:
+            langItem =  item6
+        elif langIndex == 7:
+            langItem =  item7
+        elif langIndex == 8:
+            langItem =  item8
+        elif langIndex == 9:
+            langItem =  item9
+        else:
+            langItem = None  # or some default value
         self.__highlightCurrentLang(langItem)
     
     def __highlightCurrentLang(self, item):
@@ -1485,25 +1509,26 @@ class GuiChangeLangWindow(object):
         """
         lang = self.parent.getCurrentLang()
         # print(lang)
-        match lang:
-            case "Arabic":
-                return 1
-            case "English":
-                return 2
-            case "French":
-                return 3
-            case "German":
-                return 4
-            case "Japanese":
-                return 5
-            case "Korean":
-                return 6
-            case "Latin":
-                return 7
-            case "Persian":
-                return 8
-            case "Spanish":
-                return 9
+        if lang == "Arabic":
+            return 1
+        elif lang == "English":
+            return 2
+        elif lang == "French":
+            return 3
+        elif lang == "German":
+            return 4
+        elif lang == "Japanese":
+            return 5
+        elif lang == "Korean":
+            return 6
+        elif lang == "Latin":
+            return 7
+        elif lang == "Persian":
+            return 8
+        elif lang == "Spanish":
+            return 9
+        else:
+            return None  # or some default value
 
 
 class GuiSettingsDialog(object):
@@ -1781,6 +1806,13 @@ def determine_grammar(words: list, text, lang):
     return nltk_tags
 
 
+
+def strip_punctuation(text):
+    exclude = set(string.punctuation)
+    text = ''.join(ch for ch in text if ch not in exclude)
+    return text
+
+
 def spacy_to_nltk(words: list, text, lang='de'):
     """Because nltk doesn't have a German model, we have to use SpaCy to tag the words, then convert the SpaCy tags to
     NLTK tags.
@@ -1794,10 +1826,14 @@ def spacy_to_nltk(words: list, text, lang='de'):
     """
     nltk_tags = []
     
+    # Remove punctuation
+    text = strip_punctuation(text)
+    
     # Process the text using SpaCy
     doc = nlp(text)
     # Convert each token to NLTK tag if the token text is in the words list
     for token in doc:
+        print(f">> Comparing {token.text} to {words}")
         if token.text in (word for word in words):
             # Find the equivalent NLTK tag for the SpaCy tag from the mapping
             nltk_tag = SPACY_TO_NLTK_TAG_MAP.get(token.pos_, 'NN')  # Default to 'NN' if not found
@@ -1848,6 +1884,7 @@ def grab_wik(text, language):
     :rtype: string
     """
     page_content = get_wiktionary_definition(text)
+    print(page_content)
     if page_content:
         parsed_definitions_dict = parse_page(page_content, language)
         if parsed_definitions_dict:
@@ -2024,6 +2061,7 @@ def parse_page(page_content, language):
     # If the specificed language is found on the page, get the definitions.
     if lang_section:
         lang_content = lang_section.group(1)
+        print(lang_content)
         
         # Definitions will be split up by their grammatical type. We need to find each type. They also might be 
         # formatted differently, so we need to search for different formats.
@@ -2054,6 +2092,8 @@ def parse_page(page_content, language):
             definition = []
             if language == "German":
                 definition += re.findall(r"de-noun\|(.)", noun_section[0][0])
+                definition += re.findall(r"de\|noun form\|g=(.)", noun_section[0][0])
+                # {{head|de|noun form|g=m}}
             elif language == "French":
                 definition += re.findall(r"fr-noun\|(.)", noun_section[0][0])
             elif language == "Latin":
@@ -2160,7 +2200,7 @@ def clean_wikitext_new(definitions):
         clean_definitions.append(clean_definition_lines_list)
     
     logger.info(f"Cleaned definitions: {clean_definitions}")
-    
+        
     return clean_definitions
 
 
@@ -2231,13 +2271,13 @@ def remove_irrelevant_defs(dict_array):
 
                     # Find the longest list item.
                     longest = max(word_definitions, key=len)
-                    longest.append(f"NOTE: specific definition for the {dictionary["tags"][word_index][1]} form could not be found, so the cloest match was used.")
+                    longest.append(f"NOTE: specific definition for the {dictionary['tags'][word_index][1]} form could not be found, so the cloest match was used.")
                     new_card_definitions.append(longest) 
 
                     logger.warning(f"Couldn't find relevant definition for < {dictionary['words'][word_index]} >, using: \n{longest}") 
                 else:
                     logger.warning(f"No user-marked words for < {dictionary['words'][word_index]} >, so no definition being used.") 
-                    new_card_definitions.append([""])            
+                    new_card_definitions.append(["No definition found. You might have made a typo, or the word might not be in Wiktionary."])            
     
         dict_array[dict_index]["definitions"] = new_card_definitions
     return dict_array
@@ -2286,16 +2326,16 @@ def format_card(content, defs, words, tags, deck_name):
         ankified_text += f"<h3>{words[count]}, <i>{tag}</i>"
         
         try:
-            if tag == "noun":
+            if tag == "noun" and definition[0] != "No definition found. You might have made a typo, or the word might not be in Wiktionary.":
                 for line_num, line in enumerate(definition):
                     if line_num == 0:
-                        ankified_text += f", <i>{line.replace("}", "")}</i></h3>"
+                        ankified_text += f", <i>{line.replace('}', '')}</i></h3>"
                     else: 
-                        ankified_text += f"{line_num-1}: {line.replace("}", "")}<br>"
+                        ankified_text += f"{line_num-1}: {line.replace('}', '')}<br>"
             else:
                 ankified_text += "</h3>"
                 for line_num, line in enumerate(definition):
-                    ankified_text += f"{line_num}: {line.replace("}", "")}<br>"
+                    ankified_text += f"{line_num}: {line.replace('}', '')}<br>"
         except:
             ankified_text += f"{str(definition)}"
         
@@ -2369,18 +2409,23 @@ def make_cards(text_file, language):
         logger.info(f"Getting word definitions from Wiktionary.")
         print(f"Getting word definitions from Wiktionary.")
         for w_count, word in enumerate(dictionary.get("words")):
+            print(dictionary)
             if dictionary["tags"][w_count][1] in ["adjective", "verb", "noun"]:
                 logger.info(f"Current word < {word} > is a noun, verb, or adjective. Removing any possible declension.")
                 
                 this_tag = dictionary["tags"][w_count][1]
+                this_context = dictionary["text"]
                 # Save the possibly declined version of the word.
                 declined_word = word
                 
+                # Get lemma
+                word = get_lemma(word, this_context)
+                
                 # Get undeclined version of the word.
-                if this_tag != "noun":
-                    word = undecline_word(word.lower(), this_tag)
-                else:
-                    word = undecline_word(word, this_tag)
+                #if this_tag != "noun":
+                #    word = get_lemma(word.lower(), this_tag)
+                #else:
+                #    word = get_lemma(word, this_tag)
                 
                 # Determine whether the word should be capitalised or not (Spacy returns lower case words).
                 if should_word_be_capitalised(declined_word) and this_tag == "noun":
@@ -2433,11 +2478,16 @@ def make_cards(text_file, language):
     
     # Save the cards to a single file for importing to Anki.
     save_filename = f"cards_import.txt"
-    desktop_path = "F:\projects\code\\autodict\\anki_cards"
-    full_file_path = "F:\projects\code\\autodict\\anki_cards\\cards_import.txt"
+    desktop_path = "D:\projects\software_dev\\autodict"
+    full_file_path = "D:\projects\software_dev\\autodict\cards_import.txt"
     
     logger.info(f"Saving export file.")
     print(f"Saving export file.")
+    
+    print()
+    pprint.pprint(dict_array)
+    print()
+    
     save_result = export_cards(save_filename, desktop_path, anki_file)
     if save_result:
         logger.info(f"File saved to {full_file_path}")
@@ -2480,47 +2530,42 @@ def export_cards(file_name, desktop_path, anki_file):
         with open(full_file_path, 'w', encoding="utf-8") as file:
             file.write(anki_file)
         return True
-    except:
-        pass
+    except Exception as e:
+        print(e)
 
 
-def undecline_word(declined_word, tag):
+def get_lemma(target_word, context):
     """
     Returns the undeclined form of a delcined German word.
     
     :param adjective: The declined German word.
     :returns: The undeclined form of the word.
     """
+    # Strip punctuation from the context and target word.
+    context = strip_punctuation(context)
+    target_word = strip_punctuation(target_word)
+    
     # Process the word using SpaCy
-    doc = nlp(declined_word)
+    lemmas = {}
+    text = nlp(context)
     
-    # Get the lemma for the first token in the doc
-    # Assuming the input is a single word, so interested in the first token only.
+    # Get all lemmas in text.
+    for token in text:
+        lemmas[token.text]  = token.lemma_
+    
+    for token in text:
+        print()
+        print(token.text, token.lemma_, token.pos_, token.dep_, token.ent_type_)
 
-    if tag == "adjective":
-        doc[0].pos_ = 'ADJ'
-    elif tag == "adverb":
-        doc[0].pos_ = 'ADV'
-    elif tag == "noun":
-        doc[0].pos_ = 'NOUN'
-    elif tag == "verb":
-        doc[0].pos_ = 'VERB'
-    elif tag == "pronoun":
-        doc[0].pos_ = 'PRON'
-    elif tag == "preposition":
-        doc[0].pos_ = 'ADP'
-    elif tag == "conjunction":
-        doc[0].pos_ = 'CCONJ'
-    elif tag == "interjection":
-        doc[0].pos_ = 'INTJ'
-    elif tag == "determiner":
-        doc[0].pos_ = 'DET'
-    elif tag == "particle":
-        doc[0].pos_ = 'PART'
+    print("\nLEMMAS")
+    print(lemmas)
     
-    lemma = doc[0].lemma_
+    # Get the lemma of the target word.
+    print()
+    print(f"Target word: {target_word}")
+    lemma = lemmas[target_word]
     
-    logger.info(f"Undeclined {tag}: < {lemma} >")
+    print(f"Undeclined {target_word}: < {lemma} >")
     
     return lemma
 
