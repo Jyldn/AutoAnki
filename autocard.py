@@ -1,74 +1,51 @@
-import requests
-import re
-import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
-from qt_material import apply_stylesheet
-
-import nltk
-from nltk.corpus import brown
-import spacy
-# Load the German language model
-#nlp = spacy.load("de_core_news_sm")
-
-import os
-import pprint
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWebEngineWidgets
-import configparser
-import qtvscodestyle as qtvsc
-#from qt_material import apply_stylesheet
-import requests
 from bs4 import BeautifulSoup
-
 import uuid
 import string
-
 import stanza
 import spacy_stanza
+import logging
+import requests
+import re
+import sys
+import sys
+import nltk
+import os
+import pprint
+import configparser
+import qtvscodestyle as qtvsc
+import requests
+
+
+# Spacy-Stanza setup for German
 # Download the stanza model if necessary
 stanza.download("de")
-
 # Initialize the pipeline
 nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma')
 
-# doc = nlp("Der aufgeregte Mann schlägt den Hund.")
-#for token in doc:
-#    print(token.text, token.lemma_, token.pos_, token.dep_, token.ent_type_)
-#print(doc.ents)
-
-
-import logging
+# Logging
 # Create a logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
 # configure the handler and formatter for logger2
 handler = logging.FileHandler(f"{__name__}.log", mode='w')
 formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
-
 # add formatter to the handler
 handler.setFormatter(formatter)
 # add handler to the logger
 logger.addHandler(handler)
 
-logger.info(f"Testing the custom logger for module {__name__}...")
-
-
-
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
-
-# Indices for accessing resolution values within a resolution list.
-W_INDEX = 0
-H_INDEX = 1
 
 # This is a basic mapping of SpaCy POS tags to NLTK's Penn Treebank tags. 
 # It might need expansion or refinement to cover all cases or specific cases.
@@ -2435,12 +2412,6 @@ def make_cards(text_file, language):
                 # Get lemma
                 word = get_lemma(word, this_context)
                 
-                # Get undeclined version of the word.
-                #if this_tag != "noun":
-                #    word = get_lemma(word.lower(), this_tag)
-                #else:
-                #    word = get_lemma(word, this_tag)
-                
                 # Determine whether the word should be capitalised or not (Spacy returns lower case words).
                 if should_word_be_capitalised(declined_word) and this_tag == "noun":
                     word = word.capitalize()
@@ -2589,7 +2560,6 @@ if __name__ == "__main__":
     
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet(stylesheet)
-    #apply_stylesheet(app, theme='dark_teal.xml')
     
     MainWindow = QtWidgets.QDialog()
     gui = Gui()
