@@ -24,12 +24,6 @@ import qtvscodestyle as qtvsc
 import requests
 
 
-# Spacy-Stanza setup for German
-# Download the stanza model if necessary
-stanza.download("de")
-# Initialize the pipeline
-nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma')
-
 # Logging
 # Create a logger
 logger = logging.getLogger(__name__)
@@ -992,7 +986,7 @@ class Gui(QWidget):
         """Begins the process of creating anki cards from the provided file.
         """
         print("Making cards...")
-        self.searchOutputBrowser.setHtml(f"Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
+        # self.AAOutputBrowser.setHtml(f"Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
         make_cards(self.currentInputFilePath, self.currentLanguage)
     
     def __spawnSettingsDialog(self):
@@ -1752,7 +1746,7 @@ def find_keywords(dict_array):
     return dict_array
 
 
-def get_tags(dict_array, language):
+def get_tags(dict_array, language, nlp):
     """
     Gets the grammatical tags for the user's marked words.
     
@@ -1760,12 +1754,12 @@ def get_tags(dict_array, language):
     :returns dict_array: The array of dictionaries, now with added tag entries.
     """
     for count, dictionary in enumerate(dict_array):
-        words_and_nltk_tags = determine_grammar(dictionary["words"], dictionary["text"], language)
+        words_and_nltk_tags = determine_grammar(dictionary["words"], dictionary["text"], language, nlp)
         dict_array[count]["tags"] = words_and_nltk_tags
     return dict_array
 
 
-def determine_grammar(words: list, text, lang):
+def determine_grammar(words: list, text, lang, nlp):
     """
     Determines the grammatical context of the specified words in the context of a piece of text using nltk natural 
     language processing.
@@ -1776,35 +1770,51 @@ def determine_grammar(words: list, text, lang):
     that array is itself a single array that holds a tuple containing a word and its nltk tag. The additional array is 
     redundant - I don't know how to remove it.
     """
-    if lang == "German":
-        nltk_tags = spacy_to_nltk(words, text)
+    nltk_tags = spacy_to_nltk(words, text, lang, nlp)
     
-    else:
-        nltk_tags = []
+    # else:
+    #     nltk_tags = []
         
-        # Tokenizing the text. Specifying 'german' here doesn't change the model but may adjust tokenization behavior.
-        tokens = nltk.word_tokenize(text, language=lang)
+    #     # Tokenizing the text. Specifying 'german' here doesn't change the model but may adjust tokenization behavior.
+    #     tokens = nltk.word_tokenize(text, language=lang)
         
-        # POS tagging the tokenized text. Note: This still uses the English model, as there's no German model in NLTK.
-        tagged_text = nltk.pos_tag(tokens)
+    #     # POS tagging the tokenized text. Note: This still uses the English model, as there's no German model in NLTK.
+    #     tagged_text = nltk.pos_tag(tokens)
         
-        for word in words:
-            # Finding and appending the tagged words
-            result = [tag for tag in tagged_text if tag[0].lower() == word.lower()]
-            nltk_tags.append(result)
-            logger.info(f"Determine grammar function: tagged {word} as {result}")
+    #     for word in words:
+    #         # Finding and appending the tagged words
+    #         result = [tag for tag in tagged_text if tag[0].lower() == word.lower()]
+    #         nltk_tags.append(result)
+    #         logger.info(f"Determine grammar function: tagged {word} as {result}")
     
     return nltk_tags
 
 
 
 def strip_punctuation(text):
-    exclude = set(string.punctuation)
-    text = ''.join(ch for ch in text if ch not in exclude)
-    return text
+    # Remove apostrophes in the middle of words, but ensure a space is put in their place. 
+    # Iterate over each character in the text string.
+    new_text = ''
+    for i in range(len(text)):
+        if text[i] == "'":
+            if i > 0 and i < len(text) - 1:
+                # Check if the character is surrounded by alphabetical characters.
+                if text[i-1].isalpha() and text[i+1].isalpha():
+                    new_text += ' '
+                    continue
+        new_text += text[i]
 
 
-def spacy_to_nltk(words: list, text, lang='de'):
+    # Remove other punctuation
+    exclude = set(string.punctuation) - {"'"}
+    for ch in exclude:
+        new_text = new_text.replace(ch, '')
+
+    # Split the text into words and rejoin to remove extra spaces
+    return ' '.join(new_text.split())
+
+
+def spacy_to_nltk(words: list, text, lang, nlp):
     """Because nltk doesn't have a German model, we have to use SpaCy to tag the words, then convert the SpaCy tags to
     NLTK tags.
     
@@ -2074,55 +2084,73 @@ def parse_page(page_content, language):
         pron_section = re.findall(r'===Pronoun===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
         if not pron_section:
             pron_section = re.findall(r'====Pronoun====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        particle_section = re.findall(r'===Particle===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not particle_section:
+            particle_section = re.findall(r'====Particle====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        conjunciton_section = re.findall(r'===Conjunction===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not conjunciton_section:
+            conjunciton_section = re.findall(r'====Conjunction====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        article_section = re.findall(r'===Article===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not article_section:
+            article_section = re.findall(r'====Article====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        numeral_section = re.findall(r'===Numeral===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not numeral_section:
+            numeral_section = re.findall(r'====Numeral====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        interjection_section = re.findall(r'===Interjection===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not interjection_section:
+            interjection_section = re.findall(r'====Interjection====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        exclamation_section = re.findall(r'===Exclamation===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not exclamation_section:
+            exclamation_section = re.findall(r'====Exclamation====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        determiner_section = re.findall(r'===Determiner===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+        if not determiner_section:
+            determiner_section = re.findall(r'====Determiner====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
         
-        definitions = {"noun" : "", "verb" : "", "adjective" : "", "adverb" : "", "pronoun" : "", "preposition" : ""}
-        
-        # Add any definitions we just found to a dictionary. The Dictionary's key is the grammatical type for that 
-        # particular definition.
-        if noun_section:
-            definition = []
-            if language == "German":
-                definition += re.findall(r"de-noun\|(.)", noun_section[0][0])
-                definition += re.findall(r"de\|noun form\|g=(.)", noun_section[0][0])
-                # {{head|de|noun form|g=m}}
-            elif language == "French":
-                definition += re.findall(r"fr-noun\|(.)", noun_section[0][0])
-            elif language == "Latin":
-                gender = re.findall(r"la-noun\|[^<]*<.{2}", noun_section[0][0])
-                gender = [match[-3:] for match in gender]
-                # Strip the < > characters from gender var.
-                gender[0] = gender[0].replace("<", "")
-                gender[0] = gender[0].replace(">", "")
-                gender[0] = f"declension {gender[0]}"
-                definition += gender
-            elif language == "Spanish":
-                definition += re.findall(r"es-noun\|(.)", noun_section[0][0])
-            definition += re.findall(r'# (.*?)(?:\n|$)', noun_section[0][0])
-            definitions["noun"] = definition
-        if verb_section:
-            definition = re.findall(r'# (.*?)(?:\n|$)', verb_section[0][0])
-            definitions["verb"] = definition
-        if adj_section:
-            definition = re.findall(r'# (.*?)(?:\n|$)', adj_section[0][0])
-            definitions["adjective"] = definition
-        if adv_section:
-            definition = re.findall(r'# (.*?)(?:\n|$)', adv_section[0][0])
-            definitions["adverb"] = definition
-        if pron_section:
-            definition = re.findall(r'# (.*?)(?:\n|$)', pron_section[0][0])
-            definitions["pronoun"] = definition
-        if prep_section:
-            definition = re.findall(r'# (.*?)(?:\n|$)', prep_section[0][0])
-            definitions["preposition"] = definition
+        definitions = {
+            "noun": noun_section,
+            "verb": verb_section,
+            "adjective": adj_section,
+            "adverb": adv_section,
+            "pronoun": pron_section,
+            "preposition": prep_section,
+            "particle": particle_section,
+            "conjunction": conjunciton_section,
+            "article": article_section,
+            "numeral": numeral_section,
+            "interjection": interjection_section,
+            "exclamation": exclamation_section,
+            "determiner": determiner_section
+        }
             
-        if definitions["noun"] or definitions["verb"] or definitions["adjective"] or definitions["adverb"] or definitions["pronoun"] or definitions["preposition"]:
+        for part_of_speech, section in definitions.items():
+            if section:
+                definition = []
+                if language == "German" and part_of_speech == "noun":
+                    definition += re.findall(r"de-noun\|(.)", section[0][0])
+                    definition += re.findall(r"de\|noun form\|g=(.)", section[0][0])
+                elif language == "French" and part_of_speech == "noun":
+                    definition += re.findall(r"fr-noun\|(.)", section[0][0])
+                elif language == "Latin" and part_of_speech == "noun":
+                    gender = re.findall(r"la-noun\|[^<]*<.{2}", section[0][0])
+                    gender = [match[-3:] for match in gender]
+                    # Strip the < > characters from gender var.
+                    gender[0] = gender[0].replace("<", "")
+                    gender[0] = gender[0].replace(">", "")
+                    gender[0] = f"declension {gender[0]}"
+                    definition += gender
+                elif language == "Spanish" and part_of_speech == "noun":
+                    definition += re.findall(r"es-noun\|(.)", section[0][0])
+                definition += re.findall(r'# (.*?)(?:\n|$)', section[0][0])
+                definitions[part_of_speech] = definition
+            
+        if any(definitions.values()):
             return definitions
         else:
-            logger.warning(f"No noun, verb, adjective, adverb, pronoun, or preposition definitions for << {language} >> found in input >>\n{page_content}\n<<\nThere may be a definition here that does not meet the program's criteria. Here is the full list of definitions: >>\n{definitions}\n<<")
+            logger.warning(f"No definitions found in >>\n{page_content}\n If you see definitions here, that means there is either a problem with the code, or the part of speech is not being considered by the program. If you think this is an oversight and that this particular part of speech should be added, please contact me via the contact form, or if you'd like to fix it yourself, submit a pull request on GitHub.")
             return False
         
     else:
-        logger.warning(f"No definitions for << {language} >> found in >>\n{page_content}\n<<.")
+        logger.warning(f"No definitions found in >>\n{page_content}\n If you see definitions here, that means there is either a problem with the code, or the part of speech is not being considered by the program. If you think this is an oversight and that this particular part of speech should be added, please contact me via the contact form, or if you'd like to fix it yourself, submit a pull request on GitHub.")
         return False
 
 
@@ -2382,10 +2410,19 @@ def make_cards(text_file, language):
     dict_array = find_keywords(dict_array)
     logger.info(f"Done finding keywords.")
     
+    # Get the relevant language package.
+    if language == "German":
+        stanza.download("de")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma')
+    elif language == "French":
+        stanza.download("fr")
+        nlp = spacy_stanza.load_pipeline("fr", package="partut", processors='tokenize,mwt,pos,lemma')
+    
     # Get grammar tags for each word via nltk natural language processing.
     logger.info(f"Processing grammatical context for all user input in order to find grammar tags.")
     print(f"Processing grammatical context for all user input in order to find grammar tags.")
-    dict_array = get_tags(dict_array, language)
+    dict_array = get_tags(dict_array, language, nlp)
     logger.info(f"Done finding tags.")
     
     # Match nltk tags to wiktionary tag types. This does nothing other than change the definitions of the tags being 
@@ -2410,7 +2447,7 @@ def make_cards(text_file, language):
                 declined_word = word
                 
                 # Get lemma
-                word = get_lemma(word, this_context)
+                word = get_lemma(word, this_context, nlp)
                 
                 # Determine whether the word should be capitalised or not (Spacy returns lower case words).
                 if should_word_be_capitalised(declined_word) and this_tag == "noun":
@@ -2519,7 +2556,7 @@ def export_cards(file_name, desktop_path, anki_file):
         print(e)
 
 
-def get_lemma(target_word, context):
+def get_lemma(target_word, context, nlp):
     """
     Returns the undeclined form of a delcined German word.
     
