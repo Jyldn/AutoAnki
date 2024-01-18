@@ -308,6 +308,8 @@ class Gui(QWidget):
         
         # Config variables
         self.showTutorial = True
+        self.getEtymology = False
+        self.getUsage = False
         self.interfaceLanguage = "English"
         self.currentLanguage = "English"
         self.colourMode = "light"
@@ -754,7 +756,6 @@ class Gui(QWidget):
         else:
             self.__activateLightmode()
         self.__updateHtmlView()
-        # self.updateConfig()
     
     def __reapplyBorderColours(self):
         """When the theme changes, the colour of the border frames resets to something default. These colours need to
@@ -782,6 +783,7 @@ class Gui(QWidget):
         config['LanguagePreferences'] = {'InterfaceLanauge': self.interfaceLanguage, 'SearchLanguage': self.currentLanguage}
         config['Interface'] = {'ColourMode': self.configColourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
         config['Behaviour'] = {'ShowTutorial': self.showTutorial}
+        config['SearchSettings'] = {'GetEtymology': self.getEtymology, 'GetUsage': self.getUsage}
         
         with open("config.ini", 'w') as configfile:
             config.write(configfile)
@@ -821,6 +823,10 @@ class Gui(QWidget):
         self.zoomFactor = configVars[3]
         # Get tutorial setting
         self.showTutorial = configVars[4]
+        
+        # Search settings
+        self.getEtymology = configVars[5]
+        self.getUsage = configVars[6]
         
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
@@ -1658,31 +1664,42 @@ class GuiSettingsDialog(object):
         self.gridLayout = QtWidgets.QGridLayout(self.settingsFrame)
         self.gridLayout.setObjectName("gridLayout")
         
+        # Header preset
+        headerFont = QtGui.QFont()
+        headerFont.setBold(True)
+        
+        # First header
+        self.generalSettingsLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.generalSettingsLbl.setObjectName("generalSettingsLbl")
+        self.generalSettingsLbl.setContentsMargins(0, 0, 0, 0)
+        self.generalSettingsLbl.setFont(headerFont)
+        self.gridLayout.addWidget(self.generalSettingsLbl, 0, 0, 1, 1)
+        
         # Interface language
         self.settingsLangLbl = QtWidgets.QLabel(self.settingsFrame)
         self.settingsLangLbl.setObjectName("settingsLangLbl")
-        self.gridLayout.addWidget(self.settingsLangLbl, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.settingsLangLbl, 1, 0, 1, 1)
         self.interfaceLangCB = QtWidgets.QComboBox(self.settingsFrame)
         self.interfaceLangCB.setMaximumSize(QtCore.QSize(130, 16777215))
         self.interfaceLangCB.setObjectName("interfaceLangCB")
         self.interfaceLangCB.addItem("")
-        self.gridLayout.addWidget(self.interfaceLangCB, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.interfaceLangCB, 1, 1, 1, 1)
         
         # Colour mode
         self.settingsColMdLbl = QtWidgets.QLabel(self.settingsFrame)
         self.settingsColMdLbl.setObjectName("settingsColMdLbl")
-        self.gridLayout.addWidget(self.settingsColMdLbl, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.settingsColMdLbl, 2, 0, 1, 1)
         self.defaultColourModeCB = QtWidgets.QComboBox(self.settingsFrame)
         self.defaultColourModeCB.setMaximumSize(QtCore.QSize(130, 16777215))
         self.defaultColourModeCB.setObjectName("defaultColourModeCB")
         self.defaultColourModeCB.addItem("")
         self.defaultColourModeCB.addItem("")
-        self.gridLayout.addWidget(self.defaultColourModeCB, 1, 1, 1, 1)
+        self.gridLayout.addWidget(self.defaultColourModeCB, 2, 1, 1, 1)
         
         # Font size
         self.fontSizeSelectLbl = QtWidgets.QLabel(self.settingsFrame)
         self.fontSizeSelectLbl.setObjectName("fontSizeSelectLbl")
-        self.gridLayout.addWidget(self.fontSizeSelectLbl, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.fontSizeSelectLbl, 3, 0, 1, 1)
         self.fontSizeSelect = QtWidgets.QSpinBox(self.settingsFrame)
         self.fontSizeSelect.setMinimum(25)
         self.fontSizeSelect.setMaximum(500)
@@ -1693,14 +1710,33 @@ class GuiSettingsDialog(object):
         zoomFactor = self.parent.getZoomFactor()
         zoomFactor = self.convertZoomLevel(zoomFactor)
         self.fontSizeSelect.setValue(zoomFactor)
-        self.gridLayout.addWidget(self.fontSizeSelect, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.fontSizeSelect, 3, 1, 1, 1)
         
         # Tutorial settings
         self.tutorialLbl = QtWidgets.QLabel(self.settingsFrame)
         self.tutorialLbl.setObjectName("tutorialLbl")
-        self.gridLayout.addWidget(self.tutorialLbl, 3, 0, 1, 1)
-        self.tutorialRadio = QtWidgets.QRadioButton(self.settingsFrame)
-        self.gridLayout.addWidget(self.tutorialRadio, 3, 1, 1, 1)
+        self.gridLayout.addWidget(self.tutorialLbl, 4, 0, 1, 1)
+        self.tutorialRadio = QtWidgets.QCheckBox(self.settingsFrame)
+        self.gridLayout.addWidget(self.tutorialRadio, 4, 1, 1, 1)
+        
+        # Additional search settings
+        self.searchSettingsLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.searchSettingsLbl.setObjectName("searchSettingsLbl")
+        self.searchSettingsLbl.setContentsMargins(0, 20, 0, 0)
+        self.searchSettingsLbl.setFont(headerFont)
+        self.gridLayout.addWidget(self.searchSettingsLbl, 5, 0, 1, 1)
+        # Etymology
+        self.getEtymLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.getEtymLbl.setObjectName("getEtymLbl")
+        self.gridLayout.addWidget(self.getEtymLbl, 6, 0, 1, 1)
+        self.etymRadio = QtWidgets.QCheckBox(self.settingsFrame)
+        self.gridLayout.addWidget(self.etymRadio, 6, 1, 1, 1)
+        # Usage notes
+        self.getUsageLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.getUsageLbl.setObjectName("getUsageLbl")
+        self.gridLayout.addWidget(self.getUsageLbl, 7, 0, 1, 1)
+        self.usageRadio = QtWidgets.QCheckBox(self.settingsFrame)
+        self.gridLayout.addWidget(self.usageRadio, 7, 1, 1, 1)
         
         # Apply layout
         self.gridLayout_2.addWidget(self.settingsFrame, 0, 0, 1, 1)
@@ -1731,6 +1767,7 @@ class GuiSettingsDialog(object):
         """
         _translate = QtCore.QCoreApplication.translate
         settingsDialog.setWindowTitle(_translate("settingsDialog", "Settings"))
+        
         # Interface language select
         self.settingsLangLbl.setText(_translate("settingsDialog", "Interface Language"))
         self.interfaceLangCB.setItemText(0, _translate("settingsDialog", "English"))
@@ -1739,6 +1776,7 @@ class GuiSettingsDialog(object):
         self.settingsColMdLbl.setText(_translate("settingsDialog", "Default Colour Mode"))
         self.defaultColourModeCB.setItemText(0, _translate("settingsDialog", "Light"))
         self.defaultColourModeCB.setItemText(1, _translate("settingsDialog", "Dark"))
+        
         # Set colour mode selection to current config value
         if self.parent.configColourMode == "dark":
             self.defaultColourModeCB.setCurrentIndex(1)
@@ -1749,7 +1787,12 @@ class GuiSettingsDialog(object):
         self.fontSizeSelectLbl.setText(_translate("settingsDialog", "Zoom percentage"))
         # Tutorial
         self.tutorialLbl.setText(_translate("tutorialSetting", "Show tutorial"))
-        self.checkTutorialSetting()
+        self.checkBoxes()
+        
+        self.getEtymLbl.setText(_translate("getEtymLbl", "Show etymology"))
+        self.getUsageLbl.setText(_translate("getUsageLbl", "Show usage notes"))
+        self.searchSettingsLbl.setText(_translate("searchSettingsLbl", "Manual search settings"))
+        self.generalSettingsLbl.setText(_translate("generalSettingsLbl", "General settings"))
         
     def convertZoomLevel(self, zoomLevel):
         """Converts the zoom level from a flaot to an int.
@@ -1770,26 +1813,46 @@ class GuiSettingsDialog(object):
         newColourSelect = self.defaultColourModeCB.currentText()
         newColourSelect = newColourSelect.lower()
         
-        self.__applyTutorialSetting()
+        self.__applyChecks()
         self.parent.applySettings(newZoomFactor, newColourSelect)
         self.parent.updateConfig()
         self.window.close()
     
-    def checkTutorialSetting(self):
+    def checkBoxes(self):
         """Check the tutorial setting.
         """
         if self.parent.showTutorial == "True":
             self.tutorialRadio.setChecked(True)
         else:
             self.tutorialRadio.setChecked(False)
+        
+        if self.parent.getEtymology == "True":
+            self.etymRadio.setChecked(True)
+        else:
+            self.etymRadio.setChecked(False)
+        
+        if self.parent.getUsage == "True":
+            self.usageRadio.setChecked(True)
+        else:
+            self.usageRadio.setChecked(False)
     
-    def __applyTutorialSetting(self):
+    def __applyChecks(self):
         """Apply the tutorial setting.
         """
         if self.tutorialRadio.isChecked():
             self.parent.showTutorial = "True"
         else:
             self.parent.showTutorial = "False"
+            
+        if self.etymRadio.isChecked():
+            self.parent.getEtymology = "True"
+        else:
+            self.parent.getEtymology = "False"
+            
+        if self.usageRadio.isChecked():
+            self.parent.getUsage = "True"
+        else:
+            self.parent.getUsage = "False"
 
 
 def config_check():
@@ -1807,6 +1870,7 @@ def setup_config():
     config['LanguagePreferences'] = {'InterfaceLanauge': 'English', 'SearchLanguage': 'English'}
     config['Interface'] = {'ColourMode': 'light', 'ZoomLevel': 100}
     config['Behaviour'] = {'ShowTutorial': True}
+    config['ManualSearch'] = {'Etymology': False, 'UsageNotes': False}
     
     with open("config.ini", 'w') as configfile:
         config.write(configfile)
@@ -1829,9 +1893,11 @@ def get_configs():
     colour_mode = config['Interface']['ColourMode']
     zoom_level = int(config['Interface']['ZoomLevel'])
     show_tutorial = config['Behaviour']['ShowTutorial']
+    get_etymology = config['SearchSettings']['GetEtymology']
+    get_usage_notes = config['SearchSettings']['GetUsage']
     
     # Put them into a list
-    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial]
+    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes]
     
     return config_vars  
 
@@ -1892,21 +1958,6 @@ def determine_grammar(words: list, text, lang, nlp):
     redundant - I don't know how to remove it.
     """
     nltk_tags = spacy_to_nltk(words, text, lang, nlp)
-    
-    # else:
-    #     nltk_tags = []
-        
-    #     # Tokenizing the text. Specifying 'german' here doesn't change the model but may adjust tokenization behavior.
-    #     tokens = nltk.word_tokenize(text, language=lang)
-        
-    #     # POS tagging the tokenized text. Note: This still uses the English model, as there's no German model in NLTK.
-    #     tagged_text = nltk.pos_tag(tokens)
-        
-    #     for word in words:
-    #         # Finding and appending the tagged words
-    #         result = [tag for tag in tagged_text if tag[0].lower() == word.lower()]
-    #         nltk_tags.append(result)
-    #         logger.info(f"Determine grammar function: tagged {word} as {result}")
     
     return nltk_tags
 
@@ -2010,7 +2061,7 @@ def grab_wik(text, language):
     if page_content:
         parsed_definitions_dict = parse_page(page_content, language)
         if parsed_definitions_dict:
-            cleaned_definitions = clean_wikitext(parsed_definitions_dict)
+            cleaned_definitions = clean_wikitext_mansearch(parsed_definitions_dict)
             return cleaned_definitions
         else:
             logger.warning(f"Failed to parse page for < {text} >.")
@@ -2278,9 +2329,23 @@ def parse_page(page_content, language):
         return False
 
 
-def clean_wikitext(parsed_definitions_dict):
+def clean_wikitext_mansearch(parsed_definitions_dict):
     # Remove templates: anything that's inside double curly braces
-    clean_definitions = {"noun" : [], "verb" : [], "adjective" : [], "adverb" : [], "pronoun" : [], "preposition" : []}
+    clean_definitions = {
+        "noun": [],
+        "verb": [],
+        "adjective": [],
+        "adverb": [],
+        "pronoun": [],
+        "preposition": [],
+        "particle": [],
+        "conjunction": [],
+        "article": [],
+        "numeral": [],
+        "interjection": [],
+        "exclamation": [],
+        "determiner": []
+    }
     
     # Extract and clean links: convert something like [[apple|Apple]] to Apple or [[apple]] to apple
     def clean_link(match):
@@ -2315,29 +2380,17 @@ def clean_wikitext_new(definitions):
     """
     # Remove templates: anything that's inside double curly braces
     clean_definitions = []
-    new_defs = []
-    
-    # Extract and clean links: convert something like [[apple|Apple]] to Apple or [[apple]] to apple
-    def clean_links(match):
-        # Split on the pipe, if it's there, and return the human-readable part
-        parts = match.group(1).split('|')
-        return parts[-1] if parts else match.group(1)
     
     for definition in definitions:
         logger.info(f"Cleaning definition: {definition}")
         clean_definition_lines_list = []
         for line in definition:
-            #temp_cleaned_definition_line = re.sub(r'\{\{.*?\}\}', '', line)
-            # temp_cleaned_definition_line = re.sub(r'\[\[(.*?)\]\]', clean_links, temp_cleaned_definition_line)
             temp_cleaned_definition_line = line
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("{{", "(")
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("}}", ")")
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("]", "")
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("[", "")
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("|", ", ")
-            # temp_cleaned_definition_line = re.sub(r'\n', ' ', temp_cleaned_definition_line)
-            # temp_cleaned_definition_line = re.sub(r'#', '', temp_cleaned_definition_line)
-            # temp_cleaned_definition_line = ' '.join(temp_cleaned_definition_line.split())
             temp_cleaned_definition_line = temp_cleaned_definition_line.strip()
             clean_definition_lines_list.append(temp_cleaned_definition_line)
         clean_definitions.append(clean_definition_lines_list)
