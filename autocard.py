@@ -66,9 +66,20 @@ html_header_dark_conj = """
             <style>
                 body { 
                     background-color: #1E1E1E; 
+                    color: white;
                 }
                 table {
-                    background: #dbdbdb !important;
+                    background: #1E1E1E !important;
+                }
+                table, 
+                table th, 
+                table td, 
+                table tr, 
+                table tbody, 
+                table thead, 
+                table tfoot {
+                    background-color: transparent !important; /* or 'none' */
+                    border: 1px dotted #404040; /* Light grey that appears as light white */
                 }
             </style>
         </head>
@@ -299,6 +310,7 @@ class Gui(QWidget):
         self.interfaceLanguage = "English"
         self.currentLanguage = "English"
         self.colourMode = "light"
+        self.configColourMode = ""
         self.zoomFactor = 100
         self.htmlContent = ""
         self.htmlContentText = ""
@@ -760,7 +772,7 @@ class Gui(QWidget):
         """
         config = configparser.ConfigParser()
         config['LanguagePreferences'] = {'InterfaceLanauge': self.interfaceLanguage, 'SearchLanguage': self.currentLanguage}
-        config['Interface'] = {'ColourMode': self.colourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
+        config['Interface'] = {'ColourMode': self.configColourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
         config['Behaviour'] = {'ShowTutorial': self.showTutorial}
         
         with open("config.ini", 'w') as configfile:
@@ -796,6 +808,7 @@ class Gui(QWidget):
         self.currentLanguage = configVars[1]
         # Get colour mode
         self.colourMode = configVars[2]
+        self.configColourMode = configVars[2]
         # Get zoom level
         self.zoomFactor = configVars[3]
         # Get tutorial setting
@@ -808,7 +821,9 @@ class Gui(QWidget):
     def applySettings(self, newZoomFactor, newColourMode):
         # Zoom factor needs a decimal, but the input here is a float, so divide.
         self.__applyZoomLvl(newZoomFactor)
-        self.__applyColourMode(newColourMode)
+        # self.__applyColourMode(newColourMode)
+        # Update the colour config variable.
+        self.configColourMode = newColourMode
         
     def __applyZoomLvl(self, newZoomFactor):
         newZoomFactor = int(newZoomFactor) / 100
@@ -991,8 +1006,14 @@ class Gui(QWidget):
     
     def __constructHtml(self, content):
         html = ""
+        isTable = False
+        
+        # Determine if it's a conjugation table.
+        if "<table" in content:
+            isTable = True
+            
         if self.colourMode == "dark":
-            if self.conjugationMode:
+            if self.conjugationMode or isTable == True:
                 html = html_header_dark_conj + content + html_footer
             else:
                 html = html_header_dark + content + html_footer
@@ -1114,7 +1135,7 @@ class Gui(QWidget):
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word} tb.")
+            newWordBtn.setText(f"{word} 📜")
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
@@ -1140,7 +1161,7 @@ class Gui(QWidget):
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(word)
+            newWordBtn.setText(f"{word} 🔖")
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
@@ -1173,11 +1194,11 @@ class Gui(QWidget):
         match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
         print(id_word_pair)
         word = match.group(1)
-        newWordBtn.setText(word)
+        newWordBtn.setText(f"{word} 🔖")
         
         # Determine if it's a conjugation table.
         if "<table" in id_word_pair[1]:
-            newWordBtn.setText(f"{word} tb.") 
+            newWordBtn.setText(f"{word} 📜") 
         
         # Align text on buttons to the left.
         # newWordBtn.setStyleSheet("QPushButton { text-align: left; }")
@@ -1453,10 +1474,10 @@ class GuiChangeLangWindow(object):
         item9.setText(_translate("changeLangWindow", "Spanish"))
         self.langsList.setSortingEnabled(__sortingEnabled)
         self.langsList.clicked.connect(self.__updateSelection)
-        item1.setFlags(item5.flags() & ~Qt.ItemIsEnabled)
-        item5.setFlags(item5.flags() & ~Qt.ItemIsEnabled)
-        item6.setFlags(item6.flags() & ~Qt.ItemIsEnabled)
-        item8.setFlags(item8.flags() & ~Qt.ItemIsEnabled)
+        item1.setHidden(True)
+        item5.setHidden(True)
+        item6.setHidden(True)
+        item8.setHidden(True)
 
         # Check what the currently saved language is in the parent GUI object and apply that visually to the selection 
         # list.
@@ -1648,7 +1669,7 @@ class GuiSettingsDialog(object):
         self.defaultColourModeCB.setItemText(0, _translate("settingsDialog", "Light"))
         self.defaultColourModeCB.setItemText(1, _translate("settingsDialog", "Dark"))
         # Set colour mode selection to current config value
-        if self.parent.colourMode == "dark":
+        if self.parent.configColourMode == "dark":
             self.defaultColourModeCB.setCurrentIndex(1)
         else:
             self.defaultColourModeCB.setCurrentIndex(0)
