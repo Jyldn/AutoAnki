@@ -7,3 +7,6 @@ temp.py
 test_input.txt
 test_input2.txt
 cards_import.txt
+context_template.ui
+contact_template.ui
+contact_ui.py

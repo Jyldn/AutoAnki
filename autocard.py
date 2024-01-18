@@ -40,8 +40,9 @@ logger.addHandler(handler)
 
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
-stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
-stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+custom_colours = {"textLink.foreground": "#58a6ff"}
+stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
+stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
 
 html_header_dark = """
         <html>
@@ -253,14 +254,14 @@ class TutorialDialog(QtWidgets.QDialog):
         
         colourMode = self.parent.getColourMode()
         if colourMode == "dark":
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
         else:
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
         self.window.setStyleSheet(stylesheet)
     
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Tutorial"))
         self.radioButton.setText(_translate("Dialog", "Don\'t show this again"))
         self.pushButton_2.setText(_translate("Dialog", "close"))
         self.label_6.setText(_translate("Dialog", "Manually Search Wiktionary"))
@@ -359,7 +360,7 @@ class Gui(QWidget):
         self.sidebarLayout.setObjectName("sidebarLayout")
         # Bottom frame
         self.sidebarInnerBottomFrame = QtWidgets.QFrame(self.sidebarFrame)
-        self.sidebarInnerBottomFrame.setMaximumSize(QtCore.QSize(16777215, 100))
+        self.sidebarInnerBottomFrame.setMaximumSize(QtCore.QSize(16777215, 120))
         self.sidebarInnerBottomFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.sidebarInnerBottomFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         # Remove border
@@ -375,13 +376,19 @@ class Gui(QWidget):
         self.colourModeBtn.setObjectName("colourModeBtn")
         self.colourModeBtn.clicked.connect(self.__toggleColourMode)
         self.sidebarBottomLayout.addWidget(self.colourModeBtn, 0, 0, 1, 1)
-        
+                
         # Settings
         self.settingsBtn = QtWidgets.QPushButton(self.sidebarInnerBottomFrame)
         self.settingsBtn.setObjectName("settingsBtn")
         self.settingsBtn.clicked.connect(self.__spawnSettingsDialog)
         self.sidebarBottomLayout.addWidget(self.settingsBtn, 1, 0, 1, 1)
         self.sidebarLayout.addWidget(self.sidebarInnerBottomFrame, 2, 0, 1, 1)
+        
+        # Contact Button
+        self.contactBtn = QtWidgets.QPushButton(self.sidebarInnerBottomFrame)
+        self.contactBtn.setObjectName("contactBtn")
+        self.contactBtn.clicked.connect(self.__spawnContactDialog)
+        self.sidebarBottomLayout.addWidget(self.contactBtn, 3, 0, 1, 1)
         
         ## Top frame
         self.sidebarInnerTopFrame = QtWidgets.QFrame(self.sidebarFrame)
@@ -473,6 +480,7 @@ class Gui(QWidget):
         self.wordRadio.setObjectName("wordRadio")
         self.wordRadio.clicked.connect(self.__activateWordMode)
         self.searchInputLayout.addWidget(self.wordRadio, 2, 0, 1, 1)
+        self.wordRadio.setChecked(True)
         
         # Search button
         self.searchBtn = QtWidgets.QPushButton(self.searchInputFrame)
@@ -629,7 +637,7 @@ class Gui(QWidget):
         :param MainWindow: The main window GUI object.
         """
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Dialog"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
         # Buttons
         self.saveWord.setText(_translate("MainWindow", "+ Add +"))
         self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
@@ -638,6 +646,7 @@ class Gui(QWidget):
         self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
         self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
         self.searchBtn.setText(_translate("MainWindow", "Search"))
+        self.contactBtn.setText(_translate("MainWindow", "Contact"))
         # Radios
         self.sentenceRadio.setText(_translate("MainWindow", "Phrase"))
         self.conjugationRadio.setText(_translate("MainWindow", "Conjugation table"))
@@ -654,7 +663,6 @@ class Gui(QWidget):
         :param MainWindow: The main window GUI object.
         """
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
         self.addFileBtn.setText(_translate("MainWindow", "Add File"))
         self.createCardsBtn.setText(_translate("MainWindow", "Make cards"))
     
@@ -724,7 +732,7 @@ class Gui(QWidget):
     def __activateLightmode(self):
         """Apply the light mode for the GUI.
         """
-        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
+        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
         self.mainWindow.setStyleSheet(stylesheet)
         self.colourMode = "light"
         self.__reapplyBorderColours()
@@ -732,7 +740,7 @@ class Gui(QWidget):
     def __activateDarkmode(self):
         """Apply the dark mode for the GUI.
         """
-        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
         self.mainWindow.setStyleSheet(stylesheet)
         self.colourMode = "dark"
         self.__reapplyBorderColours()
@@ -1063,6 +1071,21 @@ class Gui(QWidget):
             self.windowLangs.setStyleSheet(stylesheet)
         
         self.windowLangs.show()
+        
+    def __spawnContactDialog(self):
+        """Bring up the contact dialog.
+        """
+        self.windowContact = QtWidgets.QDialog()
+        self.UIContact = GuiContactDialog()
+        self.UIContact.setupUi(self.windowContact)
+        
+        # Colour mode styling
+        if self.colourMode == "dark":
+            self.windowContact.setStyleSheet(stylesheet_drk)
+        else:
+            self.windowContact.setStyleSheet(stylesheet)
+        
+        self.windowContact.show()
     
     def spawnTutorial(self):
         """Bring up the language selector dialog.
@@ -1277,6 +1300,54 @@ class Gui(QWidget):
         return self.savedSidebarWords
 
 
+class GuiContactDialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(311, 249)
+        self.widget = QtWidgets.QWidget(Dialog)
+        self.widget.setGeometry(QtCore.QRect(20, 20, 271, 211))
+        self.widget.setObjectName("widget")
+        self.gridLayout = QtWidgets.QGridLayout(self.widget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QtWidgets.QLabel(self.widget)
+        self.label.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label.setWordWrap(True)
+        self.label.setOpenExternalLinks(True)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 1, 0, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.widget)
+        self.label_2.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label_2.setWordWrap(True)
+        self.label_2.setOpenExternalLinks(True)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
+        self.buttonBox = QtWidgets.QDialogButtonBox(self.widget)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.buttonBox.setContentsMargins(0, 10, 0, 0)
+        self.gridLayout.addWidget(self.buttonBox, 3, 0, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.widget)
+        self.label_3.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 0, 0, 1, 1)
+
+        self.retranslateUi(Dialog)
+        self.buttonBox.accepted.connect(Dialog.accept) # type: ignore
+        self.buttonBox.rejected.connect(Dialog.reject) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Contact"))
+        self.label.setText(_translate("Dialog", "If you find any **bugs**, have any **suggestions**, or would just like to say hi, feel free to contact me at: <a href='mailto:jdayn@protonmail.com'><span style='color:#2e8fff'>jdayn@protonmail.com</span></a>\n\n\nYou can also make changes and submit a pull request:\n<a href='https://github.com/Jyldn/AutoAnki'><span style='color:#2e8fff'>github.com/Jyldn/AutoAnki</span></a>"))
+        self.label_2.setText(_translate("Dialog", "If you find this useful and would like to give me a tip: <a href='www.ko-fi.com/jyldn'><span style='color:#2e8fff'>www.ko-fi.com/jyldn</span></a>"
+""))
+        self.label_3.setText(_translate("Dialog", "✨ **Contact Me** ✨"))
+
 class GuiChangeLangWindow(object):
     """The change language dialog. Allows the user to change languages from a list of 'verified' languages, and the 
     option to add a language of their own choosing.
@@ -1448,7 +1519,7 @@ class GuiChangeLangWindow(object):
         :param changeLangWindow: The dialog object.
         """
         _translate = QtCore.QCoreApplication.translate
-        changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Dialog"))
+        changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Language Settings"))
         self.newLangInput.setPlaceholderText(_translate("changeLangWindow", "Language name"))
         self.addNewLangBtn.setText(_translate("changeLangWindow", "Add"))
         self.langsLabel.setText(_translate("changeLangWindow", "Use the list to the left to select your search language. Custom language functionality not implemented yet but will be soon."))
@@ -1650,16 +1721,16 @@ class GuiSettingsDialog(object):
         
         colourMode = self.parent.getColourMode()
         if colourMode == "dark":
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
         else:
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
         self.window.setStyleSheet(stylesheet)    
     
     def retranslateUi(self, settingsDialog):
         """Apply labels to the GUI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        settingsDialog.setWindowTitle(_translate("settingsDialog", "Dialog"))
+        settingsDialog.setWindowTitle(_translate("settingsDialog", "Settings"))
         # Interface language select
         self.settingsLangLbl.setText(_translate("settingsDialog", "Interface Language"))
         self.interfaceLangCB.setItemText(0, _translate("settingsDialog", "English"))
