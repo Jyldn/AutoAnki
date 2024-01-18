@@ -3,6 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtWidgets, QtCore, QtGui
+import PyQt5
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWebEngineWidgets
@@ -11,6 +12,7 @@ import uuid
 import string
 import stanza
 import spacy_stanza
+from spacy.lang.ja import Japanese
 import logging
 import requests
 import re
@@ -40,15 +42,6 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #en
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
-
-# This is a basic mapping of SpaCy POS tags to NLTK's Penn Treebank tags. 
-# It might need expansion or refinement to cover all cases or specific cases.
-SPACY_TO_NLTK_TAG_MAP = {
-    'ADJ': 'JJ', 'ADP': 'IN', 'ADV': 'RB', 'AUX': 'MD', 'CONJ': 'CC',
-    'CCONJ': 'CC', 'DET': 'DT', 'INTJ': 'UH', 'NOUN': 'NN', 'NUM': 'CD',
-    'PART': 'RP', 'PRON': 'PRP', 'PROPN': 'NNP', 'PUNCT': 'SYM', 
-    'SCONJ': 'IN', 'SYM': 'SYM', 'VERB': 'VB', 'X': 'FW', 'SPACE': 'SP'
-}
 
 html_header_dark = """
         <html>
@@ -116,14 +109,31 @@ langs = {
 }
 
 nltk_tag_ref = {
-    "noun" : ("NN", "NNS"), 
+    "noun" : ("NN", "NNS", "NNP", "NNPS"), 
     "verb" : ("VB", "VBG", "VBD", "VBN", "VBP", "VBZ"), 
     "adjective" : ("JJ", "JJR", "JJS"), 
     "adverb" : ("RB", "RBR", "RBS"), 
-    "pronoun" : ("PRP", "PRP$")
-    }
+    "pronoun" : ("PRP", "PRP$", "WP", "WP$"),
+    "preposition" : ("IN",),
+    "conjunction" : ("CC",),
+    "determiner" : ("DT", "WDT"),
+    "modal" : ("MD",),
+    "interjection" : ("UH",),
+    "particle" : ("RP",),
+    "symbol": ("SYM",),
+    "numeral" : ("CD",),
+    "exclamation" : ("!",),
+    "article" : ("DT",)
+}
 
-gendered_langs = ["German", "French", "Spanish", "Latin"]
+SPACY_TO_NLTK_TAG_MAP = {
+    'ADJ': 'JJ', 'ADP': 'IN', 'ADV': 'RB', 'AUX': 'MD', 'CONJ': 'CC',
+    'CCONJ': 'CC', 'DET': 'DT', 'INTJ': 'UH', 'NOUN': 'NN', 'NUM': 'CD',
+    'PART': 'RP', 'PRON': 'PRP', 'PROPN': 'NNP', 'PUNCT': 'SYM', 
+    'SCONJ': 'IN', 'SYM': 'SYM', 'VERB': 'VB', 'X': 'FW', 'SPACE': 'SP'
+}
+
+GENDERED_LANGS = ["German", "French", "Spanish", "Latin"]
 
 
 class MyLineEdit(QTextEdit):
@@ -622,9 +632,10 @@ class Gui(QWidget):
         self.wordRadio.setText(_translate("MainWindow", "Search words"))
         # Labels
         self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
-        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
         self.sideLabel.setAlignment(Qt.AlignCenter)
-        
+        self.updateLangLabel(self.currentLanguage)
+        self.currentLangLabel.setAlignment(Qt.AlignCenter)
+
     def __retranslateUiAA(self, MainWindow):
         """Sets the labels for the card creation UI layout.
         
@@ -758,7 +769,20 @@ class Gui(QWidget):
         logger.info("New config file generated.")
         
         # Apply config changes
-        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
+        self.updateLangLabel(self.currentLanguage)
+    
+    def updateLangLabel(self, lang):
+        if lang == "French":
+            emoji = "🥖"
+        elif lang == "German":
+            emoji = "🥨"
+        elif lang == "Spanish":
+            emoji = "🌮"
+        elif lang == "Latin": 
+            emoji = "🏺"
+        elif lang == "English":
+            emoji = "💂"
+        self.currentLangLabel.setText(f"Current: {lang} {emoji}")
     
     def __applyConfig(self, configVars):
         """Apply the config variables to the GUI.
@@ -767,7 +791,7 @@ class Gui(QWidget):
         """
         ## Save config variables
         # Get interface language
-        self.currentLanguage = configVars[0]
+        self.interfaceLanguage = configVars[0]
         # Get search language
         self.currentLanguage = configVars[1]
         # Get colour mode
@@ -779,7 +803,7 @@ class Gui(QWidget):
         
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
-        self.currentLangLabel.setText("Current language: " + self.currentLanguage)
+        self.updateLangLabel(self.currentLanguage)
         
     def applySettings(self, newZoomFactor, newColourMode):
         # Zoom factor needs a decimal, but the input here is a float, so divide.
@@ -906,7 +930,7 @@ class Gui(QWidget):
         if defsDict:
             for tag, definition in defsDict.items():
                 if definition:
-                    if self.currentLanguage in gendered_langs:
+                    if self.currentLanguage in GENDERED_LANGS:
                         if tag == "noun":
                             defs_string += f"{tag.capitalize()}"
                             for line_no, string in enumerate(definition):
@@ -1040,7 +1064,8 @@ class Gui(QWidget):
             filenames = dlg.selectedFiles()
             logger.info(f"File(s) selected for card generation input: {filenames}")
             self.currentInputFilePath = filenames[0]
-            f = open(filenames[0], 'r')
+            
+            f = open(filenames[0], 'r', encoding="utf-8")
             with f:
                 data = f.read()
                 self.selectedFileContent = data
@@ -1428,7 +1453,11 @@ class GuiChangeLangWindow(object):
         item9.setText(_translate("changeLangWindow", "Spanish"))
         self.langsList.setSortingEnabled(__sortingEnabled)
         self.langsList.clicked.connect(self.__updateSelection)
-        
+        item1.setFlags(item5.flags() & ~Qt.ItemIsEnabled)
+        item5.setFlags(item5.flags() & ~Qt.ItemIsEnabled)
+        item6.setFlags(item6.flags() & ~Qt.ItemIsEnabled)
+        item8.setFlags(item8.flags() & ~Qt.ItemIsEnabled)
+
         # Check what the currently saved language is in the parent GUI object and apply that visually to the selection 
         # list.
         langIndex = self.__indexLang()
@@ -2134,10 +2163,13 @@ def parse_page(page_content, language):
                     gender = re.findall(r"la-noun\|[^<]*<.{2}", section[0][0])
                     gender = [match[-3:] for match in gender]
                     # Strip the < > characters from gender var.
-                    gender[0] = gender[0].replace("<", "")
-                    gender[0] = gender[0].replace(">", "")
-                    gender[0] = f"declension {gender[0]}"
-                    definition += gender
+                    try:
+                        gender[0] = gender[0].replace("<", "")
+                        gender[0] = gender[0].replace(">", "")
+                        gender[0] = f"declension {gender[0]}"
+                        definition += gender
+                    except:
+                        pass
                 elif language == "Spanish" and part_of_speech == "noun":
                     definition += re.findall(r"es-noun\|(.)", section[0][0])
                 definition += re.findall(r'# (.*?)(?:\n|$)', section[0][0])
@@ -2319,7 +2351,7 @@ def read_sentence_file(text_file):
     return text
 
 
-def format_card(content, defs, words, tags, deck_name):
+def format_card(content, defs, words, tags, deck_name, lang):
     """
     Takes the information from a card dictionary and formats that information so that it is readable by anki. Using this
     function in a loop with multiple dictionaries will format multiple cards, all saved in a single variable. Anki will
@@ -2345,16 +2377,16 @@ def format_card(content, defs, words, tags, deck_name):
         ankified_text += f"<h3>{words[count]}, <i>{tag}</i>"
         
         try:
-            if tag == "noun" and definition[0] != "No definition found. You might have made a typo, or the word might not be in Wiktionary.":
+            if tag == "noun" and definition[0] != "No definition found. You might have made a typo, or the word might not be in Wiktionary." and lang in GENDERED_LANGS:
                 for line_num, line in enumerate(definition):
-                    if line_num == 0:
+                    if line_num == 0 and lang in GENDERED_LANGS:
                         ankified_text += f", <i>{line.replace('}', '')}</i></h3>"
                     else: 
-                        ankified_text += f"{line_num-1}: {line.replace('}', '')}<br>"
+                        ankified_text += f"{line_num}: {line.replace('}', '')}<br>"
             else:
                 ankified_text += "</h3>"
                 for line_num, line in enumerate(definition):
-                    ankified_text += f"{line_num}: {line.replace('}', '')}<br>"
+                    ankified_text += f"{line_num + 1}: {line.replace('}', '')}<br>"
         except:
             ankified_text += f"{str(definition)}"
         
@@ -2372,6 +2404,54 @@ def format_card(content, defs, words, tags, deck_name):
     logger.info(f"Successfully formatted card for < {words} >")
     
     return ankified_text
+
+
+def get_nlp(language):
+    # Get the relevant language package.
+    # Arabic
+    if language == "Arabic":
+        stanza.download("ar")
+        nlp = spacy_stanza.load_pipeline("ar", package="padt", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # English
+    if language == "English":
+        stanza.download("en")
+        nlp = spacy_stanza.load_pipeline("en", package="partut", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # French
+    elif language == "French":
+        stanza.download("fr")
+        nlp = spacy_stanza.load_pipeline("fr", package="partut", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # German
+    if language == "German":
+        stanza.download("de")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # Japanese
+    if language == "Japanese":
+        stanza.download("ja")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("ja", package="gsd", use_gpu=True)
+    # Korean
+    if language == "Korean":
+        stanza.download("ko")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("ko", package="kaist", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # Latin
+    if language == "Latin":
+        stanza.download("la")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("la", package="llct", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # Persian
+    if language == "Persina":
+        stanza.download("fa")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("fa", package="seraji", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    # Spanish
+    if language == "Spanish":
+        stanza.download("es")
+        # Initialize the pipeline
+        nlp = spacy_stanza.load_pipeline("es", package="ancora", processors='tokenize,mwt,pos,lemma', use_gpu=True)
+    
+    return nlp
 
 
 def make_cards(text_file, language): 
@@ -2411,13 +2491,7 @@ def make_cards(text_file, language):
     logger.info(f"Done finding keywords.")
     
     # Get the relevant language package.
-    if language == "German":
-        stanza.download("de")
-        # Initialize the pipeline
-        nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma')
-    elif language == "French":
-        stanza.download("fr")
-        nlp = spacy_stanza.load_pipeline("fr", package="partut", processors='tokenize,mwt,pos,lemma')
+    nlp = get_nlp(language)
     
     # Get grammar tags for each word via nltk natural language processing.
     logger.info(f"Processing grammatical context for all user input in order to find grammar tags.")
@@ -2450,18 +2524,21 @@ def make_cards(text_file, language):
                 word = get_lemma(word, this_context, nlp)
                 
                 # Determine whether the word should be capitalised or not (Spacy returns lower case words).
-                if should_word_be_capitalised(declined_word) and this_tag == "noun":
-                    word = word.capitalize()
-                else:
-                    # If the word shouldn't be capitalised, make sure it's all lower case.
-                    # This is necessary because words that are not nounds must be lower case, but the user might have
-                    # capitalised the word if it was at the start of a sentence.
-                    word = word.lower()
-                
+                if language == "German":
+                    if should_word_be_capitalised(declined_word) and this_tag == "noun":
+                        word = word.capitalize()
+                    else:
+                        # If the word shouldn't be capitalised, make sure it's all lower case.
+                        # This is necessary because words that are not nounds must be lower case, but the user might have
+                        # capitalised the word if it was at the start of a sentence.
+                        word = word.lower()
+                    
                 # Replace the word in the dictionary with the undeclined version.
                 dict_array[count]["words"][w_count] = word
                 logger.info(f"Declension removal complete. Undeclined word: < {word} >")
             if word:
+                if language != "German":
+                    word = word.lower()
                 logger.info(f"Connecting to Wiktionary API to retrieve definition for: < {word} >.")
                 page_content = get_wiktionary_definition(word)
                 logger.info(f"Defininition for < {word} > in language < {language} > retrieved.")
@@ -2495,7 +2572,7 @@ def make_cards(text_file, language):
     for count, dictionary in enumerate(dict_array):
         if count > 0:
             anki_file += "\n"
-        anki_file += format_card(dictionary["text"], dictionary["definitions"], dictionary["words"], dictionary["tags"], "Test")
+        anki_file += format_card(dictionary["text"], dictionary["definitions"], dictionary["words"], dictionary["tags"], "Test", language)
     logger.info(f"Cards formatted.")
     
     # Save the cards to a single file for importing to Anki.
