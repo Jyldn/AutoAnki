@@ -24,6 +24,9 @@ import pprint
 import configparser
 import qtvscodestyle as qtvsc
 import requests
+import time
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+from PyQt5.QtGui import QColor
 
 
 # Logging
@@ -40,9 +43,9 @@ logger.addHandler(handler)
 
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 #QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
-custom_colours = {"textLink.foreground": "#58a6ff"}
-stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
-stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
+# custom_colours = {"textLink.foreground": "#58a6ff"}
+stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
+stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
 
 html_header_dark = """
         <html>
@@ -254,9 +257,9 @@ class TutorialDialog(QtWidgets.QDialog):
         
         colourMode = self.parent.getColourMode()
         if colourMode == "dark":
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
         self.window.setStyleSheet(stylesheet)
     
     def retranslateUi(self, Dialog):
@@ -351,7 +354,7 @@ class Gui(QWidget):
         ## Sidebar
         # Frame
         self.sidebarFrame = QtWidgets.QFrame(self.mainFrame)
-        self.sidebarFrame.setMaximumSize(QtCore.QSize(500, 16777215))
+        self.sidebarFrame.setMaximumSize(QtCore.QSize(400, 16777215))
         self.sidebarFrame.setFrameShape(QtWidgets.QFrame.Box)
         self.sidebarFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.sidebarFrame.setObjectName("sidebarFrame")
@@ -392,12 +395,18 @@ class Gui(QWidget):
         self.contactBtn.clicked.connect(self.__spawnContactDialog)
         self.sidebarBottomLayout.addWidget(self.contactBtn, 3, 0, 1, 1)
         
-        ## Top frame
+        # Top frame
+        # Create a QVBoxLayout
+        self.layout = QtWidgets.QVBoxLayout(self.sidebarFrame)
+        # Add your widget to the layout
         self.sidebarInnerTopFrame = QtWidgets.QFrame(self.sidebarFrame)
-        self.sidebarInnerTopFrame.setMaximumSize(QtCore.QSize(16777215, 160))
         self.sidebarInnerTopFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.sidebarInnerTopFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.sidebarInnerTopFrame.setObjectName("sidebarInnerTopFrame")
+
+        # Add the widget to the layout
+        self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0)
+        
         # Remove border
         self.sidebarInnerTopFrame.setFrameShape(QtWidgets.QFrame.NoFrame)
         
@@ -408,14 +417,14 @@ class Gui(QWidget):
         # AutoAnki
         self.autoAnkiBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         self.autoAnkiBtn.setObjectName("autoAnkiBtn")
-        self.autoAnkiBtn.clicked.connect(self.__switchToAutoAnki)
-        self.sidebarTopLayout.addWidget(self.autoAnkiBtn, 0, 0, 1, 0)
+        self.autoAnkiBtn.clicked.connect(self.__openAutoAnki)
+        self.sidebarTopLayout.addWidget(self.autoAnkiBtn, 1, 0, 1, 0)
         
         # Search wiki
-        self.searchWikBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        self.searchWikBtn.setObjectName("searchWikBtn")
-        self.searchWikBtn.clicked.connect(self.__switchToSearch)
-        self.sidebarTopLayout.addWidget(self.searchWikBtn, 1, 0, 1, 0)
+        # self.searchWikBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
+        # self.searchWikBtn.setObjectName("searchWikBtn")
+        # self.searchWikBtn.clicked.connect(self.__switchToSearch)
+        # self.sidebarTopLayout.addWidget(self.searchWikBtn, 1, 0, 1, 0)
         self.line = QtWidgets.QFrame(self.sidebarInnerTopFrame)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -425,37 +434,57 @@ class Gui(QWidget):
         # Current lang label
         self.currentLangLabel = QtWidgets.QLabel(self.sidebarInnerTopFrame)
         self.currentLangLabel.setObjectName("currentLangLabel")
-        self.sidebarTopLayout.addWidget(self.currentLangLabel, 3, 0, 1, 0)
+        self.sidebarTopLayout.addWidget(self.currentLangLabel, 0, 0, 1, 0)
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.currentLangLabel.setFont(font)
         
         # Change lang
         self.changeLangBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         self.changeLangBtn.setObjectName("changeLangBtn")
         self.changeLangBtn.clicked.connect(self.__spawnLanguageDialog)
-        self.sidebarTopLayout.addWidget(self.changeLangBtn, 4, 0, 1, 0)
-        self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.sidebarLayout.addItem(spacerItem, 1, 0, 1, 1)
-        self.mainLayout.addWidget(self.sidebarFrame, 0, 0, 2, 1)
+        self.sidebarTopLayout.addWidget(self.changeLangBtn, 2, 0, 1, 0)
         
+        # Create a QScrollArea
+        self.scrollArea = QtWidgets.QScrollArea(self.sidebarInnerTopFrame)
+        self.scrollArea.setWidgetResizable(True)
+        
+        # Create a widget for the scroll area content
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        
+        # Create a layout for the scroll area content
+        self.scrollAreaLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        
+        self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0, 1, 1)
+        self.mainLayout.addWidget(self.sidebarFrame, 0, 0, 2, 1)
+
         # Saved words
-        self.sideLabel = QtWidgets.QLabel(self.sidebarInnerTopFrame)
+        self.sideLabel = QtWidgets.QLabel(self.scrollAreaWidgetContents)
         self.sideLabel.setObjectName("sideLabel")
-        self.sidebarTopLayout.addWidget(self.sideLabel, 6, 0, 1, 0)
-        self.line2 = QtWidgets.QFrame(self.sidebarInnerTopFrame)
+        self.scrollAreaLayout.addWidget(self.sideLabel, 6, 0, 1, 0)
+        font = QtGui.QFont()
+        font.setBold(True)
+        self.sideLabel.setFont(font)
+        self.line2 = QtWidgets.QFrame(self.scrollAreaWidgetContents)
         self.line2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line2.setObjectName("line2")
-        self.sidebarTopLayout.addWidget(self.line2, 5, 0, 1, 1)
+        self.scrollAreaLayout.addWidget(self.line2, 5, 0, 1, 1)
+
         # Button
-        self.saveWord = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
+        self.saveWord = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
         self.saveWord.setObjectName("saveWord")
         self.saveWord.clicked.connect(self.saveWordToSide)
-        self.sidebarTopLayout.addWidget(self.saveWord, 7, 0, 1, 0)
+        self.scrollAreaLayout.addWidget(self.saveWord, 7, 0, 1, 0)
+
+        # Add the scroll area to the sidebar layout
+        self.sidebarTopLayout.addWidget(self.scrollArea)
         
         ## Search layout
         self.searchInputFrame = QtWidgets.QFrame(self.mainFrame)
-        self.searchInputFrame.setMinimumSize(QtCore.QSize(700, 0))
-        self.searchInputFrame.setMaximumSize(QtCore.QSize(16777215, 150))
+        self.searchInputFrame.setMinimumSize(QtCore.QSize(200, 0))
+        self.searchInputFrame.setMaximumSize(QtCore.QSize(16777215, 95))
         self.searchInputFrame.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.searchInputFrame.setAutoFillBackground(False)
         self.searchInputFrame.setFrameShape(QtWidgets.QFrame.Box)
@@ -464,25 +493,26 @@ class Gui(QWidget):
         # Add border
         self.searchInputLayout = QtWidgets.QGridLayout(self.searchInputFrame)
         self.searchInputLayout.setObjectName("searchInputLayout")
-        
-        # Sentence radio
-        self.sentenceRadio = QtWidgets.QRadioButton(self.searchInputFrame)
-        self.sentenceRadio.setObjectName("sentenceRadio")
-        self.sentenceRadio.clicked.connect(self.__activateSentenceMode)
-        self.searchInputLayout.addWidget(self.sentenceRadio, 0, 0, 1, 1)
-        
-        # Conjugation radio
-        self.conjugationRadio = QtWidgets.QRadioButton(self.searchInputFrame)
-        self.conjugationRadio.setObjectName("conjugationRadio")
-        self.conjugationRadio.clicked.connect(self.__activateConjugationMode)
-        self.searchInputLayout.addWidget(self.conjugationRadio, 1, 0, 1, 1)
-        
-        # Word radio
-        self.wordRadio = QtWidgets.QRadioButton(self.searchInputFrame)
-        self.wordRadio.setObjectName("wordRadio")
-        self.wordRadio.clicked.connect(self.__activateWordMode)
-        self.searchInputLayout.addWidget(self.wordRadio, 2, 0, 1, 1)
-        self.wordRadio.setChecked(True)
+
+        # Create a combo box for the options
+        self.searchModeCombo = QtWidgets.QComboBox(self.searchInputFrame)
+        self.searchModeCombo.setObjectName("searchModeCombo")
+
+        # Add items to the combo box
+        self.searchModeCombo.addItem("Sentence", "sentence")
+        self.searchModeCombo.addItem("Conjugation", "conjugation")
+        self.searchModeCombo.addItem("Word", "word")
+        # self.searchModeCombo.setEditable(True)
+        # self.searchModeCombo.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
+
+        # Set the default value
+        self.searchModeCombo.setCurrentIndex(2)  # Assuming "Word" is the default option
+
+        # Connect the combo box to a function
+        self.searchModeCombo.currentIndexChanged.connect(self.__onSearchModeChange)
+
+        # Add the combo box to the layout
+        self.searchInputLayout.addWidget(self.searchModeCombo, 0, 0, 1, 1)
         
         # Search button
         self.searchBtn = QtWidgets.QPushButton(self.searchInputFrame)
@@ -490,10 +520,10 @@ class Gui(QWidget):
         self.searchInputEdit.setObjectName("searchInputEdit")
         
         # Search input
-        self.searchInputLayout.addWidget(self.searchInputEdit, 0, 1, 4, 1)
+        self.searchInputLayout.addWidget(self.searchInputEdit, 0, 1, 2, 1)
         self.searchBtn.setObjectName("searchBtn")
         self.searchBtn.clicked.connect(self.__searchWiki)
-        self.searchInputLayout.addWidget(self.searchBtn, 3, 0, 1, 1)
+        self.searchInputLayout.addWidget(self.searchBtn, 1, 0, 1, 1)
         
         # Output display
         self.mainLayout.addWidget(self.searchInputFrame, 0, 1, 1, 1)
@@ -501,8 +531,6 @@ class Gui(QWidget):
         self.outputFrame.setMinimumSize(QtCore.QSize(0, 0))
         self.outputFrame.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.outputFrame.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.outputFrame.setFrameShape(QtWidgets.QFrame.Box)
-        self.outputFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.outputFrame.setObjectName("outputFrame")
         self.outputLayout = QtWidgets.QGridLayout(self.outputFrame)
         self.outputLayout.setObjectName("outputLayout")
@@ -524,8 +552,6 @@ class Gui(QWidget):
         self.mainWindowLayout.addWidget(self.mainFrame, 0, 0, 1, 1)
         
         # Border styling        
-        self.mainFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
-        self.sidebarFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
         self.sidebarInnerBottomFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
         self.sidebarInnerTopFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
         self.searchInputFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
@@ -533,21 +559,43 @@ class Gui(QWidget):
         
         self.__retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        MainWindow.setTabOrder(self.searchBtn, self.sentenceRadio)
-        MainWindow.setTabOrder(self.sentenceRadio, self.searchOutputBrowser)
         MainWindow.setTabOrder(self.searchOutputBrowser, self.changeLangBtn)
-        MainWindow.setTabOrder(self.changeLangBtn, self.searchWikBtn)
-        MainWindow.setTabOrder(self.searchWikBtn, self.autoAnkiBtn)
-        MainWindow.setTabOrder(self.autoAnkiBtn, self.settingsBtn)
-        MainWindow.setTabOrder(self.settingsBtn, self.colourModeBtn)
-        MainWindow.setTabOrder(self.colourModeBtn, self.searchInputEdit)
+        # MainWindow.setTabOrder(self.changeLangBtn, self.searchWikBtn)
+        # MainWindow.setTabOrder(self.searchWikBtn, self.autoAnkiBtn)
+        # MainWindow.setTabOrder(self.autoAnkiBtn, self.settingsBtn)
+        # MainWindow.setTabOrder(self.settingsBtn, self.colourModeBtn)
+        # MainWindow.setTabOrder(self.colourModeBtn, self.searchInputEdit)
         
         configVars = config_check()
         self.__applyConfig(configVars)
         
         # Expand sidebar
-        self.sidebarFrame.setMaximumSize(QtCore.QSize(160, 16777215))
+        self.sidebarFrame.setMaximumSize(QtCore.QSize(141, 16777215))
+        self.sidebarFrame.setMinimumSize(QtCore.QSize(141, 16777215))
         self.sidebarInnerTopFrame.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.scrollAreaWidgetContents.setLayout(self.scrollAreaLayout)
+        self.scrollAreaLayout.setAlignment(QtCore.Qt.AlignTop)
+        
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow.setXOffset(0)  # Horizontal offset of the shadow
+        shadow.setYOffset(0)  # Vertical offset of the shadow
+        shadow.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+        shadow1 = QGraphicsDropShadowEffect()
+        shadow1.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow1.setXOffset(0)  # Horizontal offset of the shadow
+        shadow1.setYOffset(0)  # Vertical offset of the shadow
+        shadow1.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+        shadow2 = QGraphicsDropShadowEffect()
+        shadow2.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow2.setXOffset(0)  # Horizontal offset of the shadow
+        shadow2.setYOffset(0)  # Vertical offset of the shadow
+        shadow2.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+
+        # self.outputFrame.setGraphicsEffect(shadow2)
+        self.sidebarFrame.setGraphicsEffect(shadow)
+        self.searchInputFrame.setGraphicsEffect(shadow1)
+
         
         if self.colourMode == "dark":
             self.__activateDarkmode()
@@ -564,6 +612,100 @@ class Gui(QWidget):
         # Generate buttons
         for count, id_word_pair in enumerate(savedWordsDict.items()):
             self.__genSavedWordsStartup(id_word_pair, count)
+            
+    
+    def setMyStyleLight(self):
+        self.sidebarFrame.setStyleSheet("""
+            QFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                background-color: #FAFAFA;
+                    }
+            """)
+        self.searchInputFrame.setStyleSheet("""
+            QFrame#searchInputFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                background-color: #FAFAFA;
+                    }
+            """)
+        self.outputFrame.setStyleSheet("""
+            QFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                    }
+            """)  
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollAreaLayout.setObjectName("scrollAreaLayout")
+        self.scrollAreaWidgetContents.setStyleSheet("""
+            QWidget#scrollAreaWidgetContents, QLabel {
+                background-color: #FAFAFA;
+            }
+        """)   
+        self.searchInputEdit.setStyleSheet("""
+            QTextEdit {
+                border: 1px solid lightgrey;
+                border-radius: 5px;
+                    }
+            """)  
+        self.mainFrame.setStyleSheet("""
+            QPushButton {
+                border-radius: 3px;
+            }
+            QComboBox {
+                border-radius: 3px;
+            }
+            QFrame {
+                border: 0px; margin: 0px;
+            }
+        """)
+        
+    def setMyStyleDark(self):
+        self.sidebarFrame.setStyleSheet("""
+            QFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                background-color: #292929;
+                    }
+            """)
+        self.searchInputFrame.setStyleSheet("""
+            QFrame#searchInputFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                background-color: #292929;
+                    }
+            """)
+        self.outputFrame.setStyleSheet("""
+            QFrame {
+                border: 0px solid lightgrey;
+                border-radius: 10px;
+                    }
+            """)  
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollAreaLayout.setObjectName("scrollAreaLayout")
+        self.scrollAreaWidgetContents.setStyleSheet("""
+            QWidget#scrollAreaWidgetContents, QLabel {
+                background-color: #292929;
+            }
+        """)   
+        self.searchInputEdit.setStyleSheet("""
+            QTextEdit {
+                border: 1px solid #171717;
+                border-radius: 5px;
+                    }
+            """)  
+        self.mainFrame.setStyleSheet("""
+            QPushButton {
+                border-radius: 3px;
+            }
+            QComboBox {
+                border-radius: 3px;
+            }
+            QFrame {
+                border: 0px; margin: 0px;
+            }
+        """)
+    
     
     def __setupAutoAnkiLayout(self):
         """
@@ -586,7 +728,7 @@ class Gui(QWidget):
         # Make cards button
         self.createCardsBtn = QtWidgets.QPushButton(self.autoAnkiTopFrame)
         self.createCardsBtn.setObjectName("createCardsBtn")
-        self.createCardsBtn.clicked.connect(self.__makeCards)
+        # self.createCardsBtn.clicked.connect(self.makeCards)
         self.autoAnkiLayout.addWidget(self.createCardsBtn, 0, 0, 1, 1)
         
         # Filepath display
@@ -597,7 +739,7 @@ class Gui(QWidget):
         # Add file button
         self.addFileBtn = QtWidgets.QPushButton(self.autoAnkiTopFrame)
         self.addFileBtn.setObjectName("addFileBtn")
-        self.addFileBtn.clicked.connect(self.__addFile)
+        self.addFileBtn.clicked.connect(self.addFile)
         self.autoAnkiLayout.addWidget(self.addFileBtn, 1, 0, 1, 1)
         
         # Output display
@@ -645,14 +787,10 @@ class Gui(QWidget):
         self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
         self.settingsBtn.setText(_translate("MainWindow", "Settings"))
         self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
-        self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
+        # self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
         self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
         self.searchBtn.setText(_translate("MainWindow", "Search"))
         self.contactBtn.setText(_translate("MainWindow", "Contact"))
-        # Radios
-        self.sentenceRadio.setText(_translate("MainWindow", "Phrase"))
-        self.conjugationRadio.setText(_translate("MainWindow", "Conjugation table"))
-        self.wordRadio.setText(_translate("MainWindow", "Search words"))
         # Labels
         self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
         self.sideLabel.setAlignment(Qt.AlignCenter)
@@ -667,6 +805,17 @@ class Gui(QWidget):
         _translate = QtCore.QCoreApplication.translate
         self.addFileBtn.setText(_translate("MainWindow", "Add File"))
         self.createCardsBtn.setText(_translate("MainWindow", "Make cards"))
+    
+    def __onSearchModeChange(self, index):
+        mode = self.searchModeCombo.itemData(index)
+        if mode == "sentence":
+            self.manualSearchMode = "sentence"
+            self.conjugationMode = False
+        elif mode == "conjugation":
+            self.conjugationMode = True
+        elif mode == "word":
+            self.manualSearchMode = "word"
+            self.conjugationMode = False
     
     def verifySaveBtnStatus(self):
         """Toggle the save button on/off.
@@ -734,18 +883,20 @@ class Gui(QWidget):
     def __activateLightmode(self):
         """Apply the light mode for the GUI.
         """
-        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
+        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
         self.mainWindow.setStyleSheet(stylesheet)
         self.colourMode = "light"
         self.__reapplyBorderColours()
+        self.setMyStyleLight()
     
     def __activateDarkmode(self):
         """Apply the dark mode for the GUI.
         """
-        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
+        stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         self.mainWindow.setStyleSheet(stylesheet)
         self.colourMode = "dark"
         self.__reapplyBorderColours()
+        self.setMyStyleDark()
     
     def __toggleColourMode(self):
         """When the user presses the light/dark mode button, toggle on light mode if dark mode is currently applied and
@@ -804,7 +955,7 @@ class Gui(QWidget):
             emoji = "🏺"
         elif lang == "English":
             emoji = "💂"
-        self.currentLangLabel.setText(f"Current: {lang} {emoji}")
+        self.currentLangLabel.setText(f"{lang} {emoji}")
     
     def __applyConfig(self, configVars):
         """Apply the config variables to the GUI.
@@ -881,7 +1032,7 @@ class Gui(QWidget):
         :return: The definitions for the word.
         """
         
-        return grab_wik(keyword, self.currentLanguage)
+        return grab_wik(keyword, self.currentLanguage, self.getEtymology, self.getUsage)
     
     def __searchWiki(self):
         """Search Wiktionary for a specific word.
@@ -929,6 +1080,7 @@ class Gui(QWidget):
                 defsDictsArray.append(self.__callAPI(keyword))
             # Stringify definitions dictionary.
             definitions = ""
+            print(defsDictsArray)
             for count, defsDict in enumerate(defsDictsArray):
                 # Only add a line break if there is more than one word.
                 if count > 0:
@@ -936,10 +1088,11 @@ class Gui(QWidget):
                 if count == 0:
                     self.wordOne = keywords[count]
                 definitions += f"<h3>{keywords[count]}</h3>"
-                definitionsString = self.__stringifyDefDict(defsDict, count)
+                definitionsString = self.__stringifyDefDict(defsDict, count, self.getEtymology, self.getUsage)
                 definitions += definitionsString
             # Update class string defs variable.
             self.__updateDefsString(definitions)
+            print(definitions)
             # Print definitions in text output box.
             self.__displayDefinitions()
             self.__updatCurrentDefinitions(defsDictsArray)
@@ -947,7 +1100,7 @@ class Gui(QWidget):
             self.displayingSavable = True
             self.verifySaveBtnStatus()
     
-    def __stringifyDefDict(self, defsDict, count):
+    def __stringifyDefDict(self, defsDict, count, getEtymology, getUsage):
         """Takes a definitions dictionary and converts it to HTML.
         
         :param defsDict: A dictionary of definitions pulled from Wiktionary.
@@ -959,7 +1112,8 @@ class Gui(QWidget):
         if defsDict:
             for tag, definition in defsDict.items():
                 if definition:
-                    if self.currentLanguage in GENDERED_LANGS:
+                    
+                    if self.currentLanguage in GENDERED_LANGS and tag != "etymology" and tag != "usage":
                         if tag == "noun":
                             defs_string += f"{tag.capitalize()}"
                             for line_no, string in enumerate(definition):
@@ -980,6 +1134,18 @@ class Gui(QWidget):
                             defs_string += "</ol>"
                             defs_string += "<br>"
                     
+                    elif tag == "etymology" or tag == "usage":
+                        defs_string += f"{tag.capitalize()}"
+                        if tag == "usage":
+                            # Define the regex pattern
+                            pattern = r"\* (.*?)(\n|$)"
+                            # Use re.sub() to replace the matched sections with HTML unordered list tags
+                            listed = re.sub(pattern, r"<ul><li>\1</li></ul>", definition[0])
+                            defs_string += f"{listed}<br>"
+                        else:
+                            defs_string += f"<ul><li>{definition[0]}</li></ul><br>"
+                        
+                    
                     else:
                         defs_string += f"{tag.capitalize()}"
                         defs_string += "<ol>"
@@ -987,6 +1153,9 @@ class Gui(QWidget):
                             defs_string += f"<li>{string}</li>"
                         defs_string += "</ol>"
                         defs_string += "<br>"
+                    
+                    
+        
         return defs_string
     
     def __updateSearchTerm(self, savedKeywords):
@@ -1041,12 +1210,13 @@ class Gui(QWidget):
         self.searchOutputBrowser.setHtml(self.htmlContent)
         #print(self.htmlContent)
     
-    def __makeCards(self):
+    def makeCards(self, deckName):
         """Begins the process of creating anki cards from the provided file.
         """
         print("Making cards...")
-        # self.AAOutputBrowser.setHtml(f"Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
-        make_cards(self.currentInputFilePath, self.currentLanguage)
+        # self.searchOutputBrowser.setHtml("Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
+        # Sleep 1 second
+        make_cards(self.currentInputFilePath, self.currentLanguage, deckName)
     
     def __spawnSettingsDialog(self):
         """Bring up the settings dialog.
@@ -1092,6 +1262,20 @@ class Gui(QWidget):
             self.windowContact.setStyleSheet(stylesheet)
         
         self.windowContact.show()
+        
+    def __openAutoAnki(self):
+        self.windowAa = QtWidgets.QDialog()
+        self.UIAa = GuiAA(self)
+        self.UIAa.setupUi(self.windowAa)
+        
+        # Colour mode styling
+        if self.colourMode == "dark":
+            self.windowAa.setStyleSheet(stylesheet_drk)
+        else:
+            self.windowAa.setStyleSheet(stylesheet)
+        
+        self.windowAa.show()
+        
     
     def spawnTutorial(self):
         """Bring up the language selector dialog.
@@ -1104,7 +1288,7 @@ class Gui(QWidget):
         else:
             logger.info("Tutorial has been disabled.")
     
-    def __addFile(self):
+    def addFile(self):
         """Opens a file explorer.
         """
         dlg = QtWidgets.QFileDialog()
@@ -1120,7 +1304,7 @@ class Gui(QWidget):
                 data = f.read()
                 self.selectedFileContent = data
         
-        self.__updatePathDisplay()
+        # self.__updatePathDisplay()
     
     def testFile(self):
         """Simply prints the file that has been selected. For development testing purposes.
@@ -1158,19 +1342,21 @@ class Gui(QWidget):
             self.savedSidebarWords[unique_id] = self.htmlContentText
             
             word = self.conjWord
+            if len(word) > 7:
+                word = word[:3] + "..."
             
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
+            self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
             newWordBtn.setText(f"{word} 📜")
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
+            self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
             newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
@@ -1184,19 +1370,21 @@ class Gui(QWidget):
             
             # Get the word itself.
             word = self.wordOne
+            if len(word) > 7:
+                word = word[:3] + "..."
             
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
+            self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
             newWordBtn.setText(f"{word} 🔖")
             newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
             
             # Create remove button
             newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.sidebarTopLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
+            self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
             newWordBtnRmv.setText("-")
             newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
             
@@ -1209,12 +1397,12 @@ class Gui(QWidget):
         # Create a new button for the sidebar.
         newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         newWordBtn.setObjectName(f"sideButton{id_word_pair[0]}")
-        self.sidebarTopLayout.addWidget(newWordBtn, 8+count, 0, 1, 1)
+        self.scrollAreaLayout.addWidget(newWordBtn, 8+count, 0, 1, 1)
         
         # Create remove button
         newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         newWordBtnRmv.setObjectName(f"sideButtonRmv{id_word_pair[0]}")
-        self.sidebarTopLayout.addWidget(newWordBtnRmv, 8+count, 1, 1, 1)
+        self.scrollAreaLayout.addWidget(newWordBtnRmv, 8+count, 1, 1, 1)
         newWordBtnRmv.setText("-")
         newWordBtnRmv.setMaximumSize(QtCore.QSize(25, 16777215))
         newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(id_word_pair[0]))
@@ -1241,8 +1429,8 @@ class Gui(QWidget):
         # Remove the button.
         word_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButton{unique_id}")
         remove_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{unique_id}")
-        self.sidebarTopLayout.removeWidget(word_btn)
-        self.sidebarTopLayout.removeWidget(remove_btn)
+        self.scrollAreaLayout.removeWidget(word_btn)
+        self.scrollAreaLayout.removeWidget(remove_btn)
 
         # Remove the word from the dict.
         print(f"Deleting saved word at key {unique_id}")
@@ -1305,6 +1493,78 @@ class Gui(QWidget):
         
         return self.savedSidebarWords
 
+
+class GuiAA(object):
+    def __init__(self, parent):
+        self.parent = parent
+
+    
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(351, 221)
+        self.widget = QtWidgets.QWidget(Dialog)
+        self.widget.setGeometry(QtCore.QRect(20, 20, 311, 181))
+        self.widget.setObjectName("widget")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.widget)
+        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.label_3 = QtWidgets.QLabel(self.widget)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.label_3.setFont(font)
+        self.label_3.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_2 = QtWidgets.QLabel(self.widget)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.widget)
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.gridLayout.addWidget(self.lineEdit_2, 1, 1, 1, 1)
+        self.pushButton = QtWidgets.QPushButton(self.widget)
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.clicked.connect(self.__openFile)
+        self.gridLayout.addWidget(self.pushButton, 0, 0, 1, 1)
+        self.lineEdit = QtWidgets.QLineEdit(self.widget)
+        self.lineEdit.setObjectName("lineEdit")
+        self.lineEdit.setReadOnly(True)
+        self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout, 2, 0, 1, 1)
+        self.buttonBox = QtWidgets.QDialogButtonBox(self.widget)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.clicked.connect(self.__makeCards)
+        self.buttonBox.setCenterButtons(True)
+        self.buttonBox.setObjectName("buttonBox")
+        self.gridLayout_2.addWidget(self.buttonBox, 3, 0, 1, 1)
+
+        self.retranslateUi(Dialog)
+        self.buttonBox.accepted.connect(Dialog.accept) # type: ignore
+        self.buttonBox.rejected.connect(Dialog.reject) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "AutoAnki Card Generator"))
+        self.label_3.setText(_translate("Dialog", "🀄 AutoAnki Card Generator 🀄"))
+        self.label_2.setText(_translate("Dialog", "Deck name"))
+        self.pushButton.setText(_translate("Dialog", "Open"))
+
+    def __openFile(self):
+        self.parent.addFile()
+        self.lineEdit.setText(self.parent.currentInputFilePath)
+        
+    def __makeCards(self):
+        deckName = self.lineEdit_2.text()
+        if deckName == "":
+            deckName = "Unnamed Deck"
+        self.parent.makeCards(deckName)
 
 class GuiContactDialog(object):
     def setupUi(self, Dialog):
@@ -1757,9 +2017,9 @@ class GuiSettingsDialog(object):
         
         colourMode = self.parent.getColourMode()
         if colourMode == "dark":
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS, custom_colours)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:
-            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS, custom_colours)
+            stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
         self.window.setStyleSheet(stylesheet)    
     
     def retranslateUi(self, settingsDialog):
@@ -2046,7 +2306,7 @@ def match_tags(dict_array):
     return dict_array
 
 
-def grab_wik(text, language):
+def grab_wik(text, language, get_etymology, get_usage_notes):
     """Grab the Wiktionary definitions for a single word.
     
     :param text: The text provided by the user in the GUI input field.
@@ -2057,9 +2317,9 @@ def grab_wik(text, language):
     :rtype: string
     """
     page_content = get_wiktionary_definition(text)
-    print(page_content)
+    # print(page_content)
     if page_content:
-        parsed_definitions_dict = parse_page(page_content, language)
+        parsed_definitions_dict = parse_page(page_content, language, "manualsearch", get_etymology, get_usage_notes)
         if parsed_definitions_dict:
             cleaned_definitions = clean_wikitext_mansearch(parsed_definitions_dict)
             return cleaned_definitions
@@ -2210,7 +2470,7 @@ def get_wiktionary_definition(word):
         return False
 
 
-def parse_page(page_content, language):
+def parse_page(page_content, language, mode, get_etymology, get_usage_notes):
     """
     Process the page so that it can be worked on.
     
@@ -2293,7 +2553,23 @@ def parse_page(page_content, language):
             "exclamation": exclamation_section,
             "determiner": determiner_section
         }
+        
+        if mode == "manualsearch":
+            if get_etymology == "True":
+                etymology_section = re.findall(r'===Etymology===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
+                if not etymology_section:
+                    etymology_section = re.findall(r'====Etymology====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+                definitions["etymology"] = etymology_section
+                print(f"Etymology section: {etymology_section}")
+                print(f"Etymology Dict: {definitions['etymology']}")
+            if get_usage_notes == "True":
+                usage_section = re.findall(r'===Usage notes===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
+                if not usage_section:
+                    usage_section = re.findall(r'====Usage notes====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
+                definitions["usage"] = usage_section
             
+        print(f"\nDict: {definitions}\n")
+        
         for part_of_speech, section in definitions.items():
             if section:
                 definition = []
@@ -2315,10 +2591,15 @@ def parse_page(page_content, language):
                         pass
                 elif language == "Spanish" and part_of_speech == "noun":
                     definition += re.findall(r"es-noun\|(.)", section[0][0])
-                definition += re.findall(r'# (.*?)(?:\n|$)', section[0][0])
-                definitions[part_of_speech] = definition
+                
+                if part_of_speech != "etymology" and part_of_speech != "usage":
+                    definition += re.findall(r'# (.*?)(?:\n|$)', section[0][0])
+                    definitions[part_of_speech] = definition
+                else:
+                    definitions[part_of_speech] = section[0]
             
         if any(definitions.values()):
+            print(f"\nReturning: {definitions}\n")
             return definitions
         else:
             logger.warning(f"No definitions found in >>\n{page_content}\n If you see definitions here, that means there is either a problem with the code, or the part of speech is not being considered by the program. If you think this is an oversight and that this particular part of speech should be added, please contact me via the contact form, or if you'd like to fix it yourself, submit a pull request on GitHub.")
@@ -2344,7 +2625,9 @@ def clean_wikitext_mansearch(parsed_definitions_dict):
         "numeral": [],
         "interjection": [],
         "exclamation": [],
-        "determiner": []
+        "determiner": [],
+        "etymology": [],
+        "usage": []
     }
     
     # Extract and clean links: convert something like [[apple|Apple]] to Apple or [[apple]] to apple
@@ -2599,7 +2882,7 @@ def get_nlp(language):
     return nlp
 
 
-def make_cards(text_file, language): 
+def make_cards(text_file, language, deck_name): 
     """
     Makes Anki cards from the text file submitted by the user.
     
@@ -2688,7 +2971,7 @@ def make_cards(text_file, language):
                 page_content = get_wiktionary_definition(word)
                 logger.info(f"Defininition for < {word} > in language < {language} > retrieved.")
                 logger.info(f"Removing other language definitions for < {word} > and returning only < {language} > definitions.")
-                parsed_definitions_dict = parse_page(page_content, language)
+                parsed_definitions_dict = parse_page(page_content, language, "autoanki", False, False)
                 logger.info(f"Successfully isolated < {language} > definitions for < {word} >.")
                 dict_array[count]["definitions"].append(parsed_definitions_dict)
                 logger.info(f"Added definitions for < {word} > to card dictionary.")
@@ -2717,13 +3000,13 @@ def make_cards(text_file, language):
     for count, dictionary in enumerate(dict_array):
         if count > 0:
             anki_file += "\n"
-        anki_file += format_card(dictionary["text"], dictionary["definitions"], dictionary["words"], dictionary["tags"], "Test", language)
+        anki_file += format_card(dictionary["text"], dictionary["definitions"], dictionary["words"], dictionary["tags"], deck_name, language)
     logger.info(f"Cards formatted.")
     
     # Save the cards to a single file for importing to Anki.
-    save_filename = f"cards_import.txt"
+    save_filename = f"{deck_name}_cards.txt"
     desktop_path = "D:\projects\software_dev\\autodict"
-    full_file_path = "D:\projects\software_dev\\autodict\cards_import.txt"
+    full_file_path = f"D:\projects\software_dev\\autodict\{deck_name}_cards.txt"
     
     logger.info(f"Saving export file.")
     print(f"Saving export file.")
@@ -2819,6 +3102,7 @@ if __name__ == "__main__":
     
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet(stylesheet)
+    app.processEvents()
     
     MainWindow = QtWidgets.QDialog()
     gui = Gui()
