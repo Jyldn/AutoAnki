@@ -27,6 +27,11 @@ import requests
 import time
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 from PyQt5.QtGui import QColor
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+import queue
+
+
 
 
 # Logging
@@ -46,6 +51,8 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #en
 # custom_colours = {"textLink.foreground": "#58a6ff"}
 stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
+import threading
+
 
 SHADOW_INTENSITY = 50
 SHADOW_BLUR_INTENSITY = 15
@@ -1219,13 +1226,12 @@ class Gui(QWidget):
         self.searchOutputBrowser.setHtml(self.htmlContent)
         #print(self.htmlContent)
     
-    def makeCards(self, deckName):
+    def makeCards(self, deckName, messageQueue):
         """Begins the process of creating anki cards from the provided file.
         """
-        print("Making cards...")
         # self.searchOutputBrowser.setHtml("Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
         # Sleep 1 second
-        make_cards(self.currentInputFilePath, self.currentLanguage, deckName)
+        make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue)
     
     def __spawnSettingsDialog(self):
         """Bring up the settings dialog.
@@ -1578,7 +1584,43 @@ class GuiAA(object):
         deckName = self.lineEdit_2.text()
         if deckName == "":
             deckName = "Unnamed Deck"
-        self.parent.makeCards(deckName)
+            
+        # Create a queue for inter-thread communication
+        self.messageQueue = queue.Queue()
+            
+        self.overlay = QtWidgets.QWidget(self.widget)
+        self.overlay.setGeometry(self.widget.rect())
+        self.consoleDisplay = QtWidgets.QPlainTextEdit(self.overlay)
+        self.consoleDisplay.setGeometry(0, 0, self.overlay.width(), self.overlay.height())
+        # self.consoleDisplay.setStyleSheet("font: 4pt 'Courier';")
+        
+        default_font = QtWidgets.QApplication.font()
+        default_font.setPointSize(8) 
+        self.consoleDisplay.setFont(default_font)
+        
+        # Start the card-making process in a new thread
+        thread = threading.Thread(target=self.parent.makeCards, args=(deckName, self.messageQueue))
+        thread.daemon = True
+        thread.start()
+        
+        # Start a timer to periodically check the queue and update the console display
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.checkQueue)
+        self.timer.start(100)  # Check every 100 ms
+
+        self.overlay.show()
+            
+    def append_to_console_display(self, text):
+        # Append text to the QTextEdit or QPlainTextEdit
+        self.consoleDisplay.moveCursor(QtGui.QTextCursor.End)
+        self.consoleDisplay.insertPlainText(text + '\n')
+        self.consoleDisplay.moveCursor(QtGui.QTextCursor.End)
+        
+    def checkQueue(self):
+        while not self.messageQueue.empty():
+            message = self.messageQueue.get()
+            self.append_to_console_display(message)
+
 
 class GuiContactDialog(object):
     def setupUi(self, Dialog):
@@ -3101,7 +3143,7 @@ def get_nlp(language):
     return nlp
 
 
-def make_cards(text_file, language, deck_name): 
+def make_cards(text_file, language, deck_name, messageQueue): 
     """
     Makes Anki cards from the text file submitted by the user.
     
@@ -3109,6 +3151,8 @@ def make_cards(text_file, language, deck_name):
     :param language: The language selected by the user via the Gui.
     """
     # Get the text from the user's file.
+    messageQueue.put("AutoAnki Started.")
+
     text = read_sentence_file(text_file)
     if text == False:
         logger.error(f"Error reading user input file for AutoAnki process. Perhaps the text file is empty, corrupted, or incorrectly formatted. File content: >>\n{text}\n<<")
@@ -3133,32 +3177,31 @@ def make_cards(text_file, language, deck_name):
 
     # Find the keywords. Should be designated with an asterisk before the word.
     logger.info(f"Finding all keywords marked with an asterisk.")
-    print(f"Finding all keywords marked with an asterisk.")
+    messageQueue.put(f"Finding keywords.")
     dict_array = find_keywords(dict_array)
-    logger.info(f"Done finding keywords.")
     
     # Get the relevant language package.
+    messageQueue.put(f"Preparing language processor. This may take a moment, please wait.")
     nlp = get_nlp(language)
     
     # Get grammar tags for each word via nltk natural language processing.
     logger.info(f"Processing grammatical context for all user input in order to find grammar tags.")
-    print(f"Processing grammatical context for all user input in order to find grammar tags.")
+    messageQueue.put(f"Getting grammar tags.")
     dict_array = get_tags(dict_array, language, nlp)
-    logger.info(f"Done finding tags.")
     
     # Match nltk tags to wiktionary tag types. This does nothing other than change the definitions of the tags being 
     # used in the dictionaries.
     logger.info(f"Matching NLTK tags with readable tags.")
-    print(f"Matching NLTK tags with readable tags.")
     dict_array = match_tags(dict_array)
     logger.info(f"Done matching tags.")
     
     # Get definitions from Wiktionary.
+    messageQueue.put(f"Making {str(len(dict_array))} cards.")
     for count, dictionary in enumerate(dict_array):
+        messageQueue.put(f"Getting Wikti data for card {str(count+1)}/{str(len(dict_array))}.")
         logger.info(f"Getting word definitions from Wiktionary.")
-        print(f"Getting word definitions from Wiktionary.")
         for w_count, word in enumerate(dictionary.get("words")):
-            print(dictionary)
+            # messageQueue.put(dictionary)
             if dictionary["tags"][w_count][1] in ["adjective", "verb", "noun"]:
                 logger.info(f"Current word < {word} > is a noun, verb, or adjective. Removing any possible declension.")
                 
@@ -3198,12 +3241,14 @@ def make_cards(text_file, language, deck_name):
     # Remove irrelevent definitions.
     logger.info(f"Removing all definitions that do not match the grammatical context of the word.")
     print(f"Removing all definitions that do not match the grammatical context of the word.")
+    messageQueue.put(f"Processing cards.")
     dict_array = remove_irrelevant_defs(dict_array)
     logger.info(f"Done removing irrelevant definitions.")
     
     # Clean definitions so that they're readable (remove HTML tags, etc.).
     logger.info(f"Cleaning definitions so that they're readable by removing HTML tags, etc.")
     print(f"Cleaning definitions so that they're readable by removing HTML tags, etc.")
+    messageQueue.put(f"Cleaning cards.")
     for count, dictionary in enumerate(dict_array):
         cleaned_defs = clean_wikitext_new(dictionary["definitions"])
         dict_array[count]["definitions"] = cleaned_defs
@@ -3215,12 +3260,12 @@ def make_cards(text_file, language, deck_name):
     # The dictionaries are now ready to be used to create cards. They must be formatted so that Anki can read them and 
     # convert them.
     logger.info(f"Formatting Anki cards.")
-    print(f"Formatting Anki cards.")
+    messageQueue.put(f"Formatting cards.")
     for count, dictionary in enumerate(dict_array):
         if count > 0:
             anki_file += "\n"
         anki_file += format_card(dictionary["text"], dictionary["definitions"], dictionary["words"], dictionary["tags"], deck_name, language)
-    logger.info(f"Cards formatted.")
+    logger.info(f"Done.")
     
     # Save the cards to a single file for importing to Anki.
     save_filename = f"{deck_name}_cards.txt"
@@ -3228,7 +3273,6 @@ def make_cards(text_file, language, deck_name):
     full_file_path = f"D:\projects\software_dev\\autodict\{deck_name}_cards.txt"
     
     logger.info(f"Saving export file.")
-    print(f"Saving export file.")
     
     print()
     pprint.pprint(dict_array)
@@ -3237,11 +3281,11 @@ def make_cards(text_file, language, deck_name):
     save_result = export_cards(save_filename, desktop_path, anki_file)
     if save_result:
         logger.info(f"File saved to {full_file_path}")
-        print(f"File saved to {full_file_path}")
+        messageQueue.put(f"File saved to {full_file_path}")
     else:
         logger.info(f"Error saving file to {full_file_path}")
-        print(f"Error saving file to {full_file_path}")
-        return False
+        messageQueue.put(f"Error saving file to {full_file_path}")
+    messageQueue.put(f"You can now close this window.")
 
 
 def should_word_be_capitalised(word):
