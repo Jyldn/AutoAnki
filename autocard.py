@@ -1544,18 +1544,24 @@ class GuiAA(object):
         self.lineEdit.setReadOnly(True)
         self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 2, 0, 1, 1)
+        
+        # Customize the button box
         self.buttonBox = QtWidgets.QDialogButtonBox(self.widget)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.clicked.connect(self.__makeCards)
-        self.buttonBox.setCenterButtons(True)
-        self.buttonBox.setObjectName("buttonBox")
+        # Remove the existing buttons
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.NoButton)
+        # Create custom buttons and add them to the button box
+        self.makeCardsButton = self.buttonBox.addButton("Make Cards", QtWidgets.QDialogButtonBox.AcceptRole)
+        self.cancelButton = self.buttonBox.addButton("Cancel", QtWidgets.QDialogButtonBox.RejectRole)
         self.gridLayout_2.addWidget(self.buttonBox, 3, 0, 1, 1)
 
-        self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept) # type: ignore
-        self.buttonBox.rejected.connect(Dialog.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(Dialog)
+        
+        # Connect the custom buttons to their respective slots
+        self.makeCardsButton.clicked.connect(self.__makeCards)  # Connect the "Make Cards" button to the card creation method
+        self.cancelButton.clicked.connect(Dialog.reject)  # Connect the "Cancel" button to the reject slot of the dialog
+        
+        self.retranslateUi(Dialog)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
