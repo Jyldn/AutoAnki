@@ -47,6 +47,9 @@ QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #en
 stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
 
+SHADOW_INTENSITY = 50
+SHADOW_BLUR_INTENSITY = 15
+
 html_header_dark = """
         <html>
         <head>
@@ -577,20 +580,20 @@ class Gui(QWidget):
         self.scrollAreaLayout.setAlignment(QtCore.Qt.AlignTop)
         
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
         shadow.setXOffset(0)  # Horizontal offset of the shadow
         shadow.setYOffset(0)  # Vertical offset of the shadow
-        shadow.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+        shadow.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
         shadow1 = QGraphicsDropShadowEffect()
-        shadow1.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow1.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
         shadow1.setXOffset(0)  # Horizontal offset of the shadow
         shadow1.setYOffset(0)  # Vertical offset of the shadow
-        shadow1.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+        shadow1.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
         shadow2 = QGraphicsDropShadowEffect()
-        shadow2.setBlurRadius(9)  # Adjust for the desired blur effect
+        shadow2.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
         shadow2.setXOffset(0)  # Horizontal offset of the shadow
         shadow2.setYOffset(0)  # Vertical offset of the shadow
-        shadow2.setColor(QColor(0, 0, 0, 40))  # Shadow color and transparency
+        shadow2.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
 
         # self.outputFrame.setGraphicsEffect(shadow2)
         self.sidebarFrame.setGraphicsEffect(shadow)
@@ -659,6 +662,8 @@ class Gui(QWidget):
                 border: 0px; margin: 0px;
             }
         """)
+        self.saveWord.setStyleSheet("QPushButton {border-radius: 3px;}")
+
         
     def setMyStyleDark(self):
         self.sidebarFrame.setStyleSheet("""
@@ -705,6 +710,8 @@ class Gui(QWidget):
                 border: 0px; margin: 0px;
             }
         """)
+        self.saveWord.setStyleSheet("QPushButton {border-radius: 3px;}")
+
     
     
     def __setupAutoAnkiLayout(self):
@@ -783,7 +790,7 @@ class Gui(QWidget):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
         # Buttons
-        self.saveWord.setText(_translate("MainWindow", "+ Add +"))
+        self.saveWord.setText(_translate("MainWindow", "Add"))
         self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
         self.settingsBtn.setText(_translate("MainWindow", "Settings"))
         self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
@@ -952,7 +959,7 @@ class Gui(QWidget):
         elif lang == "German":
             emoji = "🥨"
         elif lang == "Spanish":
-            emoji = "🌮"
+            emoji = "💃"
         elif lang == "Latin": 
             emoji = "🏺"
         elif lang == "English":
@@ -1499,28 +1506,27 @@ class Gui(QWidget):
 class GuiAA(object):
     def __init__(self, parent):
         self.parent = parent
-
     
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(351, 221)
+        Dialog.resize(351, 205)
         self.widget = QtWidgets.QWidget(Dialog)
-        self.widget.setGeometry(QtCore.QRect(20, 20, 311, 181))
+        self.widget.setGeometry(QtCore.QRect(20, 20, 311, 140))
         self.widget.setObjectName("widget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.widget)
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.label_3 = QtWidgets.QLabel(self.widget)
+        self.headerLbl = QtWidgets.QLabel(self.widget)
         font = QtGui.QFont()
         font.setPointSize(10)
         font.setBold(True)
         font.setItalic(False)
         font.setWeight(75)
-        self.label_3.setFont(font)
-        self.label_3.setTextFormat(QtCore.Qt.MarkdownText)
-        self.label_3.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 1)
+        self.headerLbl.setFont(font)
+        self.headerLbl.setTextFormat(QtCore.Qt.MarkdownText)
+        self.headerLbl.setAlignment(QtCore.Qt.AlignCenter)
+        self.headerLbl.setObjectName("headerLbl")
+        self.gridLayout_2.addWidget(self.headerLbl, 0, 0, 1, 1)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.label_2 = QtWidgets.QLabel(self.widget)
@@ -1554,7 +1560,7 @@ class GuiAA(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "AutoAnki Card Generator"))
-        self.label_3.setText(_translate("Dialog", "🀄 AutoAnki Card Generator 🀄"))
+        self.headerLbl.setText(_translate("Dialog", "🀄 AutoAnki Card Generator 🀄"))
         self.label_2.setText(_translate("Dialog", "Deck name"))
         self.pushButton.setText(_translate("Dialog", "Open"))
 
