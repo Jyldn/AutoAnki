@@ -3,8 +3,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtWidgets, QtCore, QtGui
-import PyQt5
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QWidget, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWebEngineWidgets
 from bs4 import BeautifulSoup
@@ -12,52 +11,45 @@ import uuid
 import string
 import stanza
 import spacy_stanza
-from spacy.lang.ja import Japanese
 import logging
 import requests
 import re
 import sys
 import sys
-import nltk
 import os
 import pprint
 import configparser
 import qtvscodestyle as qtvsc
 import requests
-import time
 from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 from PyQt5.QtGui import QColor
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
 import queue
-
-
+import threading
+# from spacy.lang.ja import Japanese
 
 
 # Logging
-# Create a logger
+# Create logger.
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-# configure the handler and formatter for logger2
+# Configure the handler and formatter for logger.
 handler = logging.FileHandler(f"{__name__}.log", mode='w')
 formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
-# add formatter to the handler
+# Add formatter to the handler.
 handler.setFormatter(formatter)
-# add handler to the logger
+# Add handler to the logger.
 logger.addHandler(handler)
 
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
-#QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
-# custom_colours = {"textLink.foreground": "#58a6ff"}
+# Highdpi scaling
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True) 
+# QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True) 
 stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 stylesheet_drk = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
-import threading
-
 
 SHADOW_INTENSITY = 50
 SHADOW_BLUR_INTENSITY = 15
 
-html_header_dark = """
+HTML_HEADER_DARK = """
         <html>
         <head>
             <style>
@@ -74,7 +66,7 @@ html_header_dark = """
         <body>
         """
 
-html_header_dark_conj = """
+HTML_HEADER_DARK_CONJ = """
         <html>
         <head>
             <style>
@@ -100,7 +92,7 @@ html_header_dark_conj = """
         <body>
         """
 
-html_header_light = """
+HTML_HEADER_LIGHT = """
         <html>
         <head>
             <style>
@@ -116,12 +108,12 @@ html_header_light = """
         <body>
         """ 
 
-html_footer = """
+HTML_FOOTER = """
         </body>
         </html>
         """
 
-langs = {
+LANGS = {
     "1": "Arabic",
     "2": "English",
     "3": "French",
@@ -133,7 +125,7 @@ langs = {
     "9": "Spanish"
 }
 
-nltk_tag_ref = {
+NLTK_TAG_REF = {
     "noun" : ("NN", "NNS", "NNP", "NNPS"), 
     "verb" : ("VB", "VBG", "VBD", "VBN", "VBP", "VBZ"), 
     "adjective" : ("JJ", "JJR", "JJS"), 
@@ -162,8 +154,7 @@ GENDERED_LANGS = ["German", "French", "Spanish", "Latin"]
 
 
 class MyLineEdit(QTextEdit):
-    """Actually a Text Edit. Custom class needed to handle enter key presses. When user presses enter when using the
-    text edit, the wiki search fuction is triggered.
+    """Custom Text Edit needed to handle enter key presses.
     
     :param QTextEdit: QTextEdit object.
     :type QTextEdit: PyQT5.QtWidget
@@ -182,7 +173,7 @@ class MyLineEdit(QTextEdit):
 
 
 class TutorialDialog(QtWidgets.QDialog):
-    """The tutorial dialog that opens on startup. Whether this opens or not is determined my the config file.
+    """Tutorial dialog that opens on startup.
     
     :param QtWidgets: Dialog object.
     :type QtWidgets: QtWidgets.QDialog
@@ -296,13 +287,11 @@ class TutorialDialog(QtWidgets.QDialog):
 class Gui(QWidget):
     """
     The main user inferface window.
-    
-    :param object: Nothing
     """
     def __init__(self, parent=None):
         super(Gui, self).__init__()
         
-        # Variables
+        # Class variables
         self.savedKeywords = False
         self.current_definitions = {}
         self.currentDefsStringified = ""
@@ -335,12 +324,10 @@ class Gui(QWidget):
         self.topOffset = 40
     
     def setupUI(self, MainWindow):
-        """
-        Set up the user interface of the main window. This is by deault the "search" layout. The card creator layout is
-        by default not initialised. To initialilse it, it must be called by a separate function, which is done on a
-        button click.
-        
-        :param MainWindow: The window object.
+        """Initialise the GUI.
+
+        :param MainWindow: The main window object.
+        :type MainWindow: PyQt5.QtWidgets.QMainWindow
         """
         # Main window
         self.mainWindow = MainWindow
@@ -361,14 +348,13 @@ class Gui(QWidget):
         self.mainLayout.setVerticalSpacing(4)
         self.mainLayout.setObjectName("mainLayout")
         
-        ## Sidebar
+        # Sidebar
         # Frame
         self.sidebarFrame = QtWidgets.QFrame(self.mainFrame)
-        self.sidebarFrame.setMaximumSize(QtCore.QSize(400, 16777215))
+        self.sidebarFrame.setMaximumSize(QtCore.QSize(410, 16777215))
         self.sidebarFrame.setFrameShape(QtWidgets.QFrame.Box)
         self.sidebarFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.sidebarFrame.setObjectName("sidebarFrame")
-        # Add border
         # Layout
         self.sidebarLayout = QtWidgets.QGridLayout(self.sidebarFrame)
         self.sidebarLayout.setContentsMargins(1, -1, 0, -1)
@@ -406,20 +392,14 @@ class Gui(QWidget):
         self.sidebarBottomLayout.addWidget(self.contactBtn, 3, 0, 1, 1)
         
         # Top frame
-        # Create a QVBoxLayout
         self.layout = QtWidgets.QVBoxLayout(self.sidebarFrame)
-        # Add your widget to the layout
         self.sidebarInnerTopFrame = QtWidgets.QFrame(self.sidebarFrame)
         self.sidebarInnerTopFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.sidebarInnerTopFrame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.sidebarInnerTopFrame.setObjectName("sidebarInnerTopFrame")
-
-        # Add the widget to the layout
         self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0)
-        
         # Remove border
         self.sidebarInnerTopFrame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        
         # Layout
         self.sidebarTopLayout = QtWidgets.QGridLayout(self.sidebarInnerTopFrame)
         self.sidebarTopLayout.setObjectName("sidebarTopLayout")
@@ -431,10 +411,6 @@ class Gui(QWidget):
         self.sidebarTopLayout.addWidget(self.autoAnkiBtn, 1, 0, 1, 0)
         
         # Search wiki
-        # self.searchWikBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        # self.searchWikBtn.setObjectName("searchWikBtn")
-        # self.searchWikBtn.clicked.connect(self.__switchToSearch)
-        # self.sidebarTopLayout.addWidget(self.searchWikBtn, 1, 0, 1, 0)
         self.line = QtWidgets.QFrame(self.sidebarInnerTopFrame)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -455,17 +431,12 @@ class Gui(QWidget):
         self.changeLangBtn.clicked.connect(self.__spawnLanguageDialog)
         self.sidebarTopLayout.addWidget(self.changeLangBtn, 2, 0, 1, 0)
         
-        # Create a QScrollArea
+        # ScrollArea
         self.scrollArea = QtWidgets.QScrollArea(self.sidebarInnerTopFrame)
         self.scrollArea.setWidgetResizable(True)
-        
-        # Create a widget for the scroll area content
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        
-        # Create a layout for the scroll area content
         self.scrollAreaLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
-        
         self.sidebarLayout.addWidget(self.sidebarInnerTopFrame, 0, 0, 1, 1)
         self.mainLayout.addWidget(self.sidebarFrame, 0, 0, 2, 1)
 
@@ -481,17 +452,15 @@ class Gui(QWidget):
         self.line2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line2.setObjectName("line2")
         self.scrollAreaLayout.addWidget(self.line2, 5, 0, 1, 1)
-
         # Button
         self.saveWord = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
         self.saveWord.setObjectName("saveWord")
         self.saveWord.clicked.connect(self.saveWordToSide)
         self.scrollAreaLayout.addWidget(self.saveWord, 7, 0, 1, 0)
 
-        # Add the scroll area to the sidebar layout
         self.sidebarTopLayout.addWidget(self.scrollArea)
         
-        ## Search layout
+        # Search layout
         self.searchInputFrame = QtWidgets.QFrame(self.mainFrame)
         self.searchInputFrame.setMinimumSize(QtCore.QSize(200, 0))
         self.searchInputFrame.setMaximumSize(QtCore.QSize(16777215, 95))
@@ -504,24 +473,15 @@ class Gui(QWidget):
         self.searchInputLayout = QtWidgets.QGridLayout(self.searchInputFrame)
         self.searchInputLayout.setObjectName("searchInputLayout")
 
-        # Create a combo box for the options
+        # Combo box
         self.searchModeCombo = QtWidgets.QComboBox(self.searchInputFrame)
         self.searchModeCombo.setObjectName("searchModeCombo")
-
-        # Add items to the combo box
+        # Add items
         self.searchModeCombo.addItem("Sentence", "sentence")
         self.searchModeCombo.addItem("Conjugation", "conjugation")
         self.searchModeCombo.addItem("Word", "word")
-        # self.searchModeCombo.setEditable(True)
-        # self.searchModeCombo.lineEdit().setAlignment(QtCore.Qt.AlignCenter)
-
-        # Set the default value
         self.searchModeCombo.setCurrentIndex(2)  # Assuming "Word" is the default option
-
-        # Connect the combo box to a function
         self.searchModeCombo.currentIndexChanged.connect(self.__onSearchModeChange)
-
-        # Add the combo box to the layout
         self.searchInputLayout.addWidget(self.searchModeCombo, 0, 0, 1, 1)
         
         # Search button
@@ -544,8 +504,7 @@ class Gui(QWidget):
         self.outputFrame.setObjectName("outputFrame")
         self.outputLayout = QtWidgets.QGridLayout(self.outputFrame)
         self.outputLayout.setObjectName("outputLayout")
-        
-        # Text display
+        # Text
         self.searchOutputBrowser = QtWebEngineWidgets.QWebEngineView(self.outputFrame)
         html_content = self.__constructHtml("")
         self.searchOutputBrowser.setHtml(html_content)
@@ -567,64 +526,84 @@ class Gui(QWidget):
         self.searchInputFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
         self.outputFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
         
+        # Retranslate
         self.__retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.searchOutputBrowser, self.changeLangBtn)
-        # MainWindow.setTabOrder(self.changeLangBtn, self.searchWikBtn)
-        # MainWindow.setTabOrder(self.searchWikBtn, self.autoAnkiBtn)
-        # MainWindow.setTabOrder(self.autoAnkiBtn, self.settingsBtn)
-        # MainWindow.setTabOrder(self.settingsBtn, self.colourModeBtn)
-        # MainWindow.setTabOrder(self.colourModeBtn, self.searchInputEdit)
         
+        # Config
         configVars = config_check()
         self.__applyConfig(configVars)
         
-        # Expand sidebar
-        self.sidebarFrame.setMaximumSize(QtCore.QSize(141, 16777215))
-        self.sidebarFrame.setMinimumSize(QtCore.QSize(141, 16777215))
+        # More styling
+        self.sidebarFrame.setMaximumSize(QtCore.QSize(145, 16777215))
+        self.sidebarFrame.setMinimumSize(QtCore.QSize(145, 16777215))
         self.sidebarInnerTopFrame.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.scrollAreaWidgetContents.setLayout(self.scrollAreaLayout)
         self.scrollAreaLayout.setAlignment(QtCore.Qt.AlignTop)
         
+        # Drop shadows
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
-        shadow.setXOffset(0)  # Horizontal offset of the shadow
-        shadow.setYOffset(0)  # Vertical offset of the shadow
-        shadow.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
+        shadow.setBlurRadius(SHADOW_BLUR_INTENSITY)   
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  
         shadow1 = QGraphicsDropShadowEffect()
-        shadow1.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
-        shadow1.setXOffset(0)  # Horizontal offset of the shadow
-        shadow1.setYOffset(0)  # Vertical offset of the shadow
-        shadow1.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
+        shadow1.setBlurRadius(SHADOW_BLUR_INTENSITY)
+        shadow1.setXOffset(0)
+        shadow1.setYOffset(0)
+        shadow1.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  
         shadow2 = QGraphicsDropShadowEffect()
-        shadow2.setBlurRadius(SHADOW_BLUR_INTENSITY)  # Adjust for the desired blur effect
-        shadow2.setXOffset(0)  # Horizontal offset of the shadow
-        shadow2.setYOffset(0)  # Vertical offset of the shadow
-        shadow2.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  # Shadow color and transparency
-
+        shadow2.setBlurRadius(SHADOW_BLUR_INTENSITY)
+        shadow2.setXOffset(0)
+        shadow2.setYOffset(0)
+        shadow2.setColor(QColor(0, 0, 0, SHADOW_INTENSITY))  
         # self.outputFrame.setGraphicsEffect(shadow2)
         self.sidebarFrame.setGraphicsEffect(shadow)
         self.searchInputFrame.setGraphicsEffect(shadow1)
 
-        
+        # Apply colour mode on startup
         if self.colourMode == "dark":
             self.__activateDarkmode()
             self.__updateHtmlView()
         else:
             self.__activateLightmode()
         
+        # Save button should be disabled at startup
         self.verifySaveBtnStatus()
         
-        # Load the saved words.
+        # Load saves words
         rawSavedWords = self.__readSavedWordsFile()
-        # Parse the saved words.
         savedWordsDict = self.__parseSavedWords(rawSavedWords)
-        # Generate buttons
         for count, id_word_pair in enumerate(savedWordsDict.items()):
             self.__genSavedWordsStartup(id_word_pair, count)
-            
     
+    def __retranslateUi(self, MainWindow):
+        """Retranslate the GUI.
+        
+        :param MainWindow: The main window object.
+        :type MainWindow: PyQt5.QtWidgets.QMainWindow
+        """
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
+        # Buttons
+        self.saveWord.setText(_translate("MainWindow", "Add"))
+        self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
+        self.settingsBtn.setText(_translate("MainWindow", "Settings"))
+        self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
+        # self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
+        self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
+        self.searchBtn.setText(_translate("MainWindow", "Search"))
+        self.contactBtn.setText(_translate("MainWindow", "Contact"))
+        # Labels
+        self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
+        self.sideLabel.setAlignment(Qt.AlignCenter)
+        self.updateLangLabel(self.currentLanguage)
+        self.currentLangLabel.setAlignment(Qt.AlignCenter)
+            
     def setMyStyleLight(self):
+        """Apply custom light mode styling.
+        """
         self.sidebarFrame.setStyleSheet("""
             QFrame {
                 border: 0px solid lightgrey;
@@ -670,9 +649,10 @@ class Gui(QWidget):
             }
         """)
         self.saveWord.setStyleSheet("QPushButton {border-radius: 3px;}")
-
         
     def setMyStyleDark(self):
+        """Apply custom dark mode styling.
+        """
         self.sidebarFrame.setStyleSheet("""
             QFrame {
                 border: 0px solid lightgrey;
@@ -718,109 +698,13 @@ class Gui(QWidget):
             }
         """)
         self.saveWord.setStyleSheet("QPushButton {border-radius: 3px;}")
-
-    
-    
-    def __setupAutoAnkiLayout(self):
-        """
-        Initialise the card creator layout. This is not a separate window, it is within the main window. It is an
-        alternative layout to the "search" layout.
-        """
-        ## Search layout
-        # Top frame and layout
-        self.autoAnkiTopFrame = QtWidgets.QFrame(self.mainFrame)
-        self.autoAnkiTopFrame.setMinimumSize(QtCore.QSize(700, 0))
-        self.autoAnkiTopFrame.setMaximumSize(QtCore.QSize(16777215, 100))
-        self.autoAnkiTopFrame.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.autoAnkiTopFrame.setAutoFillBackground(False)
-        self.autoAnkiTopFrame.setFrameShape(QtWidgets.QFrame.Box)
-        self.autoAnkiTopFrame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.autoAnkiTopFrame.setObjectName("autoAnkiFrame")
-        self.autoAnkiLayout = QtWidgets.QGridLayout(self.autoAnkiTopFrame)
-        self.autoAnkiLayout.setObjectName("autoAnkiSetupLayout")
-        
-        # Make cards button
-        self.createCardsBtn = QtWidgets.QPushButton(self.autoAnkiTopFrame)
-        self.createCardsBtn.setObjectName("createCardsBtn")
-        # self.createCardsBtn.clicked.connect(self.makeCards)
-        self.autoAnkiLayout.addWidget(self.createCardsBtn, 0, 0, 1, 1)
-        
-        # Filepath display
-        self.filepathDisp = QtWidgets.QTextBrowser(self.autoAnkiTopFrame)
-        self.filepathDisp.setObjectName("filepath")
-        self.autoAnkiLayout.addWidget(self.filepathDisp, 0, 1, 2, 1)
-        
-        # Add file button
-        self.addFileBtn = QtWidgets.QPushButton(self.autoAnkiTopFrame)
-        self.addFileBtn.setObjectName("addFileBtn")
-        self.addFileBtn.clicked.connect(self.addFile)
-        self.autoAnkiLayout.addWidget(self.addFileBtn, 1, 0, 1, 1)
-        
-        # Output display
-        self.mainLayout.addWidget(self.autoAnkiTopFrame, 0, 1, 1, 1)
-        self.outputFrameAA = QtWidgets.QFrame(self.mainFrame)
-        self.outputFrameAA.setMinimumSize(QtCore.QSize(0, 0))
-        self.outputFrameAA.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.outputFrameAA.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.outputFrameAA.setFrameShape(QtWidgets.QFrame.Box)
-        self.outputFrameAA.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.outputFrameAA.setObjectName("outputFrameAA")
-        self.outputLayoutAA = QtWidgets.QGridLayout(self.outputFrameAA)
-        self.outputLayoutAA.setObjectName("outputLayoutAA")
-        self.AAOutputBrowser = QtWidgets.QTextBrowser(self.outputFrameAA)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(100)
-        sizePolicy.setVerticalStretch(100)
-        sizePolicy.setHeightForWidth(self.AAOutputBrowser.sizePolicy().hasHeightForWidth())
-        self.AAOutputBrowser.setSizePolicy(sizePolicy)
-        self.AAOutputBrowser.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.AAOutputBrowser.setObjectName("searchOutputBrowser")
-        self.outputLayoutAA.addWidget(self.AAOutputBrowser, 0, 0, 1, 1)
-        self.mainLayout.addWidget(self.outputFrameAA, 1, 1, 1, 1)
-        self.mainWindowLayout.addWidget(self.mainFrame, 0, 0, 1, 1)
-        
-        # Set borders
-        self.autoAnkiTopFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
-        self.outputFrameAA.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
-        self.AAOutputBrowser.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
-        
-        QtCore.QMetaObject.connectSlotsByName(self.mainWindow)
-        self.__retranslateUiAA(self.mainWindow)
-        
-        self.AALayoutSet = True
-    
-    def __retranslateUi(self, MainWindow):
-        """Sets the labels for the default main window, called by the UI setup function.
-        
-        :param MainWindow: The main window GUI object.
-        """
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
-        # Buttons
-        self.saveWord.setText(_translate("MainWindow", "Add"))
-        self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
-        self.settingsBtn.setText(_translate("MainWindow", "Settings"))
-        self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
-        # self.searchWikBtn.setText(_translate("MainWindow", "Search Wiktionary"))
-        self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
-        self.searchBtn.setText(_translate("MainWindow", "Search"))
-        self.contactBtn.setText(_translate("MainWindow", "Contact"))
-        # Labels
-        self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
-        self.sideLabel.setAlignment(Qt.AlignCenter)
-        self.updateLangLabel(self.currentLanguage)
-        self.currentLangLabel.setAlignment(Qt.AlignCenter)
-
-    def __retranslateUiAA(self, MainWindow):
-        """Sets the labels for the card creation UI layout.
-        
-        :param MainWindow: The main window GUI object.
-        """
-        _translate = QtCore.QCoreApplication.translate
-        self.addFileBtn.setText(_translate("MainWindow", "Add File"))
-        self.createCardsBtn.setText(_translate("MainWindow", "Make cards"))
     
     def __onSearchModeChange(self, index):
+        """Updates the class when search mode is changed.
+
+        :param index: The index of the search mode combo box.
+        :type index: int
+        """
         mode = self.searchModeCombo.itemData(index)
         if mode == "sentence":
             self.manualSearchMode = "sentence"
@@ -839,63 +723,8 @@ class Gui(QWidget):
         else:
             self.saveWord.setEnabled(False)
     
-    def __switchToAutoAnki(self):
-        """Switch the main window's layout to the card creator layout.
-        """
-        # Do nothing if the current mode is already AutoAnki.
-        if self.currentOverallMode == "autoanki":
-            logger.debug("Already in AutoAnki mode.")
-            return
-        else:
-            self.searchInputFrame.hide()
-            self.outputFrame.hide()
-            if self.AALayoutSet is False:
-                self.__setupAutoAnkiLayout()
-            else:
-                self.autoAnkiTopFrame.show()
-                self.outputFrameAA.show()
-            self.currentOverallMode = "autoanki"
-            self.__reapplyBorderColours()
-        self.displayingSavable = False
-        self.verifySaveBtnStatus()
-
-    def __switchToSearch(self):
-        """Switch the main window's layout to the Wiktionary search layout.
-        """
-        # Do nothing if the current mode is already search.
-        if self.currentOverallMode == "search":
-            logger.debug("Already in search mode.")
-            return
-        else:
-            self.autoAnkiTopFrame.hide()
-            self.outputFrameAA.hide()
-            self.searchInputFrame.show()
-            self.outputFrame.show()
-            self.currentOverallMode = "search"
-        
-        self.__reapplyBorderColours()
-    
-    def __activateConjugationMode(self):
-        """Toggle the conjugation mode.
-        """
-        self.conjugationMode = True
-        self.manualSearchMode = "word"
-        logger.info("Conj set True")
-    
-    def __activateWordMode(self):
-        """Toggle the conjugation mode.
-        """
-        self.manualSearchMode = "word"
-        self.conjugationMode = False
-        logger.info("Using words search.")
-    
-    def __activateSentenceMode(self):
-        self.manualSearchMode = "sentence"
-        self.conjugationMode = False
-        logger.info("Using sentence search.")
-    
     def __activateLightmode(self):
-        """Apply the light mode for the GUI.
+        """Apply light mode.
         """
         stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
         self.mainWindow.setStyleSheet(stylesheet)
@@ -905,7 +734,7 @@ class Gui(QWidget):
         self.colourModeBtn.setText("Dark Mode")
     
     def __activateDarkmode(self):
-        """Apply the dark mode for the GUI.
+        """Apply dark mode.
         """
         stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         self.mainWindow.setStyleSheet(stylesheet)
@@ -915,8 +744,7 @@ class Gui(QWidget):
         self.colourModeBtn.setText("Light Mode")
     
     def __toggleColourMode(self):
-        """When the user presses the light/dark mode button, toggle on light mode if dark mode is currently applied and
-        vice-versa.
+        """Toggle dark/light modes when user presses the colour mode button.
         """
         if self.colourMode == "light":
             self.__activateDarkmode()
@@ -925,8 +753,8 @@ class Gui(QWidget):
         self.__updateHtmlView()
     
     def __reapplyBorderColours(self):
-        """When the theme changes, the colour of the border frames resets to something default. These colours need to
-        be reapplied whenever the theme changes.
+        """When the theme changes, the colour of the border frames resets. These colours need to
+        be reapplied.
         """
         if self.colourMode == "dark":
             self.sidebarFrame.setStyleSheet("QFrame {border: 1px solid dimgrey;}")
@@ -961,6 +789,11 @@ class Gui(QWidget):
         self.updateLangLabel(self.currentLanguage)
     
     def updateLangLabel(self, lang):
+        """Add an emoji to the language label.
+
+        :param lang: Currently selected language.
+        :type lang: str
+        """
         if lang == "French":
             emoji = "🥖"
         elif lang == "German":
@@ -974,52 +807,45 @@ class Gui(QWidget):
         self.currentLangLabel.setText(f"{lang} {emoji}")
     
     def __applyConfig(self, configVars):
-        """Apply the config variables to the GUI.
-        
+        """Apply config variables.
+
         :param configVars: A list of config variables.
+        :type configVars: list
         """
-        ## Save config variables
-        # Get interface language
         self.interfaceLanguage = configVars[0]
-        # Get search language
         self.currentLanguage = configVars[1]
-        # Get colour mode
         self.colourMode = configVars[2]
         self.configColourMode = configVars[2]
-        # Get zoom level
         self.zoomFactor = configVars[3]
-        # Get tutorial setting
         self.showTutorial = configVars[4]
-        
         # Search settings
         self.getEtymology = configVars[5]
         self.getUsage = configVars[6]
-        
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
         self.updateLangLabel(self.currentLanguage)
         
     def applySettings(self, newZoomFactor, newColourMode):
+        """Apply settings from the settings dialog.
+
+        :param newZoomFactor: The new zoom factor.
+        :type newZoomFactor: int
+        :param newColourMode: The new colour mode.
+        :type newColourMode: str
+        """
         # Zoom factor needs a decimal, but the input here is a float, so divide.
         self.__applyZoomLvl(newZoomFactor)
-        # self.__applyColourMode(newColourMode)
-        # Update the colour config variable.
         self.configColourMode = newColourMode
         
     def __applyZoomLvl(self, newZoomFactor):
+        """Apply the zoom level.
+
+        :param newZoomFactor: The new zoom factor.
+        :type newZoomFactor: int
+        """
         newZoomFactor = int(newZoomFactor) / 100
         self.zoomFactor = newZoomFactor
         self.searchOutputBrowser.setZoomFactor(newZoomFactor)
-    
-    def __applyColourMode(self, newColourMode):
-        self.colourMode = newColourMode
-        
-        if self.colourMode == "dark":
-            self.__activateDarkmode()
-        else:  
-            self.__activateLightmode()
-        
-        self.__updateHtmlView()
     
     def getZoomFactor(self):
         """Get the current zoom factor.
@@ -1030,32 +856,25 @@ class Gui(QWidget):
         return self.zoomFactor
     
     def changeLanguage(self):
-        """Update the Object's language variable.
+        """Update the language variable.
         """
         newLang = self.langSelect.currentText()
         self.currentLanguage = newLang
         logger.info("Current lang saved as " + newLang)   
-        
-    def __findKeywords(self, text):
-        # The pattern is: any word that is preceeded by an asterisk.
-        pattern = r"\*(\w+)"
-        keywords = re.findall(pattern, text)
-        return keywords
     
     def __callAPI(self, keyword):
         """Call the Wiktionary API and get the definition for a specific word.
-        
-        :return: The definitions for the word.
+
+        :param keyword: The word to search for.
+        :type keyword: str
+        :return: A dictionary of definitions.
+        :rtype: dict
         """
-        
         return grab_wik(keyword, self.currentLanguage, self.getEtymology, self.getUsage)
     
     def __searchWiki(self):
         """Search Wiktionary for a specific word.
-        """
-        # Notify user.
-        #self.searchOutputBrowser.append("Searching Wiktionary...")
-        
+        """        
         # Get search term from input box.
         text = self.searchInputEdit.toPlainText()
         text = text.strip()
@@ -1068,12 +887,10 @@ class Gui(QWidget):
                 logger.warning("User has not entered a word.")
                 return
         elif self.manualSearchMode == "sentence":
-            # Sentence mode selected. Locate word and isolate.
             keywords = [text]
         
         # Send search term to API caller and update class dictionary.
         defsDictsArray = []
-        conjArray = []
         if self.conjugationMode == True:
             # Conjugation table search
             logger.info("Doing conjugation table search.")
@@ -1085,10 +902,8 @@ class Gui(QWidget):
                 conjs = strip_bs4_links(conjs)
                 self.htmlContentText = conjs
                 self.__updateHtmlView()
-                
                 self.displayingSavable = True
                 self.verifySaveBtnStatus()
-                
                 return
         else:
             # Definitions search
@@ -1104,32 +919,29 @@ class Gui(QWidget):
                 if count == 0:
                     self.wordOne = keywords[count]
                 definitions += f"<h3>{keywords[count]}</h3>"
-                definitionsString = self.__stringifyDefDict(defsDict, count, self.getEtymology, self.getUsage)
+                definitionsString = self.__stringifyDefDict(defsDict)
                 definitions += definitionsString
             # Update class string defs variable.
             self.__updateDefsString(definitions)
-            print(definitions)
-            # Print definitions in text output box.
             self.__displayDefinitions()
             self.__updatCurrentDefinitions(defsDictsArray)
-            
             self.displayingSavable = True
             self.verifySaveBtnStatus()
     
-    def __stringifyDefDict(self, defsDict, count, getEtymology, getUsage):
+    def __stringifyDefDict(self, defsDict):
         """Takes a definitions dictionary and converts it to HTML.
-        
-        :param defsDict: A dictionary of definitions pulled from Wiktionary.
+
+        :param defsDict: A dictionary of definitions.
         :type defsDict: dict
-        :return: A string holding text formatted to be displayed in an HTML environment.
+        :return: The definitions in HTML format.
         :rtype: str
         """
         defs_string = ""
         if defsDict:
             for tag, definition in defsDict.items():
                 if definition:
-                    
                     if self.currentLanguage in GENDERED_LANGS and tag != "etymology" and tag != "usage":
+                        
                         if tag == "noun":
                             defs_string += f"{tag.capitalize()}"
                             for line_no, string in enumerate(definition):
@@ -1142,6 +954,7 @@ class Gui(QWidget):
                                     defs_string += f"<li>{string}</li>"
                             defs_string += "</ol>"
                             defs_string += "<br>"
+                        
                         else:
                             defs_string += f"{tag.capitalize()}"
                             defs_string += "<ol>"
@@ -1161,7 +974,6 @@ class Gui(QWidget):
                         else:
                             defs_string += f"<ul><li>{definition[0]}</li></ul><br>"
                         
-                    
                     else:
                         defs_string += f"{tag.capitalize()}"
                         defs_string += "<ol>"
@@ -1169,41 +981,39 @@ class Gui(QWidget):
                             defs_string += f"<li>{string}</li>"
                         defs_string += "</ol>"
                         defs_string += "<br>"
-                    
-                    
         
         return defs_string
     
-    def __updateSearchTerm(self, savedKeywords):
-        """Update the keyword variable.
-        
-        :param savedKeywords: The individual keyword that the user wants to search Wiktionary for.
-        """
-        self.savedKeywords = savedKeywords
-    
     def __updateDefsString(self, defsString):
         """Update the definitions variable.
-        
-        :param defsString: The definition retrieved (and processed for legibility) from WIktionary.
+
+        :param defsString: The definitions in HTML format.
+        :type defsString: str
         """
         self.currentDefsStringified = defsString
     
     def __updatCurrentDefinitions(self, new_definition_dict):
         """Update the definitions variable.
-        
-        :param new_definition_dict: A new dictionary of definitions.
+
+        :param new_definition_dict: The definitions in HTML format.
+        :type new_definition_dict: dict
         """
         self.current_definitions = new_definition_dict
     
     def __displayDefinitions(self):
         """Clear the search output display and update it with the currently saved definitions.
         """
-        #self.searchOutputBrowser.clear()
-        #self.searchOutputBrowser.append(self.currentDefsStringified)
         self.htmlContentText = self.currentDefsStringified
         self.__updateHtmlView()
     
     def __constructHtml(self, content):
+        """Construct HTML for the search output display.
+
+        :param content: The content to be displayed.
+        :type content: str
+        :return: The HTML content.
+        :rtype: str
+        """
         html = ""
         isTable = False
         
@@ -1213,24 +1023,28 @@ class Gui(QWidget):
             
         if self.colourMode == "dark":
             if self.conjugationMode or isTable == True:
-                html = html_header_dark_conj + content + html_footer
+                html = HTML_HEADER_DARK_CONJ + content + HTML_FOOTER
             else:
-                html = html_header_dark + content + html_footer
+                html = HTML_HEADER_DARK + content + HTML_FOOTER
         else:
-            html = html_header_light + content + html_footer
+            html = HTML_HEADER_LIGHT + content + HTML_FOOTER
         self.htmlContent = html
         return html
         
     def __updateHtmlView(self):
+        """Update the search output display.
+        """
         self.__constructHtml(self.htmlContentText)
         self.searchOutputBrowser.setHtml(self.htmlContent)
-        #print(self.htmlContent)
     
     def makeCards(self, deckName, messageQueue):
-        """Begins the process of creating anki cards from the provided file.
+        """Make cards from the current definitions.
+
+        :param deckName: The name of the deck to add the cards to.
+        :type deckName: str
+        :param messageQueue: The message queue to send messages to the loading screen thread.
+        :type messageQueue: multiprocessing.Queue
         """
-        # self.searchOutputBrowser.setHtml("Generating cards, please wait. Do not close the program, this may take some time depending on the amount of cards being generated.")
-        # Sleep 1 second
         make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue)
     
     def __spawnSettingsDialog(self):
@@ -1279,6 +1093,8 @@ class Gui(QWidget):
         self.windowContact.show()
         
     def __openAutoAnki(self):
+        """Bring up the AutoAnki dialog.
+        """
         self.windowAa = QtWidgets.QDialog()
         self.UIAa = GuiAA(self)
         self.UIAa.setupUi(self.windowAa)
@@ -1291,7 +1107,6 @@ class Gui(QWidget):
         
         self.windowAa.show()
         
-    
     def spawnTutorial(self):
         """Bring up the language selector dialog.
         """
@@ -1318,19 +1133,7 @@ class Gui(QWidget):
             with f:
                 data = f.read()
                 self.selectedFileContent = data
-        
-        # self.__updatePathDisplay()
     
-    def testFile(self):
-        """Simply prints the file that has been selected. For development testing purposes.
-        """
-        # print(self.selectedFileContent)
-    
-    def __updatePathDisplay(self):
-        """Updates the text display to show the user the file path they have selected.
-        """
-        self.filepathDisp.append(self.currentInputFilePath)
-        
     def getCurrentLang(self):
         """Get the current language.
         
@@ -1340,71 +1143,63 @@ class Gui(QWidget):
         return self.currentLanguage
     
     def updateLanguageVar(self, newLang):
+        """Update the language variable.
+
+        :param newLang: The new language.
+        :type newLang: str
+        """
         self.currentLanguage = newLang
         self.updateConfig()
         return
     
     def getColourMode(self):
+        """Get the current colour mode.
+
+        :return: The current colour mode.
+        :rtype: str
+        """
         return self.colourMode
     
     def saveWordToSide(self):
         """Saves a word to the sidebar.
         """
+        # Save the word content and associate with a unique ID
+        unique_id = str(uuid.uuid1(node=None, clock_seq=None))
+        self.savedSidebarWords[unique_id] = self.htmlContentText
+        
         if self.conjugationMode:
-            logger.info("Saving conjugation table")
-            
-            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
-            self.savedSidebarWords[unique_id] = self.htmlContentText
-            
+            # Shorten word used for the display
             word = self.conjWord
             if len(word) > 7:
-                word = word[:3] + "..."
-            
-            # Create a new button for the sidebar.
+                word = word[:5] + ".."
+            # Create a new button for the sidebar
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word} 📜")
-            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
-            
-            # Create remove button
-            newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
-            newWordBtnRmv.setText("-")
-            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
-            
-            # Save word content to file (just the HTML content, not the formatted HTML string used for display)
-            self.saveWordToFile(self.htmlContentText)
-            
-        else:
-            # Save the word to class variable.
-            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
-            self.savedSidebarWords[unique_id] = self.htmlContentText
-            
-            # Get the word itself.
+            newWordBtn.setText(f"{word}📜")
+        
+        else:            
+            # Shorten word used for the display
             word = self.wordOne
-            if len(word) > 7:
-                word = word[:3] + "..."
-            
+            if len(word) > 9:
+                    word = word[:7] + ".."
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
             number = len(self.savedSidebarWords)
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word} 🔖")
-            newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
+            newWordBtn.setText(f"{word}")
             
-            # Create remove button
-            newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-            self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
-            newWordBtnRmv.setText("-")
-            newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
-            
-            # Save word content to file (just the HTML content, not the formatted HTML string used for display)
-            self.saveWordToFile(self.htmlContentText)
+        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
+        # Create remove button
+        newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
+        newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
+        self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
+        newWordBtnRmv.setText("-")
+        newWordBtnRmv.clicked.connect(lambda: self.__removeSavedWord(unique_id))
+        # Save word content to file (just the HTML content, not the formatted HTML string used for display)
+        self.saveWordToFile(self.htmlContentText)
     
     def __genSavedWordsStartup(self, id_word_pair, count):
         """Generate the saved words buttons on startup.
@@ -1425,12 +1220,18 @@ class Gui(QWidget):
         # Regex expression that finds the first header in the string and extracts the word.
         match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
         print(id_word_pair)
+        
+        # Get the word, needed for the button
         word = match.group(1)
-        newWordBtn.setText(f"{word} 🔖")
+        if len(word) > 9:
+                word = word[:7] + ".."     
+        newWordBtn.setText(f"{word}")
         
         # Determine if it's a conjugation table.
         if "<table" in id_word_pair[1]:
-            newWordBtn.setText(f"{word} 📜") 
+            if len(word) > 7:
+                word = word[:5] + ".."
+            newWordBtn.setText(f"{word}📜") 
         
         # Align text on buttons to the left.
         # newWordBtn.setStyleSheet("QPushButton { text-align: left; }")
@@ -1456,7 +1257,6 @@ class Gui(QWidget):
     def __updateSavedWordsFile(self):
         """Update the saved words file with the new list of saved words.
         """
-        # Open file
         with open("saved_words.txt", "w", encoding="utf-8") as f:
             for content in self.savedSidebarWords.values():
                 f.write(content)
@@ -1472,7 +1272,6 @@ class Gui(QWidget):
     def saveWordToFile(self, content):
         """Save (append) a word to the saved words file.
         """
-        # Open file
         with open("saved_words.txt", "a", encoding="utf-8") as f:
             f.write(content)
             f.write("\n====================================\n")
@@ -1505,11 +1304,12 @@ class Gui(QWidget):
         for item in content:
             unique_id = str(uuid.uuid1(node=None, clock_seq=None))
             self.savedSidebarWords[unique_id] = item
-        
         return self.savedSidebarWords
 
 
 class GuiAA(object):
+    """The AutoAnki dialog.
+    """
     def __init__(self, parent):
         self.parent = parent
     
@@ -1550,7 +1350,6 @@ class GuiAA(object):
         self.lineEdit.setReadOnly(True)
         self.gridLayout.addWidget(self.lineEdit, 0, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 2, 0, 1, 1)
-        
         # Customize the button box
         self.buttonBox = QtWidgets.QDialogButtonBox(self.widget)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -1560,13 +1359,10 @@ class GuiAA(object):
         self.makeCardsButton = self.buttonBox.addButton("Make Cards", QtWidgets.QDialogButtonBox.AcceptRole)
         self.cancelButton = self.buttonBox.addButton("Cancel", QtWidgets.QDialogButtonBox.RejectRole)
         self.gridLayout_2.addWidget(self.buttonBox, 3, 0, 1, 1)
-
         QtCore.QMetaObject.connectSlotsByName(Dialog)
-        
         # Connect the custom buttons to their respective slots
-        self.makeCardsButton.clicked.connect(self.__makeCards)  # Connect the "Make Cards" button to the card creation method
-        self.cancelButton.clicked.connect(Dialog.reject)  # Connect the "Cancel" button to the reject slot of the dialog
-        
+        self.makeCardsButton.clicked.connect(self.__makeCards)
+        self.cancelButton.clicked.connect(Dialog.reject)
         self.retranslateUi(Dialog)
 
     def retranslateUi(self, Dialog):
@@ -1577,23 +1373,27 @@ class GuiAA(object):
         self.pushButton.setText(_translate("Dialog", "Open"))
 
     def __openFile(self):
+        """Opens a file explorer.
+        """
         self.parent.addFile()
         self.lineEdit.setText(self.parent.currentInputFilePath)
         
     def __makeCards(self):
+        """Start the card-making process.
+        """
         deckName = self.lineEdit_2.text()
         if deckName == "":
             deckName = "Unnamed Deck"
             
         # Create a queue for inter-thread communication
         self.messageQueue = queue.Queue()
-            
+        
+        # Loading screen overlay
         self.overlay = QtWidgets.QWidget(self.widget)
         self.overlay.setGeometry(self.widget.rect())
         self.consoleDisplay = QtWidgets.QPlainTextEdit(self.overlay)
         self.consoleDisplay.setGeometry(0, 0, self.overlay.width(), self.overlay.height())
-        # self.consoleDisplay.setStyleSheet("font: 4pt 'Courier';")
-        
+        # Styling
         default_font = QtWidgets.QApplication.font()
         default_font.setPointSize(8) 
         self.consoleDisplay.setFont(default_font)
@@ -1611,18 +1411,27 @@ class GuiAA(object):
         self.overlay.show()
             
     def append_to_console_display(self, text):
-        # Append text to the QTextEdit or QPlainTextEdit
+        """Append text to the console display.
+
+        :param text: Text sent from the card making thread.
+        :type text: str
+        """
         self.consoleDisplay.moveCursor(QtGui.QTextCursor.End)
         self.consoleDisplay.insertPlainText(text + '\n')
         self.consoleDisplay.moveCursor(QtGui.QTextCursor.End)
         
     def checkQueue(self):
+        """Check the message queue for new messages.
+        """
         while not self.messageQueue.empty():
             message = self.messageQueue.get()
             self.append_to_console_display(message)
 
 
 class GuiContactDialog(object):
+    """The contact dialog.
+    """
+    
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(311, 249)
@@ -1670,298 +1479,9 @@ class GuiContactDialog(object):
 ""))
         self.label_3.setText(_translate("Dialog", "✨ **Contact Me** ✨"))
 
-class GuiChangeLangWindowOld(object):
-    """The change language dialog. Allows the user to change languages from a list of 'verified' languages, and the 
-    option to add a language of their own choosing.
-    """
-    def __init__(self, parent):
-        self.parent = parent
-        self.tempLang = ""
-        self.window = ""
-    
-    def setupUi(self, changeLangWindow):
-        """Initialise the GUI.
-        
-        :param changeLangWindow: The dialog object.
-        """
-        self.window = changeLangWindow
-        changeLangWindow.setObjectName("changeLangWindow")
-        changeLangWindow.resize(420, 350)
-        self.gridLayout_4 = QtWidgets.QGridLayout(changeLangWindow)
-        self.gridLayout_4.setObjectName("gridLayout_4")
-        
-        # Change lang W frame
-        self.changeLangWFrame = QtWidgets.QFrame(changeLangWindow)
-        self.changeLangWFrame.setMaximumSize(QtCore.QSize(560, 330))
-        self.changeLangWFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.changeLangWFrame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.changeLangWFrame.setObjectName("changeLangWFrame")
-        self.changeLangWFrame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.changeLangWFrame.setStyleSheet("QFrame#changeLangWFrame { border: 0px solid black; }")
-        self.changeLangWFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
-        
-        # Grid layout 3
-        self.gridLayout_3 = QtWidgets.QGridLayout(self.changeLangWFrame)
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout_3.setSpacing(0)
-        
-        # Right frame
-        self.bodyRightFrame = QtWidgets.QFrame(self.changeLangWFrame)
-        self.bodyRightFrame.setMaximumSize(QtCore.QSize(271, 16777215))
-        self.bodyRightFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.bodyRightFrame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.bodyRightFrame.setObjectName("bodyRightFrame")
-        # Add parent border
-        self.bodyRightFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
-        
-        # Grid 2
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.bodyRightFrame)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout_2.setSpacing(0)
-        # Separator line
-        self.changeLangLine = QtWidgets.QFrame(self.bodyRightFrame)
-        self.changeLangLine.setFrameShape(QtWidgets.QFrame.HLine)
-        self.changeLangLine.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.changeLangLine.setObjectName("changeLangLine")
-        # Remove border
-        self.changeLangLine.setStyleSheet("border: 0px;")
-        self.gridLayout_2.addWidget(self.changeLangLine, 2, 0, 1, 1)
-        # Top right frame
-        self.CLTopFrameR = QtWidgets.QFrame(self.bodyRightFrame)
-        self.CLTopFrameR.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.CLTopFrameR.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.CLTopFrameR.setObjectName("CLTopFrameR")
-        # Remove border for everything above apply button
-        self.CLTopFrameR.setStyleSheet("QFrame#changeLangWFrame { border: 0px solid black; }")
-        self.CLTopFrameR.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
-        self.gridLayout = QtWidgets.QGridLayout(self.CLTopFrameR)
-        self.gridLayout.setObjectName("gridLayout")
-        
-        # Add lang frame
-        self.addLangFrame = QtWidgets.QFrame(self.CLTopFrameR)
-        self.addLangFrame.setMinimumSize(QtCore.QSize(146, 0))
-        self.addLangFrame.setMaximumSize(QtCore.QSize(16777215, 75))
-        self.addLangFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.addLangFrame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.addLangFrame.setObjectName("addLangFrame")
-        # Remove border from frame
-        self.addLangFrame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.addLangFrame.setLineWidth(0)
-        self.addLangFrame.setStyleSheet("QFrame#changeLangWFrame { border: 0px solid black; }")
-        self.addLangFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
-        
-        # Vertical layout
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.addLangFrame)
-        self.verticalLayout.setContentsMargins(0, -1, -1, -1)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        
-        # New lang input
-        self.newLangInput = QtWidgets.QLineEdit(self.addLangFrame)
-        self.newLangInput.setMinimumSize(QtCore.QSize(0, 22))
-        self.newLangInput.setInputMask("")
-        self.newLangInput.setText("")
-        self.newLangInput.setEchoMode(QtWidgets.QLineEdit.Normal)
-        self.newLangInput.setObjectName("newLangInput")
-        self.newLangInput.setStyleSheet("border: 1px; border-style: solid;")
-        self.newLangInput.setEnabled(False)
-        self.verticalLayout.addWidget(self.newLangInput)
-        
-        # Add lang button
-        self.addNewLangBtn = QtWidgets.QPushButton(self.addLangFrame)
-        self.addNewLangBtn.setMinimumSize(QtCore.QSize(0, 0))
-        self.addNewLangBtn.setMaximumSize(QtCore.QSize(70, 20))
-        self.addNewLangBtn.setObjectName("addNewLangBtn")
-        self.verticalLayout.addWidget(self.addNewLangBtn)
-        self.addNewLangBtn.setEnabled(False)
-        self.gridLayout.addWidget(self.addLangFrame, 1, 0, 1, 1)
-        
-        # Explanation label
-        self.langsLabel = QtWidgets.QLabel(self.CLTopFrameR)
-        self.langsLabel.setMaximumSize(QtCore.QSize(263, 75))
-        self.langsLabel.setTextFormat(QtCore.Qt.AutoText)
-        self.langsLabel.setScaledContents(False)
-        self.langsLabel.setWordWrap(True)
-        self.langsLabel.setObjectName("langsLabel")
-        self.gridLayout.addWidget(self.langsLabel, 0, 0, 1, 1)
-        
-        self.gridLayout_2.addWidget(self.CLTopFrameR, 1, 0, 1, 1)
-        self.changeLangConf = QtWidgets.QDialogButtonBox(self.bodyRightFrame)
-        self.changeLangConf.setOrientation(QtCore.Qt.Horizontal)
-        self.changeLangConf.setStandardButtons(QtWidgets.QDialogButtonBox.Apply)
-        self.changeLangConf.clicked.connect(self.__handleApply)
-        self.changeLangConf.setCenterButtons(True)
-        self.changeLangConf.setObjectName("changeLangConf")
-        self.gridLayout_2.addWidget(self.changeLangConf, 3, 0, 1, 1)
-        self.gridLayout_3.addWidget(self.bodyRightFrame, 0, 1, 1, 1)
-        self.gridLayout_2.setContentsMargins(20, 20, 20, 20)
-        
-        # Change language list
-        self.langsList = QtWidgets.QListWidget(self.changeLangWFrame)
-        self.langsList.setMaximumSize(QtCore.QSize(74, 16777215))
-        self.langsList.setObjectName("langsList")
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.langsList.addItem(item)
-        # Add border
-        self.langsList.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
-        self.gridLayout_3.addWidget(self.langsList, 0, 0, 1, 1)
-        self.gridLayout_4.addWidget(self.changeLangWFrame, 0, 0, 1, 1)
-        
-        self.__retranslateUi(changeLangWindow)
-        QtCore.QMetaObject.connectSlotsByName(changeLangWindow)
-    
-    def __handleApply(self):
-        """Applies the selected language by updating the GUI language variable and then closes the dialog.
-        """
-        if self.tempLang:
-            self.parent.updateLanguageVar(self.tempLang)
-        self.window.close()
-    
-    def __retranslateUi(self, changeLangWindow):
-        """Initialises the labels for GUI elements.
-        
-        :param changeLangWindow: The dialog object.
-        """
-        _translate = QtCore.QCoreApplication.translate
-        changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Language Settings"))
-        self.newLangInput.setPlaceholderText(_translate("changeLangWindow", "Language name"))
-        self.addNewLangBtn.setText(_translate("changeLangWindow", "Add"))
-        self.langsLabel.setText(_translate("changeLangWindow", "Use the list to the left to select your search language. Custom language functionality not implemented yet but will be soon."))
-        __sortingEnabled = self.langsList.isSortingEnabled()
-        self.langsList.setSortingEnabled(False)
-        item1 = self.langsList.item(0)
-        item1.setText(_translate("changeLangWindow", "Arabic"))
-        item2 = self.langsList.item(1)
-        item2.setText(_translate("changeLangWindow", "English"))
-        item3 = self.langsList.item(2)
-        item3.setText(_translate("changeLangWindow", "French"))
-        item4 = self.langsList.item(3)
-        item4.setText(_translate("changeLangWindow", "German"))
-        item5 = self.langsList.item(4)
-        item5.setText(_translate("changeLangWindow", "Japanese"))
-        item6 = self.langsList.item(5)
-        item6.setText(_translate("changeLangWindow", "Korean"))
-        item7 = self.langsList.item(6)
-        item7.setText(_translate("changeLangWindow", "Latin"))
-        item8 = self.langsList.item(7)
-        item8.setText(_translate("changeLangWindow", "Persian"))
-        item9 = self.langsList.item(8)
-        item9.setText(_translate("changeLangWindow", "Spanish"))
-        self.langsList.setSortingEnabled(__sortingEnabled)
-        self.langsList.clicked.connect(self.__updateSelection)
-        item1.setHidden(True)
-        item5.setHidden(True)
-        item6.setHidden(True)
-        item8.setHidden(True)
-
-        # Check what the currently saved language is in the parent GUI object and apply that visually to the selection 
-        # list.
-        langIndex = self.__indexLang()
-        if langIndex == 1:
-            langItem =  item1
-        elif langIndex == 2:
-            langItem =  item2
-        elif langIndex == 3:
-            langItem =  item3
-        elif langIndex == 4:
-            langItem =  item4
-        elif langIndex == 5:
-            langItem =  item5
-        elif langIndex == 6:
-            langItem =  item6
-        elif langIndex == 7:
-            langItem =  item7
-        elif langIndex == 8:
-            langItem =  item8
-        elif langIndex == 9:
-            langItem =  item9
-        else:
-            langItem = None  # or some default value
-        self.__highlightCurrentLang(langItem)
-    
-    def __highlightCurrentLang(self, item):
-        """Highlight the currently selected language on the selection list. Used at dialog start-up.
-        
-        :param item: The item within the list representing the currently selected language.
-        """
-        self.langsList.setCurrentItem(item)
-        self.langsList.setFocus()
-    
-    def __updateTempLangVar(self, lang):
-        """Updates the language var used to save, temporarily, when a user clicks on a language list object, but is yet 
-        to save that as their selection.
-        
-        :param lang: The selected language.
-        """
-        self.tempLang = lang
-    
-    def __getCurrentLangSelection(self):
-        """Get the currently selected language from the list of languages GUI element.
-        
-        :return: The currently selected list item.
-        """
-        selection = self.langsList.currentRow()
-        selection += 1
-        selection = langs[str(selection)]
-        # print(selection)
-        return selection
-    
-    def __updateSelection(self):
-        """Update the program with the currently selected (temporary, not yet applied) language selection from the list.
-        """
-        selection = self.__getCurrentLangSelection()
-        self.__updateTempLangVar(selection)
-    
-    def __indexLang(self):
-        """Determine which list element a language corresponds with.
-        
-        :return: An integer corresponding with a list item representing a language.
-        """
-        lang = self.parent.getCurrentLang()
-        # print(lang)
-        if lang == "Arabic":
-            return 1
-        elif lang == "English":
-            return 2
-        elif lang == "French":
-            return 3
-        elif lang == "German":
-            return 4
-        elif lang == "Japanese":
-            return 5
-        elif lang == "Korean":
-            return 6
-        elif lang == "Latin":
-            return 7
-        elif lang == "Persian":
-            return 8
-        elif lang == "Spanish":
-            return 9
-        else:
-            return None  # or some default value
-
 
 class GuiChangeLangWindow(object):
-    """The change language dialog. Allows the user to change languages from a list of 'verified' languages, and the 
-    option to add a language of their own choosing.
+    """The change language dialog.
     """
     def __init__(self, parent):
         self.parent = parent
@@ -1969,10 +1489,6 @@ class GuiChangeLangWindow(object):
         self.window = ""
     
     def setupUi(self, changeLangWindow):
-        """Initialise the GUI.
-        
-        :param changeLangWindow: The dialog object.
-        """
         self.window = changeLangWindow
         changeLangWindow.setObjectName("changeLangWindow")
         changeLangWindow.resize(100, 185)
@@ -2033,18 +1549,7 @@ class GuiChangeLangWindow(object):
         self.__retranslateUi(changeLangWindow)
         QtCore.QMetaObject.connectSlotsByName(changeLangWindow)
     
-    def __handleApply(self):
-        """Applies the selected language by updating the GUI language variable and then closes the dialog.
-        """
-        if self.tempLang:
-            self.parent.updateLanguageVar(self.tempLang)
-        self.window.close()
-    
     def __retranslateUi(self, changeLangWindow):
-        """Initialises the labels for GUI elements.
-        
-        :param changeLangWindow: The dialog object.
-        """
         _translate = QtCore.QCoreApplication.translate
         changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Language Settings"))
         __sortingEnabled = self.langsList.isSortingEnabled()
@@ -2100,10 +1605,18 @@ class GuiChangeLangWindow(object):
             langItem = None  # or some default value
         self.__highlightCurrentLang(langItem)
     
+    def __handleApply(self):
+        """Applies the selected language by updating the main window language variable.
+        """
+        if self.tempLang:
+            self.parent.updateLanguageVar(self.tempLang)
+        self.window.close()
+    
     def __highlightCurrentLang(self, item):
-        """Highlight the currently selected language on the selection list. Used at dialog start-up.
-        
-        :param item: The item within the list representing the currently selected language.
+        """Highlight the currently selected language on the selection list.
+
+        :param item: The currently selected language.
+        :type item: QtWidgets.QListWidgetItem
         """
         self.langsList.setCurrentItem(item)
         self.langsList.setFocus()
@@ -2111,20 +1624,21 @@ class GuiChangeLangWindow(object):
     def __updateTempLangVar(self, lang):
         """Updates the language var used to save, temporarily, when a user clicks on a language list object, but is yet 
         to save that as their selection.
-        
-        :param lang: The selected language.
+
+        :param lang: The language to be saved.
+        :type lang: str
         """
         self.tempLang = lang
     
     def __getCurrentLangSelection(self):
         """Get the currently selected language from the list of languages GUI element.
-        
-        :return: The currently selected list item.
+
+        :return: The currently selected language.
+        :rtype: str
         """
         selection = self.langsList.currentRow()
         selection += 1
-        selection = langs[str(selection)]
-        # print(selection)
+        selection = LANGS[str(selection)]
         return selection
     
     def __updateSelection(self):
@@ -2135,8 +1649,9 @@ class GuiChangeLangWindow(object):
     
     def __indexLang(self):
         """Determine which list element a language corresponds with.
-        
-        :return: An integer corresponding with a list item representing a language.
+
+        :return: The index of the language.
+        :rtype: int
         """
         lang = self.parent.getCurrentLang()
         # print(lang)
@@ -2169,8 +1684,6 @@ class GuiSettingsDialog(object):
         self.parent = parent
     
     def setupUi(self, settingsDialog):
-        """Initialise the settings dialog GUI.
-        """
         self.window = settingsDialog
         settingsDialog.setObjectName("settingsDialog")
         settingsDialog.resize(308, 143)
@@ -2284,15 +1797,11 @@ class GuiSettingsDialog(object):
         self.settingsFrame.setStyleSheet("QFrame {border: 0px solid dimgrey;}")    
     
     def retranslateUi(self, settingsDialog):
-        """Apply labels to the GUI elements.
-        """
         _translate = QtCore.QCoreApplication.translate
         settingsDialog.setWindowTitle(_translate("settingsDialog", "Settings"))
-        
         # Interface language select
         self.settingsLangLbl.setText(_translate("settingsDialog", "Interface Language"))
         self.interfaceLangCB.setItemText(0, _translate("settingsDialog", "English"))
-        
         # Colour mode
         self.settingsColMdLbl.setText(_translate("settingsDialog", "Default Colour Mode"))
         self.defaultColourModeCB.setItemText(0, _translate("settingsDialog", "Light"))
@@ -2377,6 +1886,11 @@ class GuiSettingsDialog(object):
 
 
 def config_check():
+    """Checks if a config file exists. If not, creates one.
+    
+    :return: A list of config variables.
+    :rtype: list
+    """
     if os.path.exists("config.ini"):
         logger.info("Config file found.")
     else:
@@ -2387,6 +1901,8 @@ def config_check():
 
 
 def setup_config():
+    """Creates a new config file with default values.
+    """
     config = configparser.ConfigParser()
     config['LanguagePreferences'] = {'InterfaceLanauge': 'English', 'SearchLanguage': 'English'}
     config['Interface'] = {'ColourMode': 'light', 'ZoomLevel': 100}
@@ -2402,7 +1918,7 @@ def setup_config():
 def get_configs():
     """Gets the config variables from the config file.
     
-    :return: A list of config variables.
+    :return: List of config variables.
     :rtype: list
     """
     config = configparser.ConfigParser()
@@ -2417,35 +1933,19 @@ def get_configs():
     get_etymology = config['SearchSettings']['GetEtymology']
     get_usage_notes = config['SearchSettings']['GetUsage']
     
-    # Put them into a list
     config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes]
-    
     return config_vars  
 
 
-def get_user_word(lang_selection):
-    if langs[lang_selection] == "Deutsch":
-        print(f"Geben Sie ein Wort ein: ")
-    elif langs[lang_selection] == "English":
-        print(f"Enter a word, or type the letter 'c' to change languages: ")
-    elif langs[lang_selection] == "French":
-        print(f"Enter a word: ")
-        
-    word_input = input()
-    print("-----------")
-    return word_input
-
-
 def find_keywords(dict_array):
-    """
-    Finds keywords in the text submitted by the user.
+    """Finds keywords in the text submitted by the user.
     Keywords are designated by adding an * before the keyword.
     
-    :param dict_array: An array of dictionaries. Each one respresenting information to be used for an Anki card.
-    :returns: dict_array (dict): An updated version of the dictionaries. The keywords designated by the user have not 
-    been added to each dictionary's 'words' entry.
+    :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a card.
+    :type dict_array: list
+    :return: The array of dictionaries, now with added keyword entries.
+    :rtype: list
     """
-    # The pattern is: any word that is preceeded by an asterisk.
     pattern = r"\*(\w+)"
     for dictionary in dict_array:
         text = dictionary.get("text")
@@ -2455,11 +1955,16 @@ def find_keywords(dict_array):
 
 
 def get_tags(dict_array, language, nlp):
-    """
-    Gets the grammatical tags for the user's marked words.
+    """Gets the grammatical tags for the user's marked words.
     
-    :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a card.
-    :returns dict_array: The array of dictionaries, now with added tag entries.
+    :param dict_array: Array of dictionaries, each dictionary representing an Anki card.
+    :type dict_array: list
+    :param language: Language being used.
+    :type language: str
+    :param nlp: The SpaCy nlp object.
+    :type nlp: spacy.lang
+    :return: The array of dictionaries, now with added tags entries.
+    :rtype: list
     """
     for count, dictionary in enumerate(dict_array):
         words_and_nltk_tags = determine_grammar(dictionary["words"], dictionary["text"], language, nlp)
@@ -2468,23 +1973,49 @@ def get_tags(dict_array, language, nlp):
 
 
 def determine_grammar(words: list, text, lang, nlp):
-    """
-    Determines the grammatical context of the specified words in the context of a piece of text using nltk natural 
-    language processing.
+    """Determine the grammatical tags for each word in the text.
     
-    :param words: A list of words passed to the function from an card dictionary.
-    :param text: The text that the word is found in. Passed from an card dictionary.
-    :returns nltk_tags: Tags used by nltk to signify the grammatical use of the word. Stored as an array. Each item in 
-    that array is itself a single array that holds a tuple containing a word and its nltk tag. The additional array is 
-    redundant - I don't know how to remove it.
+    :param words: The words to be tagged.
+    :type words: list
+    :param text: The text that contains the target words.
+    :type text: str
+    :param lang: The language being used.
+    :type lang: str
+    :param nlp: The SpaCy nlp object.
+    :type nlp: spacy.lang
+    :return: The words and their tags.
+    :rtype: list
     """
-    nltk_tags = spacy_to_nltk(words, text, lang, nlp)
+    nltk_tags = []
+    # Remove punctuation
+    text = strip_punctuation(text)
+    # Process the text using SpaCy
+    doc = nlp(text)
+    
+    # Convert each token to NLTK tag if the token text is in the words list
+    for token in doc:
+        print(f">> Comparing {token.text} to {words}")
+        if token.text in (word for word in words):
+            # Find the equivalent NLTK tag for the SpaCy tag from the mapping
+            nltk_tag = SPACY_TO_NLTK_TAG_MAP.get(token.pos_, 'NN')  # Default to 'NN' if not found        
+            # Because spacy seems to be identifying German nouns as proper nouns (due to capitalisation),
+            # all NNPs need to be converted to NNs, despite this being inaccurate.
+            if nltk_tag == 'NNP':
+                nltk_tag = 'NN'
+            nltk_tags.append([token.text, nltk_tag])
+            logger.info(f"Tagged {token.text} as {nltk_tag}")
     
     return nltk_tags
 
 
-
 def strip_punctuation(text):
+    """Remove punctuation from a string.
+    
+    :param text: The text to be stripped of punctuation.
+    :type text: str
+    :return: The text with punctuation removed.
+    :rtype: str
+    """
     # Remove apostrophes in the middle of words, but ensure a space is put in their place. 
     # Iterate over each character in the text string.
     new_text = ''
@@ -2497,7 +2028,6 @@ def strip_punctuation(text):
                     continue
         new_text += text[i]
 
-
     # Remove other punctuation
     exclude = set(string.punctuation) - {"'"}
     for ch in exclude:
@@ -2507,57 +2037,19 @@ def strip_punctuation(text):
     return ' '.join(new_text.split())
 
 
-def spacy_to_nltk(words: list, text, lang, nlp):
-    """Because nltk doesn't have a German model, we have to use SpaCy to tag the words, then convert the SpaCy tags to
-    NLTK tags.
-    
-    :param text: _description_
-    :type text: _type_
-    :param lang: _description_, defaults to 'de'
-    :type lang: str, optional
-    :return: _description_
-    :rtype: _type_
-    """
-    nltk_tags = []
-    
-    # Remove punctuation
-    text = strip_punctuation(text)
-    
-    # Process the text using SpaCy
-    doc = nlp(text)
-    # Convert each token to NLTK tag if the token text is in the words list
-    for token in doc:
-        print(f">> Comparing {token.text} to {words}")
-        if token.text in (word for word in words):
-            # Find the equivalent NLTK tag for the SpaCy tag from the mapping
-            nltk_tag = SPACY_TO_NLTK_TAG_MAP.get(token.pos_, 'NN')  # Default to 'NN' if not found
-            
-            # Because spacy seems to be identifying German nouns as proper nouns (due to capitalisation),
-            # all NNPs need to be converted to NNs, despite this being inaccurate.
-            if nltk_tag == 'NNP':
-                nltk_tag = 'NN'
-            
-            nltk_tags.append([token.text, nltk_tag])
-            logger.info(f"Tagged {token.text} as {nltk_tag}")
-    
-    return nltk_tags
-
-
 def match_tags(dict_array):
-    """
-    Match the nltk grammar tags with more general (and comprehensible) tags, as set out in the global nltk_tag_ref
-    dictionary. Not only does this make things more understandbale, but it makes it easier to match our grammar tags 
-    with Wiktionary's grammat tags.
+    """Match the nltk grammar tags with more general (and comprehensible) tags.
     
-    :param dict_array: Array of dictionaries, each dictionary representing an Anki card.
-    :returns dict_array: The dictionaries array with its tags edited to be simplified and readable.
+    :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a card.
+    :type dict_array: list
+    :return: The array of dictionaries, now with more general and readable tags.
+    :rtype: list
     """
     for dict_index, dictionary in enumerate(dict_array):
         for tags_index, tags in enumerate(dictionary["tags"]):
             for tag_index, tag in enumerate(tags):
-                # tag = tag[1]
                 logger.info(f"Match tags function: tag < {tag} > found in dictionary tags array.")
-                for readable_tag, nltk_tags in nltk_tag_ref.items():
+                for readable_tag, nltk_tags in NLTK_TAG_REF.items():
                     for nltk_tag in nltk_tags:
                         if nltk_tag == tag:
                             new_tag = readable_tag
@@ -2578,7 +2070,6 @@ def grab_wik(text, language, get_etymology, get_usage_notes):
     :rtype: string
     """
     page_content = get_wiktionary_definition(text)
-    # print(page_content)
     if page_content:
         parsed_definitions_dict = parse_page(page_content, language, "manualsearch", get_etymology, get_usage_notes)
         if parsed_definitions_dict:
@@ -2593,6 +2084,13 @@ def grab_wik(text, language, get_etymology, get_usage_notes):
 
 
 def get_wiktionary_url(word):
+    """Get the URL for a word on Wiktionary.
+    
+    :param word: The word to be looked up.
+    :type word: str
+    :return: The URL for the word on Wiktionary.
+    :rtype: str
+    """
     base_url = "https://en.wiktionary.org/wiki/"
     # Construct the URL by appending the word to the base URL
     url = f"{base_url}{word}"
@@ -2602,29 +2100,25 @@ def get_wiktionary_url(word):
 def grab_wik_conjtable(text, language):
     """Grab the Wiktionary conjugation table for a single word.
     
-    :param text: The text provided by the user in the GUI input field.
-    :type text: string
-    :param language: The currently selected language stored the the GUI variables.
-    :type language: string
-    :return: The word's conjugation table.
-    :rtype: html string
+    :param text: The text provided by the user.
+    :type text: str
+    :param language: The language being used.
+    :type language: str
+    :return: The conjugation table.
+    :rtype: str
     """
     logger.info(f"Getting conjugation table for {text}")
-    
     # Get the URL
     wik_url = get_wiktionary_url(text)
-    
     # Send a request to the URL
     response = requests.get(wik_url)
     soup = BeautifulSoup(response.text, 'html.parser')
+    # Find the language section
+    lang_section = soup.find('span', {"class": "mw-headline", "id": f"{language}"})
     
-    # Find the English language section
-    english_section = soup.find('span', {"class": "mw-headline", "id": f"{language}"})
-    
-    # Proceed only if the English section is found
-    if english_section:
+    if lang_section:
         # Navigate to the parent of the span, which should be h2, then to subsequent content
-        content = english_section.parent
+        content = lang_section.parent
         
         # Now find the conjugation header within the English section
         conjugation_header = content.find_next('span', id='Conjugation')
@@ -2636,7 +2130,6 @@ def grab_wik_conjtable(text, language):
             conjugation_header = content.find_next('span', id='Conjugation_4')
         
         if conjugation_header:
-            # Find the next table following the conjugation header
             table = conjugation_header.find_next('table')
             if table:
                 return str(table)
@@ -2645,26 +2138,34 @@ def grab_wik_conjtable(text, language):
         else:
             return "Could not find conjugation header"
     else:
-        return "English section not found."
+        return "Language section not found."
 
 
 def strip_bs4_links(html_content):
+    """Remove all links from HTML content.
+    
+    :param html_content: The HTML content to be modified.
+    :type html_content: str
+    :return: Cleaned HTML content.
+    :rtype: str
+    """
     # Parse the HTML content
     soup = BeautifulSoup(html_content, 'html.parser')
-    
     # Find all <a> tags and replace them with their text content
     for link in soup.find_all('a'):
         link.replace_with(link.text)
-        
-    # Return the modified HTML
     return str(soup)
 
 
 def get_wiktionary_conjugations(word):
-    # Endpoint for the MediaWiki API
-    endpoint = "https://en.wiktionary.org/w/api.php"
+    """Get the conjugations for a word from Wiktionary.
     
-    # Parameters for fetching the content of a page
+    :param word: The word to be looked up.
+    :type word: str
+    :return: The conjugations for the word.
+    :rtype: str
+    """
+    endpoint = "https://en.wiktionary.org/w/api.php"
     params = {
         "action": "parse",
         "page": word,
@@ -2692,11 +2193,12 @@ def get_wiktionary_conjugations(word):
 
 
 def get_wiktionary_definition(word):
-    """
-    Get the definition of a word from wiktionary.
+    """Get the definition of a word from wiktionary.
     
-    :param word: The individual word being defined.
-    :returns content: The entire wiktionary page containing the definition of the word.
+    :param word: The word to be looked up.
+    :type word: str
+    :return: The definition of the word.
+    :rtype: _type_
     """
     url = "https://en.wiktionary.org/w/api.php"
     params = {
@@ -2732,20 +2234,23 @@ def get_wiktionary_definition(word):
 
 
 def parse_page(page_content, language, mode, get_etymology, get_usage_notes):
-    """
-    Process the page so that it can be worked on.
+    """Parse the page so that the content from relevant sections can be extracted.
     
-    :param page_content: The raw page content for an individual word. This is an entire wiktionary page, containing 
-    definitions for multiple languages.
-    :param language: The language being used. This is necessary because the page_content will probably contain multiple 
-    languages.
-    :returns definitions: A dictionary of definitions. Each entry contains the definitions for the word's different 
-    grammatical uses.
+    :param page_content: The content of the page.
+    :type page_content: str
+    :param language: The language being used.
+    :type language: str
+    :param mode: Whether the function is being called from the manual search or the automatic search.
+    :type mode: str
+    :param get_etymology: Whether to get the etymology of the word.
+    :type get_etymology: bool
+    :param get_usage_notes: Whether to get the usage notes of the word.
+    :type get_usage_notes: bool
+    :return: The parsed page content.
+    :rtype: dict
     """
-    # English Wiktionary pages should display the language in this format.
-    
     r_lang = "==" + language + "=="
-    #lang_section = re.search(rf'{r_lang}\n(.*?)(?=\n==[^=])', page_content, re.DOTALL)
+
     try:
         lang_section = re.search(rf'{r_lang}\n(.*?)(?=\n==[^=]|$)', page_content, re.DOTALL)
     except:
@@ -2872,7 +2377,13 @@ def parse_page(page_content, language, mode, get_etymology, get_usage_notes):
 
 
 def clean_wikitext_mansearch(parsed_definitions_dict):
-    # Remove templates: anything that's inside double curly braces
+    """Cleans the definitions pulled from Wiktionary so that they are legible.
+    
+    :param parsed_definitions_dict: The definitions pulled from Wiktionary.
+    :type parsed_definitions_dict: dict
+    :return: The cleaned definitions.
+    :rtype: dict
+    """
     clean_definitions = {
         "noun": [],
         "verb": [],
@@ -2915,14 +2426,14 @@ def clean_wikitext_mansearch(parsed_definitions_dict):
     return clean_definitions
 
 
-def clean_wikitext_new(definitions):
-    """
-    Cleans definitions dictionary (which itself is within an Anki card dictionary) so that the text is legible.
+def clean_wikitext_card(definitions):
+    """Cleans the definitions pulled from Wiktionary so that they are legible.
     
-    :param definitions: A dictionary, passed to the function from an Anki card dictionary, containing definitions.
-    :returns clean_definitions_list: An array of lines, each line being a definition, which are now legible.
+    :param definitions: The definitions pulled from Wiktionary.
+    :type definitions: list
+    :return: The cleaned definitions.
+    :rtype: list
     """
-    # Remove templates: anything that's inside double curly braces
     clean_definitions = []
     
     for definition in definitions:
@@ -2963,21 +2474,20 @@ def stringify_def_dict(defs_dict):
 
 
 def remove_irrelevant_defs(dict_array):
-    """
-    Removes the definitions for the grammatical use of a word if that grammatical definition was not used in the user's 
-    input text. The grammatical context is found in the card's dictionary 'tag' key.
+    """Removes the definitions for the grammatical use of a word if that grammatical definition was not used in the 
+    user's input text. The grammatical context is found in the card's dictionary 'tag' key.
     
-    :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a single 
-    card.
-    :returns dict_array: The dictionary array, now with irrelent definitions removed.
-    """    
+    :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a card.
+    :type dict_array: list
+    :return: The array of dictionaries, now with only the relevant definitions.
+    :rtype: list
+    """
     for dict_index, dictionary in enumerate(dict_array):
         # Individual Anki card
         new_card_definitions = []
         
         for word_index, word_definitions_dict in enumerate(dictionary["definitions"]):
             # Individual word definitions
-            logger.info(f"Attempting to match definition to tag for < {dictionary['words'][word_index]} >")            
             appropriate_word_def_found = False
 
             try:
@@ -2987,15 +2497,11 @@ def remove_irrelevant_defs(dict_array):
                     if definition and not appropriate_word_def_found:
                         try:
                             nltk_tag = dictionary["tags"][word_index][1]
-                            logger.info(f"Comparing NLTK tag < {grammar_key} >  to tag in card dictionary < {nltk_tag} >")
                             if grammar_key == nltk_tag:
                                 relevant_def = definition
                                 if relevant_def:
-                                    logger.info(f"Found relevant definition for < {dictionary['words'][word_index]} >, \n{relevant_def}")
                                     new_card_definitions.append(relevant_def)
                                     appropriate_word_def_found = True
-                                logger.info(f"NLTK tag < {grammar_key} >  matches dictionary tag < {nltk_tag} >")
-                                logger.info(f"Appropriate definition saved to temp dictionary for < {dictionary['words'][word_index]} >")
                         except:
                             logger.warning(f"No tag found at index {word_index} in dictionary: >>\n{dictionary}\n<<")   
             except:
@@ -3024,12 +2530,12 @@ def remove_irrelevant_defs(dict_array):
 
 
 def read_sentence_file(text_file):
-    """
-    Read the text from the selected text file.
+    """Read the text from the selected text file.
     
-    :param text_file: Text file containing sentences that should be turned into Anki cards.
-    :returns text: The text from the file.
-    :returns False: Return False if the file does not exist, or if there is an error.
+    :param text_file: The path to the text file.
+    :type text_file: str
+    :return: The text from the file.
+    :rtype: str
     """
     try:
         with open(text_file, 'r', encoding="utf-8") as file:
@@ -3041,16 +2547,7 @@ def read_sentence_file(text_file):
 
 
 def format_card(content, defs, words, tags, deck_name, lang):
-    """
-    Takes the information from a card dictionary and formats that information so that it is readable by anki. Using this
-    function in a loop with multiple dictionaries will format multiple cards, all saved in a single variable. Anki will
-    read this information (stored as a single unit) and create from it multiple individual cards.
-    
-    :param content: The text submitted by the user.
-    :param defs: The definition(s) of the word(s) marked by the user.
-    :param words: The word(s) marked by the user.
-    :param deck_name: The name of the deck that the user wishes to import the cards to.
-    :returns ankified_text: A string that can be saved to a text file and read by Anki. This contains one of more cards.
+    """Takes the information from a card dictionary and formats it so that it is readable by anki
     """
     logger.info(f"Formatting card for < {words} >")
     # Remove the "*" keyword marker(s) and bold them with html tags
@@ -3064,7 +2561,6 @@ def format_card(content, defs, words, tags, deck_name, lang):
     for count, definition in enumerate(defs):
         tag = tags[count][1]
         ankified_text += f"<h3>{words[count]}, <i>{tag}</i>"
-        
         try:
             if tag == "noun" and definition[0] != "No definition found. You might have made a typo, or the word might not be in Wiktionary." and lang in GENDERED_LANGS:
                 for line_num, line in enumerate(definition):
@@ -3078,26 +2574,26 @@ def format_card(content, defs, words, tags, deck_name, lang):
                     ankified_text += f"{line_num + 1}: {line.replace('}', '')}<br>"
         except:
             ankified_text += f"{str(definition)}"
-        
     ankified_text += "\";"
     
     # Column 3 - Deck
     ankified_text += f"deck:{deck_name}"
-    
     ankified_text = ankified_text.replace("\n", "<br>")
     ankified_text = ankified_text.replace("</h3><br><br>", "</h3>")
-    
     ankified_text = ankified_text.replace("(", "<span style='font-size:0.75em;'><i>")
     ankified_text = ankified_text.replace(")", "</i></span>")
-    
-    logger.info(f"Successfully formatted card for < {words} >")
-    
+        
     return ankified_text
 
 
 def get_nlp(language):
-    # Get the relevant language package.
-    # Arabic
+    """Get the relevant SpaCy nlp object for the language being used.
+
+    :param language: The language being used.
+    :type language: str
+    :return: The SpaCy nlp object.
+    :rtype: spacy.lang
+    """
     if language == "Arabic":
         stanza.download("ar")
         nlp = spacy_stanza.load_pipeline("ar", package="padt", processors='tokenize,mwt,pos,lemma', use_gpu=True)
@@ -3112,45 +2608,44 @@ def get_nlp(language):
     # German
     if language == "German":
         stanza.download("de")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("de", package="hdt", processors='tokenize,mwt,pos,lemma', use_gpu=True)
     # Japanese
     if language == "Japanese":
         stanza.download("ja")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("ja", package="gsd", use_gpu=True)
     # Korean
     if language == "Korean":
         stanza.download("ko")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("ko", package="kaist", processors='tokenize,mwt,pos,lemma', use_gpu=True)
     # Latin
     if language == "Latin":
         stanza.download("la")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("la", package="llct", processors='tokenize,mwt,pos,lemma', use_gpu=True)
     # Persian
     if language == "Persina":
         stanza.download("fa")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("fa", package="seraji", processors='tokenize,mwt,pos,lemma', use_gpu=True)
     # Spanish
     if language == "Spanish":
         stanza.download("es")
-        # Initialize the pipeline
         nlp = spacy_stanza.load_pipeline("es", package="ancora", processors='tokenize,mwt,pos,lemma', use_gpu=True)
-    
     return nlp
 
 
 def make_cards(text_file, language, deck_name, messageQueue): 
+    """Makes Anki cards from the text file.
+
+    :param text_file: The path to the text file.
+    :type text_file: str
+    :param language: The language being used.
+    :type language: str
+    :param deck_name: The name of the deck to be used.
+    :type deck_name: str
+    :param messageQueue: The queue used to send messages to the GUI.
+    :type messageQueue: queue.Queue
+    :return: The Anki cards.
+    :rtype: str
     """
-    Makes Anki cards from the text file submitted by the user.
-    
-    :param text_file: The text file selected by the user via the Gui.
-    :param language: The language selected by the user via the Gui.
-    """
-    # Get the text from the user's file.
     messageQueue.put("AutoAnki Started.")
 
     text = read_sentence_file(text_file)
@@ -3161,7 +2656,6 @@ def make_cards(text_file, language, deck_name, messageQueue):
     # Split lines. This assumes the user submitted their input using independent lines for each card.
     split_text = text.splitlines()
     
-    # Create dictionaries for each Anki card and add them to an array.
     dict_array = [
             {
                 "text" : "",
@@ -3176,7 +2670,6 @@ def make_cards(text_file, language, deck_name, messageQueue):
         dict_array[count]["text"] = line
 
     # Find the keywords. Should be designated with an asterisk before the word.
-    logger.info(f"Finding all keywords marked with an asterisk.")
     messageQueue.put(f"Finding keywords.")
     dict_array = find_keywords(dict_array)
     
@@ -3185,31 +2678,24 @@ def make_cards(text_file, language, deck_name, messageQueue):
     nlp = get_nlp(language)
     
     # Get grammar tags for each word via nltk natural language processing.
-    logger.info(f"Processing grammatical context for all user input in order to find grammar tags.")
     messageQueue.put(f"Getting grammar tags.")
     dict_array = get_tags(dict_array, language, nlp)
-    
     # Match nltk tags to wiktionary tag types. This does nothing other than change the definitions of the tags being 
     # used in the dictionaries.
-    logger.info(f"Matching NLTK tags with readable tags.")
     dict_array = match_tags(dict_array)
-    logger.info(f"Done matching tags.")
     
     # Get definitions from Wiktionary.
     messageQueue.put(f"Making {str(len(dict_array))} cards.")
     for count, dictionary in enumerate(dict_array):
         messageQueue.put(f"Getting Wikti data for card {str(count+1)}/{str(len(dict_array))}.")
-        logger.info(f"Getting word definitions from Wiktionary.")
         for w_count, word in enumerate(dictionary.get("words")):
-            # messageQueue.put(dictionary)
             if dictionary["tags"][w_count][1] in ["adjective", "verb", "noun"]:
-                logger.info(f"Current word < {word} > is a noun, verb, or adjective. Removing any possible declension.")
                 
                 this_tag = dictionary["tags"][w_count][1]
                 this_context = dictionary["text"]
+                
                 # Save the possibly declined version of the word.
                 declined_word = word
-                
                 # Get lemma
                 word = get_lemma(word, this_context, nlp)
                 
@@ -3219,47 +2705,32 @@ def make_cards(text_file, language, deck_name, messageQueue):
                         word = word.capitalize()
                     else:
                         # If the word shouldn't be capitalised, make sure it's all lower case.
-                        # This is necessary because words that are not nounds must be lower case, but the user might have
-                        # capitalised the word if it was at the start of a sentence.
                         word = word.lower()
                     
                 # Replace the word in the dictionary with the undeclined version.
                 dict_array[count]["words"][w_count] = word
-                logger.info(f"Declension removal complete. Undeclined word: < {word} >")
             if word:
                 if language != "German":
                     word = word.lower()
-                logger.info(f"Connecting to Wiktionary API to retrieve definition for: < {word} >.")
                 page_content = get_wiktionary_definition(word)
-                logger.info(f"Defininition for < {word} > in language < {language} > retrieved.")
-                logger.info(f"Removing other language definitions for < {word} > and returning only < {language} > definitions.")
                 parsed_definitions_dict = parse_page(page_content, language, "autoanki", False, False)
-                logger.info(f"Successfully isolated < {language} > definitions for < {word} >.")
                 dict_array[count]["definitions"].append(parsed_definitions_dict)
-                logger.info(f"Added definitions for < {word} > to card dictionary.")
     
     # Remove irrelevent definitions.
-    logger.info(f"Removing all definitions that do not match the grammatical context of the word.")
-    print(f"Removing all definitions that do not match the grammatical context of the word.")
     messageQueue.put(f"Processing cards.")
     dict_array = remove_irrelevant_defs(dict_array)
-    logger.info(f"Done removing irrelevant definitions.")
     
     # Clean definitions so that they're readable (remove HTML tags, etc.).
-    logger.info(f"Cleaning definitions so that they're readable by removing HTML tags, etc.")
-    print(f"Cleaning definitions so that they're readable by removing HTML tags, etc.")
     messageQueue.put(f"Cleaning cards.")
     for count, dictionary in enumerate(dict_array):
-        cleaned_defs = clean_wikitext_new(dictionary["definitions"])
+        cleaned_defs = clean_wikitext_card(dictionary["definitions"])
         dict_array[count]["definitions"] = cleaned_defs
-    logger.info(f"Done cleaning definitions.")
         
     # The text file which will be output and imported into Anki.
     anki_file = ""
     
     # The dictionaries are now ready to be used to create cards. They must be formatted so that Anki can read them and 
     # convert them.
-    logger.info(f"Formatting Anki cards.")
     messageQueue.put(f"Formatting cards.")
     for count, dictionary in enumerate(dict_array):
         if count > 0:
@@ -3271,19 +2742,11 @@ def make_cards(text_file, language, deck_name, messageQueue):
     save_filename = f"{deck_name}_cards.txt"
     desktop_path = "D:\projects\software_dev\\autodict"
     full_file_path = f"D:\projects\software_dev\\autodict\{deck_name}_cards.txt"
-    
-    logger.info(f"Saving export file.")
-    
-    print()
-    pprint.pprint(dict_array)
-    print()
-    
+
     save_result = export_cards(save_filename, desktop_path, anki_file)
     if save_result:
-        logger.info(f"File saved to {full_file_path}")
         messageQueue.put(f"File saved to {full_file_path}")
     else:
-        logger.info(f"Error saving file to {full_file_path}")
         messageQueue.put(f"Error saving file to {full_file_path}")
     messageQueue.put(f"You can now close this window.")
 
@@ -3304,16 +2767,20 @@ def should_word_be_capitalised(word):
         return False
 
 
-def export_cards(file_name, desktop_path, anki_file):
-    """
-    Exports the Anki-formatted text file containing all generated Anki cards.
+def export_cards(file_name, folder_path, anki_file):
+    """Exports the Anki-formatted text file containing all generated Anki cards.
     
-    :param file_name: Name that the file will be saved as.
-    :anki_file: The content that will be saved as a text file.
-    :returns result: Boolean indicating whether the file was successfully saved.
+    :param file_name: The name of the file to be saved.
+    :type file_name: str
+    :param folder_path: The path to the save folder.
+    :type folder_path: str
+    :param anki_file: The Anki-formatted text file containing all generated Anki cards.
+    :type anki_file: str
+    :return: Whether the file was saved successfully.
+    :rtype: bool
     """
     # Create the full file path
-    full_file_path = os.path.join(desktop_path, file_name)
+    full_file_path = os.path.join(folder_path, file_name)
     
     # Open the file at the specified location in write mode
     try:
@@ -3325,16 +2792,20 @@ def export_cards(file_name, desktop_path, anki_file):
 
 
 def get_lemma(target_word, context, nlp):
-    """
-    Returns the undeclined form of a delcined German word.
+    """Returns the undeclined form of a delcined German word.
     
-    :param adjective: The declined German word.
-    :returns: The undeclined form of the word.
+    :param target_word: The word to be undeclined.
+    :type target_word: str
+    :param context: The context in which the word is being used.
+    :type context: str
+    :param nlp: The SpaCy nlp object.
+    :type nlp: spacy.lang
+    :return: The undeclined form of the word.
+    :rtype: str
     """
     # Strip punctuation from the context and target word.
     context = strip_punctuation(context)
     target_word = strip_punctuation(target_word)
-    
     # Process the word using SpaCy
     lemmas = {}
     text = nlp(context)
@@ -3343,20 +2814,9 @@ def get_lemma(target_word, context, nlp):
     for token in text:
         lemmas[token.text]  = token.lemma_
     
-    for token in text:
-        print()
-        print(token.text, token.lemma_, token.pos_, token.dep_, token.ent_type_)
-
-    print("\nLEMMAS")
-    print(lemmas)
-    
     # Get the lemma of the target word.
-    print()
-    print(f"Target word: {target_word}")
     lemma = lemmas[target_word]
-    
-    print(f"Undeclined {target_word}: < {lemma} >")
-    
+        
     return lemma
 
 
