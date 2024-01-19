@@ -888,6 +888,7 @@ class Gui(QWidget):
         self.colourMode = "light"
         self.__reapplyBorderColours()
         self.setMyStyleLight()
+        self.colourModeBtn.setText("Dark Mode")
     
     def __activateDarkmode(self):
         """Apply the dark mode for the GUI.
@@ -897,6 +898,7 @@ class Gui(QWidget):
         self.colourMode = "dark"
         self.__reapplyBorderColours()
         self.setMyStyleDark()
+        self.colourModeBtn.setText("Light Mode")
     
     def __toggleColourMode(self):
         """When the user presses the light/dark mode button, toggle on light mode if dark mode is currently applied and
@@ -1903,6 +1905,8 @@ class GuiChangeLangWindow(object):
             return None  # or some default value
 
 
+
+
 class GuiSettingsDialog(object):
     """The settings dialog.
     """
@@ -2020,7 +2024,9 @@ class GuiSettingsDialog(object):
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
-        self.window.setStyleSheet(stylesheet)    
+        
+        self.window.setStyleSheet(stylesheet)
+        self.settingsFrame.setStyleSheet("QFrame {border: 0px solid dimgrey;}")    
     
     def retranslateUi(self, settingsDialog):
         """Apply labels to the GUI elements.
