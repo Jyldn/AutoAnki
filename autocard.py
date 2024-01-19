@@ -1616,7 +1616,7 @@ class GuiContactDialog(object):
 ""))
         self.label_3.setText(_translate("Dialog", "✨ **Contact Me** ✨"))
 
-class GuiChangeLangWindow(object):
+class GuiChangeLangWindowOld(object):
     """The change language dialog. Allows the user to change languages from a list of 'verified' languages, and the 
     option to add a language of their own choosing.
     """
@@ -1905,7 +1905,208 @@ class GuiChangeLangWindow(object):
             return None  # or some default value
 
 
+class GuiChangeLangWindow(object):
+    """The change language dialog. Allows the user to change languages from a list of 'verified' languages, and the 
+    option to add a language of their own choosing.
+    """
+    def __init__(self, parent):
+        self.parent = parent
+        self.tempLang = ""
+        self.window = ""
+    
+    def setupUi(self, changeLangWindow):
+        """Initialise the GUI.
+        
+        :param changeLangWindow: The dialog object.
+        """
+        self.window = changeLangWindow
+        changeLangWindow.setObjectName("changeLangWindow")
+        changeLangWindow.resize(100, 185)
+        self.gridLayout_4 = QtWidgets.QGridLayout(changeLangWindow)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        
+        # Change lang W frame
+        self.changeLangWFrame = QtWidgets.QFrame(changeLangWindow)
+        self.changeLangWFrame.setMaximumSize(QtCore.QSize(100, 200))
+        self.changeLangWFrame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.changeLangWFrame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.changeLangWFrame.setObjectName("changeLangWFrame")
+        self.changeLangWFrame.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.changeLangWFrame.setStyleSheet("QFrame#changeLangWFrame { border: 0px solid black; }")
+        self.changeLangWFrame.setStyleSheet("QFrame {border: 0px; margin: 0px;}")
+        
+        # Grid layout 3
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.changeLangWFrame)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_3.setSpacing(0)
+        
+        self.changeLangConf = QtWidgets.QDialogButtonBox(self.changeLangWFrame)
+        self.changeLangConf.setOrientation(QtCore.Qt.Horizontal)
+        self.changeLangConf.setStandardButtons(QtWidgets.QDialogButtonBox.Apply)
+        self.changeLangConf.clicked.connect(self.__handleApply)
+        self.changeLangConf.setCenterButtons(True)
+        self.changeLangConf.setObjectName("changeLangConf")
 
+        # Change language list
+        self.langsList = QtWidgets.QListWidget(self.changeLangWFrame)
+        self.langsList.setMaximumSize(QtCore.QSize(74, 16777215))
+        self.langsList.setObjectName("langsList")
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        item = QtWidgets.QListWidgetItem()
+        self.langsList.addItem(item)
+        # Add border
+        self.langsList.setStyleSheet("QFrame {border: 0px solid lightgrey;}")
+        self.gridLayout_3.addWidget(self.langsList, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.changeLangWFrame, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.changeLangConf, 1, 0, 1, 1)
+        
+        self.__retranslateUi(changeLangWindow)
+        QtCore.QMetaObject.connectSlotsByName(changeLangWindow)
+    
+    def __handleApply(self):
+        """Applies the selected language by updating the GUI language variable and then closes the dialog.
+        """
+        if self.tempLang:
+            self.parent.updateLanguageVar(self.tempLang)
+        self.window.close()
+    
+    def __retranslateUi(self, changeLangWindow):
+        """Initialises the labels for GUI elements.
+        
+        :param changeLangWindow: The dialog object.
+        """
+        _translate = QtCore.QCoreApplication.translate
+        changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Language Settings"))
+        __sortingEnabled = self.langsList.isSortingEnabled()
+        
+        self.langsList.setSortingEnabled(False)
+        item1 = self.langsList.item(0)
+        item1.setText(_translate("changeLangWindow", "Arabic"))
+        item2 = self.langsList.item(1)
+        item2.setText(_translate("changeLangWindow", "English"))
+        item3 = self.langsList.item(2)
+        item3.setText(_translate("changeLangWindow", "French"))
+        item4 = self.langsList.item(3)
+        item4.setText(_translate("changeLangWindow", "German"))
+        item5 = self.langsList.item(4)
+        item5.setText(_translate("changeLangWindow", "Japanese"))
+        item6 = self.langsList.item(5)
+        item6.setText(_translate("changeLangWindow", "Korean"))
+        item7 = self.langsList.item(6)
+        item7.setText(_translate("changeLangWindow", "Latin"))
+        item8 = self.langsList.item(7)
+        item8.setText(_translate("changeLangWindow", "Persian"))
+        item9 = self.langsList.item(8)
+        item9.setText(_translate("changeLangWindow", "Spanish"))
+        self.langsList.setSortingEnabled(__sortingEnabled)
+        self.langsList.clicked.connect(self.__updateSelection)
+        item1.setHidden(True)
+        item5.setHidden(True)
+        item6.setHidden(True)
+        item8.setHidden(True)
+
+        # Check what the currently saved language is in the parent GUI object and apply that visually to the selection 
+        # list.
+        langIndex = self.__indexLang()
+        if langIndex == 1:
+            langItem =  item1
+        elif langIndex == 2:
+            langItem =  item2
+        elif langIndex == 3:
+            langItem =  item3
+        elif langIndex == 4:
+            langItem =  item4
+        elif langIndex == 5:
+            langItem =  item5
+        elif langIndex == 6:
+            langItem =  item6
+        elif langIndex == 7:
+            langItem =  item7
+        elif langIndex == 8:
+            langItem =  item8
+        elif langIndex == 9:
+            langItem =  item9
+        else:
+            langItem = None  # or some default value
+        self.__highlightCurrentLang(langItem)
+    
+    def __highlightCurrentLang(self, item):
+        """Highlight the currently selected language on the selection list. Used at dialog start-up.
+        
+        :param item: The item within the list representing the currently selected language.
+        """
+        self.langsList.setCurrentItem(item)
+        self.langsList.setFocus()
+    
+    def __updateTempLangVar(self, lang):
+        """Updates the language var used to save, temporarily, when a user clicks on a language list object, but is yet 
+        to save that as their selection.
+        
+        :param lang: The selected language.
+        """
+        self.tempLang = lang
+    
+    def __getCurrentLangSelection(self):
+        """Get the currently selected language from the list of languages GUI element.
+        
+        :return: The currently selected list item.
+        """
+        selection = self.langsList.currentRow()
+        selection += 1
+        selection = langs[str(selection)]
+        # print(selection)
+        return selection
+    
+    def __updateSelection(self):
+        """Update the program with the currently selected (temporary, not yet applied) language selection from the list.
+        """
+        selection = self.__getCurrentLangSelection()
+        self.__updateTempLangVar(selection)
+    
+    def __indexLang(self):
+        """Determine which list element a language corresponds with.
+        
+        :return: An integer corresponding with a list item representing a language.
+        """
+        lang = self.parent.getCurrentLang()
+        # print(lang)
+        if lang == "Arabic":
+            return 1
+        elif lang == "English":
+            return 2
+        elif lang == "French":
+            return 3
+        elif lang == "German":
+            return 4
+        elif lang == "Japanese":
+            return 5
+        elif lang == "Korean":
+            return 6
+        elif lang == "Latin":
+            return 7
+        elif lang == "Persian":
+            return 8
+        elif lang == "Spanish":
+            return 9
+        else:
+            return None  # or some default value
+        
 
 class GuiSettingsDialog(object):
     """The settings dialog.
