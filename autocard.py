@@ -2826,8 +2826,10 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet(stylesheet)
     app.processEvents()
-    
     MainWindow = QtWidgets.QDialog()
+    MainWindow.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
+    MainWindow.setWindowFlag(Qt.WindowMaximizeButtonHint, True)
+    
     gui = Gui()
     gui.setupUI(MainWindow)
     MainWindow.show()
