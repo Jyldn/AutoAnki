@@ -1937,6 +1937,20 @@ def get_configs():
     return config_vars  
 
 
+def is_phrase(word):
+    """Checks if a word is a phrase.
+    
+    :param word: The word to be checked.
+    :type word: str
+    :return: True if the word is a phrase, False otherwise.
+    :rtype: bool
+    """
+    if word.count(" ") > 0:
+        return True
+    else:
+        return False
+
+
 def find_keywords(dict_array):
     """Finds keywords in the text submitted by the user.
     Keywords are designated by adding an * before the keyword.
@@ -2000,7 +2014,10 @@ def determine_grammar(words: list, text, lang, nlp):
     
     # Convert each token to NLTK tag if the token text is in the words list    
     for word in words:
-        if word.count(" ") < 1:
+        if is_phrase(word):
+            word.replace("#", "")
+            nltk_tags.append([word, 'Phrase'])
+        else:
             for w_count, token in enumerate(doc):
                 if token.text == word:
                     # Find the equivalent NLTK tag for the SpaCy tag from the mapping
@@ -2011,10 +2028,6 @@ def determine_grammar(words: list, text, lang, nlp):
                         nltk_tag = 'NN'
                     nltk_tags.append([token.text, nltk_tag])
                     logger.info(f"Tagged {token.text} as {nltk_tag}")
-        else:
-            word.replace("#", "")
-            nltk_tags.append([word, 'Phrase'])
-    
     return nltk_tags
 
 
@@ -2522,8 +2535,8 @@ def remove_irrelevant_defs(dict_array):
                     word_definitions = dictionary["definitions"][word_index].values()
                     # Find the longest list item.
                     longest = max(word_definitions, key=len)
-                    if dictionary["words"][word_index].count(" ") < 1:
-                        longest.append(f"NOTE: specific definition for the {dictionary['tags'][word_index][1]} form could not be found, so the cloest match was used.")
+                    if is_phrase(dictionary["words"][word_index]) == False:
+                        longest.append(f"Note: specific definition for the {dictionary['tags'][word_index][1]} form not found.")
                     new_card_definitions.append(longest) 
                     logger.warning(f"Couldn't find relevant definition for < {dictionary['words'][word_index]} >, using: \n{longest}") 
                 else:

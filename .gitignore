@@ -10,3 +10,11 @@ cards_import.txt
 context_template.ui
 contact_template.ui
 contact_ui.py
+German_cards.txt
+aa_ui.py
+aa.ui
+test_input/french_notes.txt
+test_input/german_notes.txt
+autocard_old.py
+autocard.spec
+french_cards.txt
