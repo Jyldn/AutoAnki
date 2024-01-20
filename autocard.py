@@ -1383,7 +1383,7 @@ class GuiAA(object):
         """
         deckName = self.lineEdit_2.text()
         if deckName == "":
-            deckName = "Unnamed Deck"
+            deckName = "unnamed_deck"
             
         # Create a queue for inter-thread communication
         self.messageQueue = queue.Queue()
@@ -1940,17 +1940,22 @@ def get_configs():
 def find_keywords(dict_array):
     """Finds keywords in the text submitted by the user.
     Keywords are designated by adding an * before the keyword.
+    Keyphrases are wrapped in hashtags (#).
     
     :param dict_array: The array of dictionaries being used to create Anki cards. Each dictionary represents a card.
     :type dict_array: list
     :return: The array of dictionaries, now with added keyword entries.
     :rtype: list
     """
-    pattern = r"\*(\w+)"
+    pattern_word = r"\*(\w+)"
+    pattern_phrase = r"#(.*?)#"
+
     for dictionary in dict_array:
         text = dictionary.get("text")
-        words = re.findall(pattern, text)
-        dictionary["words"] = words
+        words = re.findall(pattern_word, text)
+        phrases = re.findall(pattern_phrase, text)
+        dictionary["words"] = words + phrases
+    
     return dict_array
 
 
@@ -1967,6 +1972,7 @@ def get_tags(dict_array, language, nlp):
     :rtype: list
     """
     for count, dictionary in enumerate(dict_array):
+        print(f">>> {dict_array}")
         words_and_nltk_tags = determine_grammar(dictionary["words"], dictionary["text"], language, nlp)
         dict_array[count]["tags"] = words_and_nltk_tags
     return dict_array
@@ -1992,18 +1998,22 @@ def determine_grammar(words: list, text, lang, nlp):
     # Process the text using SpaCy
     doc = nlp(text)
     
-    # Convert each token to NLTK tag if the token text is in the words list
-    for token in doc:
-        print(f">> Comparing {token.text} to {words}")
-        if token.text in (word for word in words):
-            # Find the equivalent NLTK tag for the SpaCy tag from the mapping
-            nltk_tag = SPACY_TO_NLTK_TAG_MAP.get(token.pos_, 'NN')  # Default to 'NN' if not found        
-            # Because spacy seems to be identifying German nouns as proper nouns (due to capitalisation),
-            # all NNPs need to be converted to NNs, despite this being inaccurate.
-            if nltk_tag == 'NNP':
-                nltk_tag = 'NN'
-            nltk_tags.append([token.text, nltk_tag])
-            logger.info(f"Tagged {token.text} as {nltk_tag}")
+    # Convert each token to NLTK tag if the token text is in the words list    
+    for word in words:
+        if word.count(" ") < 1:
+            for w_count, token in enumerate(doc):
+                if token.text == word:
+                    # Find the equivalent NLTK tag for the SpaCy tag from the mapping
+                    nltk_tag = SPACY_TO_NLTK_TAG_MAP.get(token.pos_, 'NN')  # Default to 'NN' if not found        
+                    # Because spacy seems to be identifying German nouns as proper nouns (due to capitalisation),
+                    # all NNPs need to be converted to NNs, despite this being inaccurate.
+                    if nltk_tag == 'NNP':
+                        nltk_tag = 'NN'
+                    nltk_tags.append([token.text, nltk_tag])
+                    logger.info(f"Tagged {token.text} as {nltk_tag}")
+        else:
+            word.replace("#", "")
+            nltk_tags.append([word, 'Phrase'])
     
     return nltk_tags
 
@@ -2047,6 +2057,7 @@ def match_tags(dict_array):
     """
     for dict_index, dictionary in enumerate(dict_array):
         for tags_index, tags in enumerate(dictionary["tags"]):
+            # print(f"><><>< {dict_array}")
             for tag_index, tag in enumerate(tags):
                 logger.info(f"Match tags function: tag < {tag} > found in dictionary tags array.")
                 for readable_tag, nltk_tags in NLTK_TAG_REF.items():
@@ -2402,12 +2413,6 @@ def clean_wikitext_mansearch(parsed_definitions_dict):
         "usage": []
     }
     
-    # Extract and clean links: convert something like [[apple|Apple]] to Apple or [[apple]] to apple
-    def clean_link(match):
-        # Split on the pipe, if it's there, and return the human-readable part
-        parts = match.group(1).split('|')
-        return parts[-1] if parts else match.group(1)
-    
     for word_type, definitions in parsed_definitions_dict.items():
         for count, definition in enumerate(definitions):
             temp_cleaned_definition = re.sub("{{", '<span style="color:grey;font-size:0.85em;"><i>', definition)
@@ -2487,9 +2492,11 @@ def remove_irrelevant_defs(dict_array):
         new_card_definitions = []
         
         for word_index, word_definitions_dict in enumerate(dictionary["definitions"]):
+            # Only do so if the target is a word, not a phrase.
+            # Find a space in the word, if there is one, then it's a phrase.
             # Individual word definitions
             appropriate_word_def_found = False
-
+            
             try:
                 for grammar_key, definition in word_definitions_dict.items():
                     # Individual definitions for a word
@@ -2506,7 +2513,6 @@ def remove_irrelevant_defs(dict_array):
                             logger.warning(f"No tag found at index {word_index} in dictionary: >>\n{dictionary}\n<<")   
             except:
                 logger.warning(f"No definition item at index in dictionary: >>\n{dictionary}\n<<")
-            
             if appropriate_word_def_found:
                 logger.info(f"Removing old dictionary for {dictionary['words']} and adding new one.")
             else:
@@ -2514,12 +2520,11 @@ def remove_irrelevant_defs(dict_array):
                     # If the relevant definition is empty, use the longest definition available.
                     print(dictionary["definitions"][word_index].values())
                     word_definitions = dictionary["definitions"][word_index].values()
-
                     # Find the longest list item.
                     longest = max(word_definitions, key=len)
-                    longest.append(f"NOTE: specific definition for the {dictionary['tags'][word_index][1]} form could not be found, so the cloest match was used.")
+                    if dictionary["words"][word_index].count(" ") < 1:
+                        longest.append(f"NOTE: specific definition for the {dictionary['tags'][word_index][1]} form could not be found, so the cloest match was used.")
                     new_card_definitions.append(longest) 
-
                     logger.warning(f"Couldn't find relevant definition for < {dictionary['words'][word_index]} >, using: \n{longest}") 
                 else:
                     logger.warning(f"No user-marked words for < {dictionary['words'][word_index]} >, so no definition being used.") 
@@ -2553,6 +2558,9 @@ def format_card(content, defs, words, tags, deck_name, lang):
     # Remove the "*" keyword marker(s) and bold them with html tags
     pattern = r"\*\w+"
     bolded_text = re.sub(pattern, lambda x: f"<b>{x.group()[1:]}</b>", content)
+    pattern_phrase = r"#(.*?)#"
+    bolded_text = re.sub(pattern_phrase, lambda x: f"<b>{x.group()[1:]}</b>", bolded_text)
+    bolded_text = bolded_text.replace("#", "")
     
     # Column 1 - Original text
     ankified_text = bolded_text + ";\""
