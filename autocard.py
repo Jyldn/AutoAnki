@@ -25,6 +25,7 @@ from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 from PyQt5.QtGui import QColor
 import queue
 import threading
+from wiktionaryparser import WiktionaryParser
 # from spacy.lang.ja import Japanese
 
 
@@ -304,14 +305,15 @@ class Gui(QWidget):
         self.conjugationMode = False
         self.currentOverallMode = "search"
         self.displayingSavable = False
-        self.savedSidebarWords = {}
+        self.savedSidebarWords = {"English": {}, "French": {}, "German": {}, "Spanish": {}, "Latin": {}}
         self.wordOne = ""
         self.conjWord = ""
         
         # Config variables
-        self.showTutorial = True
-        self.getEtymology = False
-        self.getUsage = False
+        self.showTutorial = "True"
+        self.getEtymology = "False"
+        self.getUsage = "False"
+        self.defInConj = "True"
         self.interfaceLanguage = "English"
         self.currentLanguage = "English"
         self.colourMode = "light"
@@ -536,8 +538,8 @@ class Gui(QWidget):
         self.__applyConfig(configVars)
         
         # More styling
-        self.sidebarFrame.setMaximumSize(QtCore.QSize(145, 16777215))
-        self.sidebarFrame.setMinimumSize(QtCore.QSize(145, 16777215))
+        self.sidebarFrame.setMaximumSize(QtCore.QSize(148, 16777215))
+        self.sidebarFrame.setMinimumSize(QtCore.QSize(148, 16777215))
         self.sidebarInnerTopFrame.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.scrollAreaWidgetContents.setLayout(self.scrollAreaLayout)
         self.scrollAreaLayout.setAlignment(QtCore.Qt.AlignTop)
@@ -575,8 +577,9 @@ class Gui(QWidget):
         # Load saves words
         rawSavedWords = self.__readSavedWordsFile()
         savedWordsDict = self.__parseSavedWords(rawSavedWords)
-        for count, id_word_pair in enumerate(savedWordsDict.items()):
-            self.__genSavedWordsStartup(id_word_pair, count)
+        print(savedWordsDict)
+        for count, id_word_pair in enumerate(savedWordsDict[self.currentLanguage].items()):
+            self.__genSavedWords(id_word_pair, count)
     
     def __retranslateUi(self, MainWindow):
         """Retranslate the GUI.
@@ -751,6 +754,7 @@ class Gui(QWidget):
         else:
             self.__activateLightmode()
         self.__updateHtmlView()
+        self.updateLangLabel(self.currentLanguage)
     
     def __reapplyBorderColours(self):
         """When the theme changes, the colour of the border frames resets. These colours need to
@@ -771,23 +775,6 @@ class Gui(QWidget):
                 self.autoAnkiTopFrame.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
                 self.outputFrameAA.setStyleSheet("QFrame {border: 1px solid lightgrey;}")
     
-    def updateConfig(self):
-        """Updates the config file with new variables.
-        """
-        config = configparser.ConfigParser()
-        config['LanguagePreferences'] = {'InterfaceLanauge': self.interfaceLanguage, 'SearchLanguage': self.currentLanguage}
-        config['Interface'] = {'ColourMode': self.configColourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
-        config['Behaviour'] = {'ShowTutorial': self.showTutorial}
-        config['SearchSettings'] = {'GetEtymology': self.getEtymology, 'GetUsage': self.getUsage}
-        
-        with open("config.ini", 'w') as configfile:
-            config.write(configfile)
-            
-        logger.info("New config file generated.")
-        
-        # Apply config changes
-        self.updateLangLabel(self.currentLanguage)
-    
     def updateLangLabel(self, lang):
         """Add an emoji to the language label.
 
@@ -806,6 +793,23 @@ class Gui(QWidget):
             emoji = "💂"
         self.currentLangLabel.setText(f"{lang} {emoji}")
     
+    def updateConfig(self):
+        """Updates the config file with new variables.
+        """
+        config = configparser.ConfigParser()
+        config['LanguagePreferences'] = {'InterfaceLanauge': self.interfaceLanguage, 'SearchLanguage': self.currentLanguage}
+        config['Interface'] = {'ColourMode': self.configColourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
+        config['Behaviour'] = {'ShowTutorial': self.showTutorial}
+        config['SearchSettings'] = {'GetEtymology': self.getEtymology, 'GetUsage': self.getUsage, 'defInConj': self.defInConj}
+        
+        with open("config.ini", 'w') as configfile:
+            config.write(configfile)
+            
+        logger.info("New config file generated.")
+        
+        # Apply config changes
+        self.updateLangLabel(self.currentLanguage)
+    
     def __applyConfig(self, configVars):
         """Apply config variables.
 
@@ -821,6 +825,7 @@ class Gui(QWidget):
         # Search settings
         self.getEtymology = configVars[5]
         self.getUsage = configVars[6]
+        self.defInConj = configVars[7]
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
         self.updateLangLabel(self.currentLanguage)
@@ -853,14 +858,7 @@ class Gui(QWidget):
         :return: The current zoom factor.
         :rtype: int
         """
-        return self.zoomFactor
-    
-    def changeLanguage(self):
-        """Update the language variable.
-        """
-        newLang = self.langSelect.currentText()
-        self.currentLanguage = newLang
-        logger.info("Current lang saved as " + newLang)   
+        return self.zoomFactor        
     
     def __callAPI(self, keyword):
         """Call the Wiktionary API and get the definition for a specific word.
@@ -870,7 +868,7 @@ class Gui(QWidget):
         :return: A dictionary of definitions.
         :rtype: dict
         """
-        return grab_wik(keyword, self.currentLanguage, self.getEtymology, self.getUsage)
+        return grab_wik(keyword, self.currentLanguage, self.getEtymology, self.getUsage, self.defInConj)
     
     def __searchWiki(self):
         """Search Wiktionary for a specific word.
@@ -900,6 +898,15 @@ class Gui(QWidget):
                 conjs += grab_wik_conjtable(keyword, self.currentLanguage)
                 # Remove links
                 conjs = strip_bs4_links(conjs)
+                
+                if self.defInConj == "True":
+                    defsDictsArray.append(self.__callAPI(keyword))
+                    self.wordOne = keyword
+                    # conjs += f"<h3>{keyword}</h3>"
+                    conjs += f"<h3></h3>"
+                    definitionsString = self.__stringifyDefDict(defsDictsArray[0])
+                    conjs += definitionsString
+                
                 self.htmlContentText = conjs
                 self.__updateHtmlView()
                 self.displayingSavable = True
@@ -913,7 +920,6 @@ class Gui(QWidget):
             definitions = ""
             print(defsDictsArray)
             for count, defsDict in enumerate(defsDictsArray):
-                # Only add a line break if there is more than one word.
                 if count > 0:
                     definitions += "<hr>"
                 if count == 0:
@@ -940,40 +946,25 @@ class Gui(QWidget):
         if defsDict:
             for tag, definition in defsDict.items():
                 if definition:
-                    if self.currentLanguage in GENDERED_LANGS and tag != "etymology" and tag != "usage":
-                        
-                        if tag == "noun":
-                            defs_string += f"{tag.capitalize()}"
-                            for line_no, string in enumerate(definition):
-                                if line_no == 0:
-                                    defs_string += f" <i>{string}</i>"
-                                elif line_no == 1:
-                                    defs_string += "<ol>"
-                                    defs_string += f"<li>{string}</li>"
-                                else:
-                                    defs_string += f"<li>{string}</li>"
-                            defs_string += "</ol>"
-                            defs_string += "<br>"
-                        
-                        else:
-                            defs_string += f"{tag.capitalize()}"
-                            defs_string += "<ol>"
-                            for line_no, string in enumerate(definition):
+                    
+                    if tag != "etymology" and tag != "usage":
+                        defs_string += f"{tag.capitalize()}"
+                        for line_no, string in enumerate(definition):
+                            if line_no == 0:
+                                split_def = string.split()
+                                split_def = " ".join(split_def[1:])
+                                defs_string += f" <i>{split_def}</i>"
+                            elif line_no == 1:
+                                defs_string += "<ol>"
                                 defs_string += f"<li>{string}</li>"
-                            defs_string += "</ol>"
-                            defs_string += "<br>"
+                            else:
+                                defs_string += f"<li>{string}</li>"
+                        defs_string += "</ol>"
+                        defs_string += "<br>"
                     
                     elif tag == "etymology" or tag == "usage":
-                        defs_string += f"{tag.capitalize()}"
-                        if tag == "usage":
-                            # Define the regex pattern
-                            pattern = r"\* (.*?)(\n|$)"
-                            # Use re.sub() to replace the matched sections with HTML unordered list tags
-                            listed = re.sub(pattern, r"<ul><li>\1</li></ul>", definition[0])
-                            defs_string += f"{listed}<br>"
-                        else:
-                            defs_string += f"<ul><li>{definition[0]}</li></ul><br>"
-                        
+                        defs_string += f"<span style='color:grey;font-size:0.85em;'>{tag.capitalize()}</span>"
+                        defs_string += f"<span style='color:grey;font-size:0.85em;'><ul><li>{definition[0]}</li></ul><br></span>"
                     else:
                         defs_string += f"{tag.capitalize()}"
                         defs_string += "<ol>"
@@ -1142,13 +1133,30 @@ class Gui(QWidget):
         """
         return self.currentLanguage
     
-    def updateLanguageVar(self, newLang):
+    def changeLanguage(self, newLang):
         """Update the language variable.
 
         :param newLang: The new language.
         :type newLang: str
         """
+        print("CHANGE LANG CALLED")
+        # Remove all buttons from the scroll area
+        for uid in self.savedSidebarWords[self.currentLanguage].keys():
+            word_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButton{uid}")
+            remove_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{uid}")
+            self.scrollAreaLayout.removeWidget(word_btn)
+            self.scrollAreaLayout.removeWidget(remove_btn)
+        
         self.currentLanguage = newLang
+        logger.info("Current lang saved as " + newLang) 
+        
+        # rawSavedWords = self.__readSavedWordsFile()
+        # savedWordsDict = self.__parseSavedWords(rawSavedWords)
+        # print(f"DICT::: {self.savedSidebarWords}")
+        for count, id_word_pair in enumerate(self.savedSidebarWords[self.currentLanguage].items()):
+            print("MAKING CARD BTN")
+            self.__genSavedWords(id_word_pair, count)
+        
         self.updateConfig()
         return
     
@@ -1165,19 +1173,19 @@ class Gui(QWidget):
         """
         # Save the word content and associate with a unique ID
         unique_id = str(uuid.uuid1(node=None, clock_seq=None))
-        self.savedSidebarWords[unique_id] = self.htmlContentText
+        self.savedSidebarWords[self.currentLanguage][unique_id] = self.htmlContentText
         
         if self.conjugationMode:
             # Shorten word used for the display
             word = self.conjWord
-            if len(word) > 7:
-                word = word[:5] + ".."
+            if len(word) > 9:
+                word = word[:7] + ".."
             # Create a new button for the sidebar
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            number = len(self.savedSidebarWords)
+            number = len(self.savedSidebarWords[self.currentLanguage])
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word}📜")
+            newWordBtn.setText(f"{word}")
         
         else:            
             # Shorten word used for the display
@@ -1186,12 +1194,12 @@ class Gui(QWidget):
                     word = word[:7] + ".."
             # Create a new button for the sidebar.
             newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            number = len(self.savedSidebarWords)
+            number = len(self.savedSidebarWords[self.currentLanguage])
             newWordBtn.setObjectName(f"sideButton{unique_id}")
             self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
             newWordBtn.setText(f"{word}")
             
-        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[unique_id]))
+        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[self.currentLanguage][unique_id]))
         # Create remove button
         newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
         newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
@@ -1201,7 +1209,38 @@ class Gui(QWidget):
         # Save word content to file (just the HTML content, not the formatted HTML string used for display)
         self.saveWordToFile(self.htmlContentText)
     
-    def __genSavedWordsStartup(self, id_word_pair, count):
+    def __readSavedWordsFile(self):
+        """Read the saved words file and return the contents.
+        """
+        for language in self.savedSidebarWords.keys():
+            with open(f"{language}_words.txt", "r", encoding="utf-8") as f:
+                content = f.read()
+                f.close()
+                self.savedSidebarWords[language]["raw"] = content
+        
+        return self.savedSidebarWords
+    
+    def __parseSavedWords(self, savedWordsDict):
+        """Parse the saved words file and return a list of words.
+        
+        :param content: String containing HTML content for words separated by a line of equals signs.
+        :type content: str
+        :return: Dictionary of word HTML content.
+        :rtype: dict
+        """
+        for language, langDict in savedWordsDict.items():
+            content = langDict["raw"]
+            content = content.split("\n====================================\n")
+            # Remove the last entry (it is empty).
+            content.pop()
+            # Save the retrieved words to the class variable.
+            for item in content:
+                unique_id = str(uuid.uuid1(node=None, clock_seq=None))
+                self.savedSidebarWords[language][unique_id] = item
+            langDict.pop("raw")
+        return self.savedSidebarWords
+    
+    def __genSavedWords(self, id_word_pair, count):
         """Generate the saved words buttons on startup.
         """        
         # Create a new button for the sidebar.
@@ -1219,7 +1258,6 @@ class Gui(QWidget):
         
         # Regex expression that finds the first header in the string and extracts the word.
         match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
-        print(id_word_pair)
         
         # Get the word, needed for the button
         word = match.group(1)
@@ -1229,15 +1267,15 @@ class Gui(QWidget):
         
         # Determine if it's a conjugation table.
         if "<table" in id_word_pair[1]:
-            if len(word) > 7:
-                word = word[:5] + ".."
-            newWordBtn.setText(f"{word}📜") 
+            if len(word) > 9:
+                word = word[:7] + ".."
+            newWordBtn.setText(f"{word}") 
         
         # Align text on buttons to the left.
         # newWordBtn.setStyleSheet("QPushButton { text-align: left; }")
         
         # Dynamically connect button to function.
-        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[id_word_pair[0]]))
+        newWordBtn.clicked.connect(lambda: self.loadSavedWord(self.savedSidebarWords[self.currentLanguage][id_word_pair[0]]))
     
     def __removeSavedWord(self, unique_id):
         """Remove a saved word from the sidebar.
@@ -1250,15 +1288,15 @@ class Gui(QWidget):
 
         # Remove the word from the dict.
         print(f"Deleting saved word at key {unique_id}")
-        self.savedSidebarWords.pop(unique_id)
+        self.savedSidebarWords[self.currentLanguage].pop(unique_id)
         # Update the saved words file.
         self.__updateSavedWordsFile()
     
     def __updateSavedWordsFile(self):
         """Update the saved words file with the new list of saved words.
         """
-        with open("saved_words.txt", "w", encoding="utf-8") as f:
-            for content in self.savedSidebarWords.values():
+        with open(f"{self.currentLanguage}_words.txt", "w", encoding="utf-8") as f:
+            for content in self.savedSidebarWords[self.currentLanguage].values():
                 f.write(content)
                 f.write("\n====================================\n")
             f.close()
@@ -1266,45 +1304,17 @@ class Gui(QWidget):
     def loadSavedWord(self, content):
         """Load a saved word from the sidebar.
         """
+        self.htmlContentText = content
         self.__constructHtml(content)
         self.searchOutputBrowser.setHtml(self.htmlContent)
     
     def saveWordToFile(self, content):
         """Save (append) a word to the saved words file.
         """
-        with open("saved_words.txt", "a", encoding="utf-8") as f:
+        with open(f"{self.currentLanguage}_words.txt", "a", encoding="utf-8") as f:
             f.write(content)
             f.write("\n====================================\n")
             f.close()
-    
-    def __readSavedWordsFile(self):
-        """Read the saved words file and return the contents.
-        
-        :return: A string containing the contents of the saved words file, with each set of definitions relating to a
-        single word separated by a line of equals signs.
-        :rtype: str
-        """
-        with open("saved_words.txt", "r", encoding="utf-8") as f:
-            content = f.read()
-            f.close()
-        return content
-    
-    def __parseSavedWords(self, content):
-        """Parse the saved words file and return a list of words.
-        
-        :param content: String containing HTML content for words separated by a line of equals signs.
-        :type content: str
-        :return: Dictionary of word HTML content.
-        :rtype: dict
-        """
-        content = content.split("\n====================================\n")
-        # Remove the last entry (it is empty).
-        content.pop()
-        # Save the retrieved words to the class variable.
-        for item in content:
-            unique_id = str(uuid.uuid1(node=None, clock_seq=None))
-            self.savedSidebarWords[unique_id] = item
-        return self.savedSidebarWords
 
 
 class GuiAA(object):
@@ -1609,7 +1619,7 @@ class GuiChangeLangWindow(object):
         """Applies the selected language by updating the main window language variable.
         """
         if self.tempLang:
-            self.parent.updateLanguageVar(self.tempLang)
+            self.parent.changeLanguage(self.tempLang)
         self.window.close()
     
     def __highlightCurrentLang(self, item):
@@ -1769,6 +1779,12 @@ class GuiSettingsDialog(object):
         self.gridLayout.addWidget(self.getUsageLbl, 7, 0, 1, 1)
         self.usageRadio = QtWidgets.QCheckBox(self.settingsFrame)
         self.gridLayout.addWidget(self.usageRadio, 7, 1, 1, 1)
+        # Bold key term in definition
+        self.defInConjLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.defInConjLbl.setObjectName("defInConjLbl")
+        self.gridLayout.addWidget(self.defInConjLbl, 8, 0, 1, 1)
+        self.defInConjRadio = QtWidgets.QCheckBox(self.settingsFrame)
+        self.gridLayout.addWidget(self.defInConjRadio, 8, 1, 1, 1)
         
         # Apply layout
         self.gridLayout_2.addWidget(self.settingsFrame, 0, 0, 1, 1)
@@ -1823,6 +1839,7 @@ class GuiSettingsDialog(object):
         self.getUsageLbl.setText(_translate("getUsageLbl", "Show usage notes"))
         self.searchSettingsLbl.setText(_translate("searchSettingsLbl", "Manual search settings"))
         self.generalSettingsLbl.setText(_translate("generalSettingsLbl", "General settings"))
+        self.defInConjLbl.setText(_translate("defInConjLbl", "Definition + conjugation"))
         
     def convertZoomLevel(self, zoomLevel):
         """Converts the zoom level from a flaot to an int.
@@ -1865,6 +1882,11 @@ class GuiSettingsDialog(object):
             self.usageRadio.setChecked(True)
         else:
             self.usageRadio.setChecked(False)
+            
+        if self.parent.defInConj == "True":
+            self.defInConjRadio.setChecked(True)
+        else:
+            self.defInConjRadio.setChecked(False)
     
     def __applyChecks(self):
         """Apply the tutorial setting.
@@ -1883,7 +1905,11 @@ class GuiSettingsDialog(object):
             self.parent.getUsage = "True"
         else:
             self.parent.getUsage = "False"
-
+            
+        if self.defInConjRadio.isChecked():
+            self.parent.defInConj = "True"
+        else:
+            self.parent.defInConj = "False"
 
 def config_check():
     """Checks if a config file exists. If not, creates one.
@@ -1907,7 +1933,7 @@ def setup_config():
     config['LanguagePreferences'] = {'InterfaceLanauge': 'English', 'SearchLanguage': 'English'}
     config['Interface'] = {'ColourMode': 'light', 'ZoomLevel': 100}
     config['Behaviour'] = {'ShowTutorial': True}
-    config['ManualSearch'] = {'Etymology': False, 'UsageNotes': False}
+    config['ManualSearch'] = {'Etymology': False, 'UsageNotes': False, 'defInConj': False}
     
     with open("config.ini", 'w') as configfile:
         config.write(configfile)
@@ -1932,8 +1958,9 @@ def get_configs():
     show_tutorial = config['Behaviour']['ShowTutorial']
     get_etymology = config['SearchSettings']['GetEtymology']
     get_usage_notes = config['SearchSettings']['GetUsage']
+    bold_key = config['SearchSettings']['defInConj']
     
-    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes]
+    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes, bold_key]
     return config_vars  
 
 
@@ -2083,21 +2110,14 @@ def match_tags(dict_array):
     return dict_array
 
 
-def grab_wik(text, language, get_etymology, get_usage_notes):
+def grab_wik(text, language, get_etymology, get_usage_notes, bold_key):
     """Grab the Wiktionary definitions for a single word.
-    
-    :param text: The text provided by the user in the GUI input field.
-    :type text: string
-    :param language: The currently selected language stored the the GUI variables.
-    :type language: string
-    :return: The word's definitions.
-    :rtype: string
     """
     page_content = get_wiktionary_definition(text)
     if page_content:
-        parsed_definitions_dict = parse_page(page_content, language, "manualsearch", get_etymology, get_usage_notes)
+        parsed_definitions_dict = parse_page(page_content, language, "manualsearch", get_etymology, get_usage_notes, text)
         if parsed_definitions_dict:
-            cleaned_definitions = clean_wikitext_mansearch(parsed_definitions_dict)
+            cleaned_definitions = clean_wikitext_mansearch(parsed_definitions_dict, bold_key)
             return cleaned_definitions
         else:
             logger.warning(f"Failed to parse page for < {text} >.")
@@ -2257,136 +2277,63 @@ def get_wiktionary_definition(word):
         return False
 
 
-def parse_page(page_content, language, mode, get_etymology, get_usage_notes):
+def parse_page(page_content, language, mode, get_etymology, get_usage_notes, word):
     """Parse the page so that the content from relevant sections can be extracted.
-    
-    :param page_content: The content of the page.
-    :type page_content: str
-    :param language: The language being used.
-    :type language: str
-    :param mode: Whether the function is being called from the manual search or the automatic search.
-    :type mode: str
-    :param get_etymology: Whether to get the etymology of the word.
-    :type get_etymology: bool
-    :param get_usage_notes: Whether to get the usage notes of the word.
-    :type get_usage_notes: bool
-    :return: The parsed page content.
-    :rtype: dict
     """
-    r_lang = "==" + language + "=="
-
-    try:
-        lang_section = re.search(rf'{r_lang}\n(.*?)(?=\n==[^=]|$)', page_content, re.DOTALL)
-    except:
-        logger.warning(f"No relevant << {language} >> definitions found in >>\n{page_content}\n<<")
-        return False
+    parser = WiktionaryParser()
+    wik_parser_result = parser.fetch(word, language)
     
-    # If the specificed language is found on the page, get the definitions.
-    if lang_section:
-        lang_content = lang_section.group(1)
-        print(lang_content)
-        
-        # Definitions will be split up by their grammatical type. We need to find each type. They also might be 
-        # formatted differently, so we need to search for different formats.
-        noun_section = re.findall(r'===Noun===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
-        if not noun_section:
-            noun_section = re.findall(r'====Noun====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        verb_section = re.findall(r'===Verb===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not verb_section:
-            verb_section = re.findall(r'====Verb====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        adj_section = re.findall(r'===Adjective===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not adj_section:
-            adj_section = re.findall(r'====Adjective====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        adv_section = re.findall(r'===Adverb===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not adv_section:
-            adv_section = re.findall(r'====Adverb====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        prep_section = re.findall(r'===Preposition===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not prep_section:
-            prep_section = re.findall(r'====Preposition====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        pron_section = re.findall(r'===Pronoun===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not pron_section:
-            pron_section = re.findall(r'====Pronoun====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        particle_section = re.findall(r'===Particle===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not particle_section:
-            particle_section = re.findall(r'====Particle====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        conjunciton_section = re.findall(r'===Conjunction===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not conjunciton_section:
-            conjunciton_section = re.findall(r'====Conjunction====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        article_section = re.findall(r'===Article===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not article_section:
-            article_section = re.findall(r'====Article====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        numeral_section = re.findall(r'===Numeral===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not numeral_section:
-            numeral_section = re.findall(r'====Numeral====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        interjection_section = re.findall(r'===Interjection===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not interjection_section:
-            interjection_section = re.findall(r'====Interjection====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        exclamation_section = re.findall(r'===Exclamation===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not exclamation_section:
-            exclamation_section = re.findall(r'====Exclamation====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        determiner_section = re.findall(r'===Determiner===\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        if not determiner_section:
-            determiner_section = re.findall(r'====Determiner====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-        
-        definitions = {
-            "noun": noun_section,
-            "verb": verb_section,
-            "adjective": adj_section,
-            "adverb": adv_section,
-            "pronoun": pron_section,
-            "preposition": prep_section,
-            "particle": particle_section,
-            "conjunction": conjunciton_section,
-            "article": article_section,
-            "numeral": numeral_section,
-            "interjection": interjection_section,
-            "exclamation": exclamation_section,
-            "determiner": determiner_section
-        }
+    definitions = {}
+    
+    # if wik_parser_result[0]["definitions"][0]["partOfSpeech"] == "noun":
+    for definition in wik_parser_result:
+        for part_of_speech in definition["definitions"]:
+            if part_of_speech["partOfSpeech"] == "noun":
+                definitions["noun"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "verb":
+                definitions["verb"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "adjective":
+                definitions["adjective"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "adverb":
+                definitions["adverb"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "pronoun":
+                definitions["pronoun"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "preposition":
+                definitions["preposition"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "particle":
+                definitions["particle"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "conjunction":
+                definitions["conjunction"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "article":
+                definitions["article"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "numeral":
+                definitions["numeral"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "interjection":
+                definitions["interjection"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "exclamation":
+                definitions["exclamation"] = part_of_speech["text"]
+            if part_of_speech["partOfSpeech"] == "determiner":
+                definitions["determiner"] = part_of_speech["text"]
         
         if mode == "manualsearch":
             if get_etymology == "True":
-                etymology_section = re.findall(r'===Etymology===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
-                if not etymology_section:
-                    etymology_section = re.findall(r'====Etymology====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-                definitions["etymology"] = etymology_section
-                print(f"Etymology section: {etymology_section}")
-                print(f"Etymology Dict: {definitions['etymology']}")
+                if wik_parser_result[0]["etymology"] != "":
+                    definitions["etymology"] = [wik_parser_result[0]["etymology"]]
+            
             if get_usage_notes == "True":
+                r_lang = "==" + language + "=="
+                try:
+                    lang_section = re.search(rf'{r_lang}\n(.*?)(?=\n==[^=]|$)', page_content, re.DOTALL)
+                    lang_content = lang_section.group(1)
+                except:
+                    logger.warning(f"No relevant << {language} >> definitions found in >>\n{page_content}\n<<")
                 usage_section = re.findall(r'===Usage notes===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
                 if not usage_section:
                     usage_section = re.findall(r'====Usage notes====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-                definitions["usage"] = usage_section
-            
-        print(f"\nDict: {definitions}\n")
-        
-        for part_of_speech, section in definitions.items():
-            if section:
-                definition = []
-                if language == "German" and part_of_speech == "noun":
-                    definition += re.findall(r"de-noun\|(.)", section[0][0])
-                    definition += re.findall(r"de\|noun form\|g=(.)", section[0][0])
-                elif language == "French" and part_of_speech == "noun":
-                    definition += re.findall(r"fr-noun\|(.)", section[0][0])
-                elif language == "Latin" and part_of_speech == "noun":
-                    gender = re.findall(r"la-noun\|[^<]*<.{2}", section[0][0])
-                    gender = [match[-3:] for match in gender]
-                    # Strip the < > characters from gender var.
-                    try:
-                        gender[0] = gender[0].replace("<", "")
-                        gender[0] = gender[0].replace(">", "")
-                        gender[0] = f"declension {gender[0]}"
-                        definition += gender
-                    except:
-                        pass
-                elif language == "Spanish" and part_of_speech == "noun":
-                    definition += re.findall(r"es-noun\|(.)", section[0][0])
-                
-                if part_of_speech != "etymology" and part_of_speech != "usage":
-                    definition += re.findall(r'# (.*?)(?:\n|$)', section[0][0])
-                    definitions[part_of_speech] = definition
-                else:
-                    definitions[part_of_speech] = section[0]
+                try:
+                    definitions["usage"] = usage_section[0]
+                except:
+                    pass
             
         if any(definitions.values()):
             print(f"\nReturning: {definitions}\n")
@@ -2400,7 +2347,7 @@ def parse_page(page_content, language, mode, get_etymology, get_usage_notes):
         return False
 
 
-def clean_wikitext_mansearch(parsed_definitions_dict):
+def clean_wikitext_mansearch(parsed_definitions_dict, bold_o):
     """Cleans the definitions pulled from Wiktionary so that they are legible.
     
     :param parsed_definitions_dict: The definitions pulled from Wiktionary.
@@ -2428,17 +2375,36 @@ def clean_wikitext_mansearch(parsed_definitions_dict):
     
     for word_type, definitions in parsed_definitions_dict.items():
         for count, definition in enumerate(definitions):
-            temp_cleaned_definition = re.sub("{{", '<span style="color:grey;font-size:0.85em;"><i>', definition)
-            temp_cleaned_definition = re.sub("}}", '</span></i>', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("lb\|en\|", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("n-g-lite\|", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("q-lite\|", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("senseid\|en\|Q5", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("\[\[", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("\]\]", '', temp_cleaned_definition)
-            temp_cleaned_definition = re.sub("\|", '/', temp_cleaned_definition)
-            
-            temp_cleaned_definition = temp_cleaned_definition.strip()
+            temp_cleaned_definition = definition    
+            temp_cleaned_definition = temp_cleaned_definition.replace("(", "<span style='color:grey;font-size:0.85em;'>")
+            temp_cleaned_definition = temp_cleaned_definition.replace(")", "</span>")
+            temp_cleaned_definition = temp_cleaned_definition.replace("[", "<span style='color:grey;font-size:0.85em;'>")
+            temp_cleaned_definition = temp_cleaned_definition.replace("]", "</span>")
+            if count == 0:
+                temp_cleaned_definition = temp_cleaned_definition.replace("plural ", "plural: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("diminutive ", "diminutive: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("genitive ", "genitive: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("feminine ", "feminine: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("masculine ", "masculine: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("feminine: plural", "feminine plural")
+                temp_cleaned_definition = temp_cleaned_definition.replace("masculine: plural", "masculine plural")
+                temp_cleaned_definition = temp_cleaned_definition.replace("masculine: singular", "masculine singular:")
+                temp_cleaned_definition = temp_cleaned_definition.replace("comparative ", "comparative: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("superlative ", "superlative: ")
+                temp_cleaned_definition = temp_cleaned_definition.replace("singular present", "singular present:")
+                temp_cleaned_definition = temp_cleaned_definition.replace("past tense", "past tense:")
+                temp_cleaned_definition = temp_cleaned_definition.replace("past participle", "past participle:")
+                temp_cleaned_definition = temp_cleaned_definition.replace("past subjunctive", "past subjunctive:")
+                temp_cleaned_definition = temp_cleaned_definition.replace("auxiliary", "auxiliary:")
+                # temp_cleaned_definition = temp_cleaned_definition.replace("past tense", "past tense:")
+                # temp_cleaned_definition = temp_cleaned_definition.replace("past tense", "past tense:")
+                # temp_cleaned_definition = temp_cleaned_definition.replace("past tense", "past tense:")
+                
+                
+                
+                
+                
+
             clean_definitions[word_type].append(temp_cleaned_definition)
             
     return clean_definitions
@@ -2457,15 +2423,30 @@ def clean_wikitext_card(definitions):
     for definition in definitions:
         logger.info(f"Cleaning definition: {definition}")
         clean_definition_lines_list = []
-        for line in definition:
+        for count, line in enumerate(definition):
             temp_cleaned_definition_line = line
-            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("{{", "(")
-            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("}}", ")")
-            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("]", "")
-            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("[", "")
-            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("|", ", ")
-            temp_cleaned_definition_line = temp_cleaned_definition_line.strip()
+            temp_cleaned_definition_line = temp_cleaned_definition_line.replace(")", "</span>")
+            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("(", "<span style='color:grey;font-size:0.85em;'>")
+            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("]", "</span>")
+            temp_cleaned_definition_line = temp_cleaned_definition_line.replace("[", "<span style='color:grey;font-size:0.85em;'>")
+            if count == 0:
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("plural ", "plural: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("diminutive ", "diminutive: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("genitive ", "genitive: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("feminine ", "feminine: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("masculine ", "masculine: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("feminine: plural", "feminine plural")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("masculine: plural", "masculine plural")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("masculine: singular", "masculine singular:")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("comparative ", "comparative: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("superlative ", "superlative: ")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("singular present", "singular present:")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("past tense", "past tense:")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("past participle", "past participle:")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("past subjunctive", "past subjunctive:")
+                temp_cleaned_definition_line = temp_cleaned_definition_line.replace("auxiliary", "auxiliary:")
             clean_definition_lines_list.append(temp_cleaned_definition_line)
+
         clean_definitions.append(clean_definition_lines_list)
     
     logger.info(f"Cleaned definitions: {clean_definitions}")
@@ -2541,7 +2522,7 @@ def remove_irrelevant_defs(dict_array):
                     logger.warning(f"Couldn't find relevant definition for < {dictionary['words'][word_index]} >, using: \n{longest}") 
                 else:
                     logger.warning(f"No user-marked words for < {dictionary['words'][word_index]} >, so no definition being used.") 
-                    new_card_definitions.append(["No definition found. You might have made a typo, or the word might not be in Wiktionary."])            
+                    new_card_definitions.append(["No Definition not found. You might have made a typo, the word might not be in Wiktionary, or the language processor may have made a mistake."])            
     
         dict_array[dict_index]["definitions"] = new_card_definitions
     return dict_array
@@ -2580,21 +2561,24 @@ def format_card(content, defs, words, tags, deck_name, lang):
     
     # Column 2 - Definitions
     for count, definition in enumerate(defs):
+        if count > 0:
+            ankified_text += "<hr style='border: 1px dotted dimgrey;'>"
+        
         tag = tags[count][1]
-        ankified_text += f"<h3>{words[count]}, <i>{tag}</i>"
-        try:
-            if tag == "noun" and definition[0] != "No definition found. You might have made a typo, or the word might not be in Wiktionary." and lang in GENDERED_LANGS:
-                for line_num, line in enumerate(definition):
-                    if line_num == 0 and lang in GENDERED_LANGS:
-                        ankified_text += f", <i>{line.replace('}', '')}</i></h3>"
-                    else: 
-                        ankified_text += f"{line_num}: {line.replace('}', '')}<br>"
+        ankified_text += f"<h3>{words[count]}</h3>{tag}, "
+
+        for line_no, string in enumerate(definition):
+            if line_no == 0:
+                split_def = string.split()
+                split_def = " ".join(split_def[1:])
+                ankified_text += f"<i>{split_def}</i>"
+            elif line_no == 1:
+                ankified_text += "<ol>"
+                ankified_text += f"<li>{string}</li>"
             else:
-                ankified_text += "</h3>"
-                for line_num, line in enumerate(definition):
-                    ankified_text += f"{line_num + 1}: {line.replace('}', '')}<br>"
-        except:
-            ankified_text += f"{str(definition)}"
+                ankified_text += f"<li>{string}</li>"
+        ankified_text += "</ol>"
+        
     ankified_text += "\";"
     
     # Column 3 - Deck
@@ -2708,7 +2692,7 @@ def make_cards(text_file, language, deck_name, messageQueue):
     # Get definitions from Wiktionary.
     messageQueue.put(f"Making {str(len(dict_array))} cards.")
     for count, dictionary in enumerate(dict_array):
-        messageQueue.put(f"Getting Wikti data for card {str(count+1)}/{str(len(dict_array))}.")
+        messageQueue.put(f"Getting Wikti data for card {str(count+1)}/{str(len(dict_array))}...")
         for w_count, word in enumerate(dictionary.get("words")):
             if dictionary["tags"][w_count][1] in ["adjective", "verb", "noun"]:
                 
@@ -2734,7 +2718,7 @@ def make_cards(text_file, language, deck_name, messageQueue):
                 if language != "German":
                     word = word.lower()
                 page_content = get_wiktionary_definition(word)
-                parsed_definitions_dict = parse_page(page_content, language, "autoanki", False, False)
+                parsed_definitions_dict = parse_page(page_content, language, "autoanki", False, False, word)
                 dict_array[count]["definitions"].append(parsed_definitions_dict)
     
     # Remove irrelevent definitions.
