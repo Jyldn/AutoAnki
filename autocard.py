@@ -321,6 +321,8 @@ class Gui(QWidget):
         self.zoomFactor = 100
         self.htmlContent = ""
         self.htmlContentText = ""
+        self.defaultNoteLocation = ""
+        self.defaultOutputFolder = ""
         
         # Style values
         self.topOffset = 40
@@ -801,6 +803,7 @@ class Gui(QWidget):
         config['Interface'] = {'ColourMode': self.configColourMode, 'ZoomLevel': int(self.zoomFactor * 100)}
         config['Behaviour'] = {'ShowTutorial': self.showTutorial}
         config['SearchSettings'] = {'GetEtymology': self.getEtymology, 'GetUsage': self.getUsage, 'defInConj': self.defInConj}
+        config['DefaultLocations'] = {'defaultNotesFile': self.defaultNoteLocation, 'defaultOutputFolder': self.defaultOutputFolder}
         
         with open("config.ini", 'w') as configfile:
             config.write(configfile)
@@ -826,6 +829,8 @@ class Gui(QWidget):
         self.getEtymology = configVars[5]
         self.getUsage = configVars[6]
         self.defInConj = configVars[7]
+        self.defaultNoteLocation = configVars[8]
+        self.defaultOutputFolder = configVars[9]
         # Apply config
         self.__applyZoomLvl(self.zoomFactor)
         self.updateLangLabel(self.currentLanguage)
@@ -1028,7 +1033,7 @@ class Gui(QWidget):
         self.__constructHtml(self.htmlContentText)
         self.searchOutputBrowser.setHtml(self.htmlContent)
     
-    def makeCards(self, deckName, messageQueue):
+    def makeCards(self, deckName, messageQueue, saveFolder):
         """Make cards from the current definitions.
 
         :param deckName: The name of the deck to add the cards to.
@@ -1036,7 +1041,7 @@ class Gui(QWidget):
         :param messageQueue: The message queue to send messages to the loading screen thread.
         :type messageQueue: multiprocessing.Queue
         """
-        make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue)
+        make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue, saveFolder)
     
     def __spawnSettingsDialog(self):
         """Bring up the settings dialog.
@@ -1322,6 +1327,7 @@ class GuiAA(object):
     """
     def __init__(self, parent):
         self.parent = parent
+        self.explorerUsed = False
     
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
@@ -1381,16 +1387,21 @@ class GuiAA(object):
         self.headerLbl.setText(_translate("Dialog", "🀄 AutoAnki Card Generator 🀄"))
         self.label_2.setText(_translate("Dialog", "Deck name"))
         self.pushButton.setText(_translate("Dialog", "Open"))
+        self.lineEdit.setText(self.parent.defaultNoteLocation)
 
     def __openFile(self):
         """Opens a file explorer.
         """
         self.parent.addFile()
         self.lineEdit.setText(self.parent.currentInputFilePath)
+        self.explorerUsed = True
         
     def __makeCards(self):
         """Start the card-making process.
         """
+        if self.explorerUsed is False:
+            self.__openFileDefault()
+        
         deckName = self.lineEdit_2.text()
         if deckName == "":
             deckName = "unnamed_deck"
@@ -1409,7 +1420,7 @@ class GuiAA(object):
         self.consoleDisplay.setFont(default_font)
         
         # Start the card-making process in a new thread
-        thread = threading.Thread(target=self.parent.makeCards, args=(deckName, self.messageQueue))
+        thread = threading.Thread(target=self.parent.makeCards, args=(deckName, self.messageQueue, self.parent.defaultOutputFolder))
         thread.daemon = True
         thread.start()
         
@@ -1419,6 +1430,16 @@ class GuiAA(object):
         self.timer.start(100)  # Check every 100 ms
 
         self.overlay.show()
+        
+    def __openFileDefault(self):
+        filename = self.parent.defaultNoteLocation
+        logger.info(f"File(s) selected for card generation input: {filename}")
+        self.parent.currentInputFilePath = filename
+        
+        f = open(filename, 'r', encoding="utf-8")
+        with f:
+            data = f.read()
+            self.parent.selectedFileContent = data
             
     def append_to_console_display(self, text):
         """Append text to the console display.
@@ -1754,37 +1775,54 @@ class GuiSettingsDialog(object):
         self.fontSizeSelect.setValue(zoomFactor)
         self.gridLayout.addWidget(self.fontSizeSelect, 3, 1, 1, 1)
         
+        # Default load location
+        self.defaultLoadLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.defaultLoadLbl.setObjectName("defaultLoadLbl")
+        self.gridLayout.addWidget(self.defaultLoadLbl, 4, 0, 1, 1)
+        self.defaultLoadEdit = QtWidgets.QLineEdit(self.settingsFrame)
+        self.gridLayout.addWidget(self.defaultLoadEdit, 4, 1, 1, 1)
+        
+        # Default save location 
+        self.defaultSaveLbl = QtWidgets.QLabel(self.settingsFrame)
+        self.defaultSaveLbl.setObjectName("defaultSaveLbl")
+        self.gridLayout.addWidget(self.defaultSaveLbl, 5, 0, 1, 1)
+        self.defaultSaveEdit = QtWidgets.QLineEdit(self.settingsFrame)
+        self.gridLayout.addWidget(self.defaultSaveEdit, 5, 1, 1, 1)
+        
         # Tutorial settings
         self.tutorialLbl = QtWidgets.QLabel(self.settingsFrame)
         self.tutorialLbl.setObjectName("tutorialLbl")
-        self.gridLayout.addWidget(self.tutorialLbl, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.tutorialLbl, 6, 0, 1, 1)
         self.tutorialRadio = QtWidgets.QCheckBox(self.settingsFrame)
-        self.gridLayout.addWidget(self.tutorialRadio, 4, 1, 1, 1)
+        self.gridLayout.addWidget(self.tutorialRadio, 6, 1, 1, 1)
         
         # Additional search settings
         self.searchSettingsLbl = QtWidgets.QLabel(self.settingsFrame)
         self.searchSettingsLbl.setObjectName("searchSettingsLbl")
         self.searchSettingsLbl.setContentsMargins(0, 20, 0, 0)
         self.searchSettingsLbl.setFont(headerFont)
-        self.gridLayout.addWidget(self.searchSettingsLbl, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.searchSettingsLbl, 7, 0, 1, 1)
+        
         # Etymology
         self.getEtymLbl = QtWidgets.QLabel(self.settingsFrame)
         self.getEtymLbl.setObjectName("getEtymLbl")
-        self.gridLayout.addWidget(self.getEtymLbl, 6, 0, 1, 1)
+        self.gridLayout.addWidget(self.getEtymLbl, 8, 0, 1, 1)
         self.etymRadio = QtWidgets.QCheckBox(self.settingsFrame)
-        self.gridLayout.addWidget(self.etymRadio, 6, 1, 1, 1)
+        self.gridLayout.addWidget(self.etymRadio, 8, 1, 1, 1)
+        
         # Usage notes
         self.getUsageLbl = QtWidgets.QLabel(self.settingsFrame)
         self.getUsageLbl.setObjectName("getUsageLbl")
-        self.gridLayout.addWidget(self.getUsageLbl, 7, 0, 1, 1)
+        self.gridLayout.addWidget(self.getUsageLbl, 9, 0, 1, 1)
         self.usageRadio = QtWidgets.QCheckBox(self.settingsFrame)
-        self.gridLayout.addWidget(self.usageRadio, 7, 1, 1, 1)
+        self.gridLayout.addWidget(self.usageRadio, 9, 1, 1, 1)
+        
         # Bold key term in definition
         self.defInConjLbl = QtWidgets.QLabel(self.settingsFrame)
         self.defInConjLbl.setObjectName("defInConjLbl")
-        self.gridLayout.addWidget(self.defInConjLbl, 8, 0, 1, 1)
+        self.gridLayout.addWidget(self.defInConjLbl, 10, 0, 1, 1)
         self.defInConjRadio = QtWidgets.QCheckBox(self.settingsFrame)
-        self.gridLayout.addWidget(self.defInConjRadio, 8, 1, 1, 1)
+        self.gridLayout.addWidget(self.defInConjRadio, 10, 1, 1, 1)
         
         # Apply layout
         self.gridLayout_2.addWidget(self.settingsFrame, 0, 0, 1, 1)
@@ -1834,12 +1872,15 @@ class GuiSettingsDialog(object):
         # Tutorial
         self.tutorialLbl.setText(_translate("tutorialSetting", "Show tutorial"))
         self.checkBoxes()
+        self.__getLocations()
         
         self.getEtymLbl.setText(_translate("getEtymLbl", "Show etymology"))
         self.getUsageLbl.setText(_translate("getUsageLbl", "Show usage notes"))
         self.searchSettingsLbl.setText(_translate("searchSettingsLbl", "Manual search settings"))
         self.generalSettingsLbl.setText(_translate("generalSettingsLbl", "General settings"))
         self.defInConjLbl.setText(_translate("defInConjLbl", "Definition + conjugation"))
+        self.defaultLoadLbl.setText(_translate("defaultLoadLbl", "Default notes file"))
+        self.defaultSaveLbl.setText(_translate("defaultSaveLbl", "Default output folder"))
         
     def convertZoomLevel(self, zoomLevel):
         """Converts the zoom level from a flaot to an int.
@@ -1861,6 +1902,7 @@ class GuiSettingsDialog(object):
         newColourSelect = newColourSelect.lower()
         
         self.__applyChecks()
+        self.__applyLocations()
         self.parent.applySettings(newZoomFactor, newColourSelect)
         self.parent.updateConfig()
         self.window.close()
@@ -1910,6 +1952,15 @@ class GuiSettingsDialog(object):
             self.parent.defInConj = "True"
         else:
             self.parent.defInConj = "False"
+    
+    def __applyLocations(self):
+        self.parent.defaultNoteLocation = self.defaultLoadEdit.text()
+        self.parent.defaultOutputFolder = self.defaultSaveEdit.text()
+        
+    def __getLocations(self):
+        self.defaultLoadEdit.setText(self.parent.defaultNoteLocation)
+        self.defaultSaveEdit.setText(self.parent.defaultOutputFolder)
+        
 
 def config_check():
     """Checks if a config file exists. If not, creates one.
@@ -1934,6 +1985,7 @@ def setup_config():
     config['Interface'] = {'ColourMode': 'light', 'ZoomLevel': 100}
     config['Behaviour'] = {'ShowTutorial': True}
     config['ManualSearch'] = {'Etymology': False, 'UsageNotes': False, 'defInConj': False}
+    config['DefaultLocations'] = {'defaultNotesFile': False, 'defaultOutputFolder': False}
     
     with open("config.ini", 'w') as configfile:
         config.write(configfile)
@@ -1959,8 +2011,10 @@ def get_configs():
     get_etymology = config['SearchSettings']['GetEtymology']
     get_usage_notes = config['SearchSettings']['GetUsage']
     bold_key = config['SearchSettings']['defInConj']
+    default_note_location = config['DefaultLocations']['defaultNotesFile']
+    default_output_folder = config['DefaultLocations']['defaultOutputFolder']
     
-    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes, bold_key]
+    config_vars = [interface_language, search_language, colour_mode, zoom_level, show_tutorial, get_etymology, get_usage_notes, bold_key, default_note_location, default_output_folder]
     return config_vars  
 
 
@@ -2637,7 +2691,7 @@ def get_nlp(language):
     return nlp
 
 
-def make_cards(text_file, language, deck_name, messageQueue): 
+def make_cards(text_file, language, deck_name, messageQueue, saveFolder): 
     """Makes Anki cards from the text file.
 
     :param text_file: The path to the text file.
@@ -2744,9 +2798,14 @@ def make_cards(text_file, language, deck_name, messageQueue):
     logger.info(f"Done.")
     
     # Save the cards to a single file for importing to Anki.
-    save_filename = f"{deck_name}_cards.txt"
-    desktop_path = "D:\projects\software_dev\\autodict"
-    full_file_path = f"D:\projects\software_dev\\autodict\{deck_name}_cards.txt"
+    if saveFolder == "":
+        save_filename = f"{deck_name}_cards.txt"
+        desktop_path = "D:\projects\software_dev\\autodict"
+        full_file_path = f"D:\projects\software_dev\\autodict\{deck_name}_cards.txt"
+    else:
+        save_filename = f"{deck_name}_cards.txt"
+        desktop_path = saveFolder
+        full_file_path = f"{saveFolder}\{deck_name}_cards.txt"
 
     save_result = export_cards(save_filename, desktop_path, anki_file)
     if save_result:
