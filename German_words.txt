@@ -1,0 +1,120 @@
+<h3>fragen</h3><table border="1px solid #000000" class="inflection-table" style="border-collapse:collapse; background:#fafafa; text-align:center; width:100%">
+<tbody><tr>
+<th colspan="2" style="background:#d0d0d0"><span title="Infinitiv">infinitive</span>
+</th>
+<td colspan="4"><span class="Latn form-of lang-de inf-form-of origin-fragen" lang="de"><strong class="selflink">fragen</strong></span>
+</td></tr>
+<tr>
+<th colspan="2" style="background:#d0d0d0"><span title="Partizip I (Partizip Präsens)">present participle</span>
+</th>
+<td colspan="4"><span class="Latn form-of lang-de pres|part-form-of origin-fragen" lang="de">fragend</span>
+</td></tr>
+<tr>
+<th colspan="2" style="background:#d0d0d0"><span title="Partizip II (Partizip Perfekt)">past participle</span>
+</th>
+<td colspan="4"><span class="Latn form-of lang-de perf|part-form-of origin-fragen" lang="de">gefragt</span>
+</td></tr>
+<tr>
+<th colspan="2" style="background:#d0d0d0"><span title="Hilfsverb">auxiliary</span>
+</th>
+<td colspan="4"><span class="Latn" lang="de">haben</span>
+</td></tr>
+<tr>
+<td rowspan="2" style="background:#a0ade3">
+</td>
+<th colspan="2" style="background:#a0ade3"><span title="Indikativ">indicative</span>
+</th>
+<td rowspan="2" style="background:#a0ade3">
+</td>
+<th colspan="2" style="background:#a0ade3"><span title="Konjunktiv">subjunctive</span>
+</th></tr>
+<tr>
+<th style="background:#a0ade3">singular
+</th>
+<th style="background:#a0ade3">plural
+</th>
+<th style="background:#a0ade3">singular
+</th>
+<th style="background:#a0ade3">plural
+</th></tr>
+<tr>
+<th rowspan="3" style="background:#c0cfe4; width:7em"><span title="Präsens">present</span>
+</th>
+<td><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|pres-form-of origin-fragen" lang="de">frage</span>
+</td>
+<td><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|pres-form-of origin-fragen" lang="de"><strong class="selflink">fragen</strong></span>
+</td>
+<th rowspan="3" style="background:#c0cfe4; width:7em"><span title="Konjunktiv I (Konjunktiv Präsens)">i</span>
+</th>
+<td><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|sub|I-form-of origin-fragen" lang="de">frage</span>
+</td>
+<td><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|sub|I-form-of origin-fragen" lang="de"><strong class="selflink">fragen</strong></span>
+</td></tr>
+<tr>
+<td><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|pres-form-of origin-fragen" lang="de">fragst</span><br/><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|pres-form-of origin-fragen" lang="de">frägst</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|pres-form-of origin-fragen" lang="de">fragt</span>
+</td>
+<td><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|sub|I-form-of origin-fragen" lang="de">fragest</span>
+</td>
+<td><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|sub|I-form-of origin-fragen" lang="de">fraget</span>
+</td></tr>
+<tr>
+<td><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|pres-form-of origin-fragen" lang="de">fragt</span><br/><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|pres-form-of origin-fragen" lang="de">frägt</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|pres-form-of origin-fragen" lang="de"><strong class="selflink">fragen</strong></span>
+</td>
+<td><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|sub|I-form-of origin-fragen" lang="de">frage</span>
+</td>
+<td><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|sub|I-form-of origin-fragen" lang="de"><strong class="selflink">fragen</strong></span>
+</td></tr>
+<tr>
+<td colspan="6" style="background:#d5d5d5; height: .25em">
+</td></tr>
+<tr>
+<th rowspan="3" style="background:#c0cfe4"><span title="Präteritum">preterite</span>
+</th>
+<td><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|pret-form-of origin-fragen" lang="de">fragte</span><br/><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|pret-form-of origin-fragen" lang="de">frug</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|pret-form-of origin-fragen" lang="de">fragten</span><br/><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|pret-form-of origin-fragen" lang="de">frugen</span><sup style="color: red">1</sup>
+</td>
+<th rowspan="3" style="background:#c0cfe4"><span title="Konjunktiv II (Konjunktiv Präteritum)">ii</span>
+</th>
+<td><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|sub|II-form-of origin-fragen" lang="de">fragte</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">ich</span> <span class="Latn form-of lang-de 1|s|sub|II-form-of origin-fragen" lang="de">früge</span><sup style="color: red">1,2</sup>
+</td>
+<td><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|sub|II-form-of origin-fragen" lang="de">fragten</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">wir</span> <span class="Latn form-of lang-de 1|p|sub|II-form-of origin-fragen" lang="de">frügen</span><sup style="color: red">1,2</sup>
+</td></tr>
+<tr>
+<td><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|pret-form-of origin-fragen" lang="de">fragtest</span><br/><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|pret-form-of origin-fragen" lang="de">frugst</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|pret-form-of origin-fragen" lang="de">fragtet</span><br/><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|pret-form-of origin-fragen" lang="de">frugt</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|sub|II-form-of origin-fragen" lang="de">fragtest</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|sub|II-form-of origin-fragen" lang="de">frügest</span><sup style="color: red">1,2</sup><br/><span class="Latn" lang="de">du</span> <span class="Latn form-of lang-de 2|s|sub|II-form-of origin-fragen" lang="de">frügst</span><sup style="color: red">1,2</sup>
+</td>
+<td><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|sub|II-form-of origin-fragen" lang="de">fragtet</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|sub|II-form-of origin-fragen" lang="de">früget</span><sup style="color: red">1,2</sup><br/><span class="Latn" lang="de">ihr</span> <span class="Latn form-of lang-de 2|p|sub|II-form-of origin-fragen" lang="de">frügt</span><sup style="color: red">1,2</sup>
+</td></tr>
+<tr>
+<td><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|pret-form-of origin-fragen" lang="de">fragte</span><br/><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|pret-form-of origin-fragen" lang="de">frug</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|pret-form-of origin-fragen" lang="de">fragten</span><br/><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|pret-form-of origin-fragen" lang="de">frugen</span><sup style="color: red">1</sup>
+</td>
+<td><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|sub|II-form-of origin-fragen" lang="de">fragte</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">er</span> <span class="Latn form-of lang-de 3|s|sub|II-form-of origin-fragen" lang="de">früge</span><sup style="color: red">1,2</sup>
+</td>
+<td><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|sub|II-form-of origin-fragen" lang="de">fragten</span><sup style="color: red">2</sup><br/><span class="Latn" lang="de">sie</span> <span class="Latn form-of lang-de 3|p|sub|II-form-of origin-fragen" lang="de">frügen</span><sup style="color: red">1,2</sup>
+</td></tr>
+<tr>
+<td colspan="6" style="background:#d5d5d5; height: .25em">
+</td></tr>
+<tr>
+<th style="background:#c0cfe4"><span title="Imperativ">imperative</span>
+</th>
+<td><span class="Latn form-of lang-de s|imp-form-of origin-fragen" lang="de">frag</span> (<span class="Latn" lang="de">du</span>)<br/><span class="Latn form-of lang-de s|imp-form-of origin-fragen" lang="de">frage</span> (<span class="Latn" lang="de">du</span>)
+</td>
+<td><span class="Latn form-of lang-de p|imp-form-of origin-fragen" lang="de">fragt</span> (<span class="Latn" lang="de">ihr</span>)
+</td>
+<td colspan="3" style="background:#e0e0e0">
+</td></tr></tbody></table><h3></h3>Verb <i><span style='color:grey;font-size:0.85em;'>weak or mixed, third-person singular present: fragt or <span style='color:grey;font-size:0.85em;'>dialectal or colloquial</span> frägt, past tense: fragte or <span style='color:grey;font-size:0.85em;'>dialectal or colloquial</span> frug, past participle: gefragt, past subjunctive: fragte or <span style='color:grey;font-size:0.85em;'>dialectal or colloquial</span> früge, auxiliary: haben</span></i><ol><li><span style='color:grey;font-size:0.85em;'>transitive, usually with a second accusative object</span> to ask <span style='color:grey;font-size:0.85em;'>someone something</span></li><li><span style='color:grey;font-size:0.85em;'>transitive, with nach</span> to ask for, to ask after</li><li><span style='color:grey;font-size:0.85em;'>reflexive</span> to wonder <span style='color:grey;font-size:0.85em;'>literally, to ask <span style='color:grey;font-size:0.85em;'>oneself</span></span></li></ol><br><span style='color:grey;font-size:0.85em;'>Etymology</span><span style='color:grey;font-size:0.85em;'><ul><li>From Middle High German vrāgen, from Old High German frāgēn, frahēn/frāhēn, which is indirectly derived from Proto-West Germanic *frāgēn.
+Cognate with Saterland Frisian fräigje <span style='color:grey;font-size:0.85em;'>“to ask”</span>, Dutch vragen <span style='color:grey;font-size:0.85em;'>“to ask”</span>, English frain <span style='color:grey;font-size:0.85em;'>“to ask, inquire”</span>, Swedish fråga <span style='color:grey;font-size:0.85em;'>“to ask”</span>, Icelandic fregna <span style='color:grey;font-size:0.85em;'>“to hear of, learn about”</span>.
+</li></ul><br></span><span style='color:grey;font-size:0.85em;'>Usage</span><span style='color:grey;font-size:0.85em;'><ul><li>* Generally, ''fragen'' has always been a weak verb. The strong forms of ''fragen'' are secondary and now obsolete in formal writing. They live on in dialects and colloquial varieties.
+</li></ul><br></span>
+====================================

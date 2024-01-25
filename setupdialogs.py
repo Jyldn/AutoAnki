@@ -3,7 +3,7 @@ from PyQt5              import QtWidgets, QtCore, QtGui
 from PyQt5              import QtWebEngineWidgets
 from PyQt5.QtWidgets    import QGraphicsDropShadowEffect
 from PyQt5.QtGui        import QColor
-from config_handler      import config_check
+from config             import config_check
 from PyQt5.QtWidgets    import QTextEdit
 from PyQt5.QtCore       import Qt
 
@@ -521,9 +521,6 @@ def setup_changelang_dialog(self, changeLangWindow: QtWidgets.QDialog) -> None:
 
 class MyLineEdit(QTextEdit):
     """Custom Text Edit needed to handle enter key presses.
-    
-    :param QTextEdit: QTextEdit object.
-    :type QTextEdit: PyQT5.QtWidget
     """
     def __init__(self, button, *args, **kwargs):
         super(MyLineEdit, self).__init__(*args, **kwargs)

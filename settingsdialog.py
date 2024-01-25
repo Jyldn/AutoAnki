@@ -1,7 +1,6 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5 import QtWidgets, QtCore, QtGui
-from setup_classes import setup_setting_dialog
-import qtvscodestyle as qtvsc
+from PyQt5              import QtCore, QtWidgets
+from setupdialogs       import setup_setting_dialog
+import qtvscodestyle    as qtvsc
 
 
 
@@ -25,7 +24,7 @@ class GuiSettingsDialog(object):
         self.settingsBox.rejected.connect(settingsDialog.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(settingsDialog)
         
-        colourMode = self.parent.getColourMode()
+        colourMode = self.parent.colourMode
         if colourMode == "dark":
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:
@@ -73,15 +72,11 @@ class GuiSettingsDialog(object):
     def __convertZoomLevel(self, zoomLevel: float) -> int:
         """Converts the zoom level from a float to an int. This is because the front-end slider only accepts ints.
 
-        Parameters
-        ----------
-        zoomLevel : float
-            The zoom level as a float.
+        Arguments:
+            zoomLevel -- Zoom level currently being used
 
-        Returns
-        -------
-        int
-            The zoom level as an int.
+        Returns:
+            Zoom level compatabile with the front-end
         """
         zoomLevel = int(zoomLevel* 100)
         return zoomLevel
@@ -97,7 +92,6 @@ class GuiSettingsDialog(object):
         self.__applyChecks()
         self.__applyLocations()
         self.parent.applySettings(newZoomFactor, newColourSelect)
-        self.parent.updateConfig()
         self.window.close()
     
     def __checkBoxes(self) -> None:

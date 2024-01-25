@@ -1,4 +1,3 @@
-from concurrent.futures import Future
 from bs4                import BeautifulSoup
 from wiktionaryparser   import WiktionaryParser
 from typing             import List, Dict
@@ -18,35 +17,107 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_definitions(language: str, search_token: str, get_etymology="False", 
-                    get_usage_notes="False") -> Union[Dict[str, List[str]], None]:
+def get_conjugation_table(search_token: str, language: str) -> str:
+    """Grab the conjugation table from Wiktionary. This is done by webscraping the page. Although the API does return
+    conjugation tables, it would require rebuilding the HTML for the table, so scraping is easier.
+
+    Arguments:
+        search_token -- The word to search for.
+        language -- Selected language.
+
+    Returns:
+        HTML content of the conjugation table.
+    """
+    base_url = "https://en.wiktionary.org/wiki/"
+    wik_url      = f"{base_url}{search_token}"
+    
+    response     = requests.get(wik_url)
+    soup         = BeautifulSoup(response.text, 'html.parser')
+    lang_section = soup.find('span', {"class": "mw-headline", "id": f"{language}"})
+    conjugation_header = None
+    
+    if lang_section:
+        content = lang_section.parent
+        if content:
+            conjugation_header = content.find_next('span', id='Conjugation')
+            if not conjugation_header:
+                conjugation_header = content.find_next('span', id='Conjugation_2')
+            if not conjugation_header:
+                conjugation_header = content.find_next('span', id='Conjugation_3')
+            if not conjugation_header:
+                conjugation_header = content.find_next('span', id='Conjugation_4')
+        
+        if conjugation_header:
+            table = conjugation_header.find_next('table')
+            if table:
+                return str(table)
+            else:
+                return "Could not find conjugation table."
+        else:
+            return "Could not find conjugation header"
+    else:
+        return "Language section not found."
+
+
+def strip_bs4_links(html_content: str) -> str:
+    """Remove links from the HTML content. This is done because links are visually messy and not needed.
+
+    Arguments:
+        html_content -- HTML content to strip links from.
+
+    Returns:
+        HTML content with links removed.
+    """
+    soup = BeautifulSoup(html_content, 'html.parser')
+    for link in soup.find_all('a'):
+        link.replace_with(link.text)
+    return str(soup)
+
+
+def handle_manual_def_search(text: str, language: str, get_etymology: str, 
+                        get_usage_notes: str) -> Union[Dict[str, List[str]], None]:
+    """Wrapper function for manual searches. Grabs definitions for a single search-term from the Wiktionary API and 
+    cleans them for display.
+
+    Arguments:
+        text -- The individual word/phrase to search for.
+        language -- Selected language.
+        get_etymology -- Whether to access and save etymology.
+        get_usage_notes -- Whether to manually call the Wiktionary API and get usage notes.
+
+    Returns:
+        Dictionary of definitions for the individual search-term. Keys represent grammar tags.
+    """
+    parsed_definitions_dict = get_definitions(language, text, get_etymology, get_usage_notes)
+    
+    if parsed_definitions_dict is not None:
+        for def_tag, definitions in parsed_definitions_dict.items():
+            parsed_definitions_dict[def_tag] = clean_wikitext(definitions)        
+    return parsed_definitions_dict
+
+
+def get_definitions(language: str, search_token: str, get_etymology: str ="False", get_usage_notes: str ="False"
+                    ) -> Union[Dict[str, List[str]], None]:
     """Get the definitions for a word from Wiktionary. Uses the WiktionaryParser library to get the definitions, but
-    uses the Wiktionary API to get the etymology and usage notes, as the WiktionaryParser library does not support
-    usage notes ಠ_ಠ.
+    also manually calls the Wiktionary API to get the etymology and usage notes, as the WiktionaryParser library does 
+    not support usage notes ಠ_ಠ.
     
     Called by both manual and AutoAnki searches.
     
-    Etymology and usage searches are specificed to increase speed, particularly for usage note searches, as they must
-    be done by manually calling the API, resulting in two simultaneous API calls: one from the API library, and another
-    from the manual call function.
+    Usage notes searches significantly slow the program due to the doubling up of API calls, so the additional call is
+    only made if the user has selected to get the notes. In an attempt to increase speed, etymology calls are also 
+    conditional.
+    
+    Arguments:
+        language -- Selected language.
+        search_token -- The word/phrase to search for.
 
-    Parameters
-    ----------
-    language : str
-        Currently selected language.
-    search_token : str
-        String to search for.
-    get_etymology : str, optional
-        Whether the search should grab etymology, by default "False"
-    get_usage_notes : str, optional
-        Whether the search should grab usage notes, by default "False"
-        
-    Returns
-    -------
-    dict, bool
-        A dictionary of definitions for the word: keys represent the grammar tag, values represent the definition for
-        that tag.
-        None if no definitions were found.
+    Keyword Arguments:
+        get_etymology -- Whether to access and save etymology. (default: {"False"})
+        get_usage_notes -- Whether to manually call the Wiktionary API and get usage notes. (default: {"False"})
+
+    Returns:
+        Dictionary of definitions for the individual search-term. Keys represent grammar tags.
     """
     parser = WiktionaryParser()
     wik_parser_result = parser.fetch(search_token, language)
@@ -85,7 +156,7 @@ def get_definitions(language: str, search_token: str, get_etymology="False",
             if wik_parser_result[0]["etymology"] != "":
                 definitions["etymology"] = [wik_parser_result[0]["etymology"]]
         
-        if get_usage_notes == "True":  # For some reason the WiktionaryParser library doesn't support usage notes
+        if get_usage_notes == "True":
             page_content = call_api_raw(search_token)
             if page_content is not None:
                 r_lang = re.escape("==" + language + "==")
@@ -110,153 +181,46 @@ def get_definitions(language: str, search_token: str, get_etymology="False",
 
 
 def call_api_raw(search_token: str) -> Union[str, None]:
-        url = "https://en.wiktionary.org/w/api.php"
-        params = {
-            "action": "query",
-            "titles": search_token,
-            "prop": "revisions",
-            "rvprop": "content",
-            "format": "json",
-            "rvslots": "*"
-        }
-        response = requests.get(url, params=params)    
-        if response.status_code == 200:  # 200 = success
-            data  = response.json()
-            pages = data['query']['pages']    
-            page  = next(iter(pages.values()))  # Extract the page
-            if "revisions" in page:  # If page exists
-                content = page['revisions'][0]['slots']['main']['*']
-                return content 
-            else:
-                return None
+    """Manually call the Wiktionary API and get the raw page content.
+
+    Arguments:
+        search_token -- The word/phrase to search for.
+
+    Returns:
+        Raw page content.
+    """
+    url = "https://en.wiktionary.org/w/api.php"
+    params = {
+        "action": "query",
+        "titles": search_token,
+        "prop": "revisions",
+        "rvprop": "content",
+        "format": "json",
+        "rvslots": "*"
+    }
+    response = requests.get(url, params=params)    
+    if response.status_code == 200:  # 200 = success
+        data  = response.json()
+        pages = data['query']['pages']    
+        page  = next(iter(pages.values()))  # Extract the page
+        if "revisions" in page:  # If page exists
+            content = page['revisions'][0]['slots']['main']['*']
+            return content 
         else:
             return None
-
-
-def get_defs_man_search(text: str, language: str, get_etymology: str, 
-                        get_usage_notes: str) -> Union[Dict[str, List[str]], None]:
-    """Get definitions for user input from Wiktionary. Called for manual searches only.
-
-    Parameters
-    ----------
-    text : str
-        The user's text input.
-    language : str
-        Language currently selected.
-    get_etymology : str
-        Whether the search should include etymology. Boolean formatted as str.
-    get_usage_notes : str
-        Whether the search should include usage notes. Boolean formatted as str.
-
-    Returns
-    -------
-    list
-        Array of dictionaries. Each dictionary contains the definitionss for a single word, with the keys representing
-        a grammar tag.
-    """
-    parsed_definitions_dict = get_definitions(language, text, get_etymology, get_usage_notes)
-    
-    if parsed_definitions_dict is not None:
-        for def_tag, definitions in parsed_definitions_dict.items():
-            parsed_definitions_dict[def_tag] = clean_wikitext(definitions)        
-    return parsed_definitions_dict
-
-
-def get_wiktionary_url(search_token: str) -> str:
-    """Get the Wiktionary URL for a word.
-
-    Parameters
-    ----------
-    search_token : str
-        The word or phrase to search for.
-
-    Returns
-    -------
-    str
-        Wiktionary URL for the word or phrase.
-    """
-    base_url = "https://en.wiktionary.org/wiki/"
-    url      = f"{base_url}{search_token}"
-    return url
-
-
-def grab_wik_conjtable(search_token: str, language: str) -> str:
-    """Grab the conjugation table from Wiktionary. This is done by webscraping the page: although the API does return
-    conjugation tables, it would require rebuilding the HTML for the table, so scraping is easier.
-
-    Parameters
-    ----------
-    search_token : str
-        The word to search for.
-    language : str
-        Currently selected language, used to find the correct section on the Wiktionary page.
-
-    Returns
-    -------
-    str
-        HTML for the conjugation table.
-    """
-    wik_url      = get_wiktionary_url(search_token)
-    response     = requests.get(wik_url)
-    soup         = BeautifulSoup(response.text, 'html.parser')
-    lang_section = soup.find('span', {"class": "mw-headline", "id": f"{language}"})
-    conjugation_header = None
-    
-    if lang_section:
-        content = lang_section.parent
-        if content:
-            conjugation_header = content.find_next('span', id='Conjugation')
-            if not conjugation_header:
-                conjugation_header = content.find_next('span', id='Conjugation_2')
-            if not conjugation_header:
-                conjugation_header = content.find_next('span', id='Conjugation_3')
-            if not conjugation_header:
-                conjugation_header = content.find_next('span', id='Conjugation_4')
-        
-        if conjugation_header:
-            table = conjugation_header.find_next('table')
-            if table:
-                return str(table)
-            else:
-                return "Could not find conjugation table."
-        else:
-            return "Could not find conjugation header"
     else:
-        return "Language section not found."
-
-
-def strip_bs4_links(html_content: str) -> str:
-    """Remove links from the HTML content. This is done because links are visually messy and not needed.
-
-    Parameters
-    ----------
-    html_content : str
-        HTML content representing a conjugation table.
-
-    Returns
-    -------
-    str
-        HTML content with links removed.
-    """
-    soup = BeautifulSoup(html_content, 'html.parser')
-    for link in soup.find_all('a'):
-        link.replace_with(link.text)
-    return str(soup)
+        return None
 
 
 def clean_wikitext(definitions: list) -> list:
-    """Cleans the text pulled from Wiktionary to be more readable. Without cleaning, the text is visually messy,
+    """Cleans the text pulled from Wiktionary to be more readable. Without cleaning, the text is very messy,
     containing brackets, obscure linguistic tags, etc.
 
-    Parameters
-    ----------
-    definitions : list
-        List of definitions of a single grammar tag for a single word.
+    Arguments:
+        definitions -- List of definitions to clean.
 
-    Returns
-    -------
-    list
-        Readable definitions of a single grammar tag for a single word.
+    Returns:
+        Cleaned list of definitions.
     """
     cleaned_definitions = []
     

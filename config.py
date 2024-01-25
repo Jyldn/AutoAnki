@@ -4,9 +4,7 @@ import configparser
 def config_check() -> list:
     """Checks if the config file exists, if not, creates it.
 
-    Returns
-    -------
-    list
+    Returns:
         A list of config variables.
     """
     if os.path.exists("config.ini"):
@@ -17,13 +15,8 @@ def config_check() -> list:
     return config_vars
 
 
-def setup_config():
+def setup_config() -> None:
     """Creates a config file with default values.
-
-    Returns
-    -------
-    bool
-        Whether the config file was successfully created.
     """
     config = configparser.ConfigParser()
     config['LanguagePreferences'] = {'InterfaceLanauge': 'English', 'SearchLanguage': 'English'}
@@ -35,18 +28,16 @@ def setup_config():
     try:
         with open("config.ini", 'w') as configfile:
             config.write(configfile)
-            return True
+            return
     except:
-        return False
+        return
 
 
-def get_configs():
+def get_configs() -> list:
     """Gets the config variables from the config file.
-
-    Returns
-    -------
-    list
-        A list of config variables.
+    
+    Returns:
+        List of config variables.
     """
     config = configparser.ConfigParser()
     config.read("config.ini")
