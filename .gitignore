@@ -18,3 +18,5 @@ test_input/german_notes.txt
 autocard_old.py
 autocard.spec
 french_cards.txt
+['German']_words.txt
+unnamed_deck_cards.txt
