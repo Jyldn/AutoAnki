@@ -1,3 +1,5 @@
+CONJUGATION_SEARCH_OVERLOAD_MSG = "<p>Conjugation tables can only be generated for one word at a time.</p>"
+
 HTML_HEADER_DARK =  """
         <html>
             <head>

@@ -6,6 +6,7 @@ import requests
 import re
 import requests
 from typing import Union
+from manualsearchdb     import ItemDefinitions
 
 
 # Logger
@@ -74,30 +75,8 @@ def strip_bs4_links(html_content: str) -> str:
     return str(soup)
 
 
-def handle_manual_def_search(text: str, language: str, get_etymology: str, 
-                        get_usage_notes: str) -> Union[Dict[str, List[str]], None]:
-    """Wrapper function for manual searches. Grabs definitions for a single search-term from the Wiktionary API and 
-    cleans them for display.
-
-    Arguments:
-        text -- The individual word/phrase to search for.
-        language -- Selected language.
-        get_etymology -- Whether to access and save etymology.
-        get_usage_notes -- Whether to manually call the Wiktionary API and get usage notes.
-
-    Returns:
-        Dictionary of definitions for the individual search-term. Keys represent grammar tags.
-    """
-    parsed_definitions_dict = get_definitions(language, text, get_etymology, get_usage_notes)
-    
-    if parsed_definitions_dict is not None:
-        for def_tag, definitions in parsed_definitions_dict.items():
-            parsed_definitions_dict[def_tag] = clean_wikitext(definitions)        
-    return parsed_definitions_dict
-
-
-def get_definitions(language: str, search_token: str, get_etymology: str ="False", get_usage_notes: str ="False"
-                    ) -> Union[Dict[str, List[str]], None]:
+def get_definitions(search_token: str, language: str, get_etymology: str ="False", get_usage_notes: str ="False"
+                    ) -> ItemDefinitions:
     """Get the definitions for a word from Wiktionary. Uses the WiktionaryParser library to get the definitions, but
     also manually calls the Wiktionary API to get the etymology and usage notes, as the WiktionaryParser library does 
     not support usage notes ಠ_ಠ.
@@ -122,7 +101,24 @@ def get_definitions(language: str, search_token: str, get_etymology: str ="False
     parser = WiktionaryParser()
     wik_parser_result = parser.fetch(search_token, language)
     
-    definitions = {}
+    definitions = {
+        "noun"          : None,
+        "verb"          : None,
+        "adjective"     : None,
+        "adverb"        : None,
+        "pronoun"       : None,
+        "preposition"   : None,
+        "particle"      : None,
+        "conjunction"   : None,
+        "article"       : None,
+        "numeral"       : None,
+        "interjection"  : None,
+        "exclamation"   : None,
+        "determiner"    : None,
+        "etymology"     : None,
+        "usage"         : None
+    }
+    
     for definition in wik_parser_result:
         for part_of_speech in definition["definitions"]:
             if part_of_speech["partOfSpeech"]   == "noun":
@@ -174,10 +170,8 @@ def get_definitions(language: str, search_token: str, get_etymology: str ="False
                 except:
                     logger.warning(f"Manual API call found nothing for search_token: {search_token}")
         
-        if any(definitions.values()):
-            return definitions
-        else:
-            return None
+        item_definitions = ItemDefinitions(**definitions)
+        return item_definitions
 
 
 def call_api_raw(search_token: str) -> Union[str, None]:

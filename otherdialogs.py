@@ -53,7 +53,7 @@ class TutorialDialog(object):
         self.label_6.setText(_translate("Dialog", "Manually Search Wiktionary"))
         self.label_4.setText(_translate("Dialog", "Welcome to AutoAnki. "))
         self.label.setText(_translate("Dialog", labeldata.tutorial[0]))
-        self.label_2.setText(_translate("Dialog", labeldata.tutorial[1])))
+        self.label_2.setText(_translate("Dialog", labeldata.tutorial[1]))
         self.label_3.setText(_translate("Dialog", "Tutorial, please read!"))
         self.label_5.setText(_translate("Dialog", "Automate Anki Cards Creation"))
     

@@ -4,18 +4,26 @@ from PyQt5              import (QtCore, QtWidgets)
 from settingsdialog     import GuiSettingsDialog
 from otherdialogs       import (GuiContactDialog, GuiChangeLangWindow, GuiAA, TutorialDialog)
 from config             import config_check
-from callapi            import (get_conjugation_table, strip_bs4_links, handle_manual_def_search)
+from callapi            import (get_conjugation_table)
 from makecards          import make_cards
-from htmlstrings        import (HTML_HEADER_DARK, HTML_HEADER_LIGHT, HTML_HEADER_DARK_CONJ, HTML_FOOTER, LIGHT_HTML, DARK_HTML)
+from htmlstrings        import (HTML_HEADER_DARK, HTML_HEADER_LIGHT, HTML_HEADER_DARK_CONJ, HTML_FOOTER, LIGHT_HTML, 
+                                DARK_HTML,CONJUGATION_SEARCH_OVERLOAD_MSG)
 from setupdialogs       import setup_mainwindow
 from savefiles          import (EncodedSavefilesContent, UnencodedSavefilesContent, encode_savefiles_content, 
                                 decode_savefiles_content,encode_single_entry)
 from dataclasses        import (dataclass, asdict)
-from typing             import Union, List, Dict, Tuple
+from typing             import (Union, List, Dict, Tuple)
+from manualsearchdb     import (ItemDefinitions, ManualSearchItemsDb, SearchType)
+from manualsearch       import (construct_html, construct_mansearch_defs, construct_conj_table)
+from callapi            import (get_conjugation_table, get_definitions)
+from typing_extensions  import (TypedDict, NotRequired)
+
 import qtvscodestyle    as qtvsc
+
 import uuid
 import re
 import configparser
+
 
 
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # type: ignore
@@ -34,42 +42,52 @@ LANG_CODE_REF = {
 }
 
 
+class SavedSidebarItems(TypedDict):
+    English : Dict[str, str]
+    French  : Dict[str, str]
+    German  : Dict[str, str]
+    Spanish : Dict[str, str]
+    Latin   : Dict[str, str]
+
+
 class MainWindowGui(QWidget):
     
     def __init__(self, parent=None) -> None:
         super(MainWindowGui, self).__init__()
         
         # Class variables
-        self.currentDefsStringified = ""
-        self.mainWindow             = ""
-        self.selectedFileContent    = ""
-        self.currentInputFilePath   = ""
-        self.wordOne                = ""
-        self.conjWord               = ""
-        self.htmlContent            = ""
-        self.htmlContentText        = ""
-        self.manualSearchMode       = "word"
-        self.currentOverallMode     = "search"
-        self.savedKeywords          = False
-        self.AALayoutSet            = False
-        self.conjugationMode        = False
-        self.displayingSavable      = False
-        self.current_definitions    = {}
-        self.savedSidebarWords      = {"English": {}, "French": {}, "German": {}, "Spanish": {}, "Latin": {}}
-        self.defaultResolution      = [800, 800]
+        self.manualSearchMode           : str   = "word"
+        self.currentOverallMode         : str   = "search"
+        self.mainWindow                 : str   = str()
+        self.currentInputFilePath       : str   = str()
+        self.conjugationMode            : bool  = False
+        self.displayingSavable          : bool  = False
+        
+        # Saved items
+        self.savedItems                 : bool  = False
+        self.savedSidebarWords                  = SavedSidebarItems(English={}, French={}, German={}, 
+                                                                    Spanish={}, Latin={})
+        
+        # Temp data
+        self.current_unwrapped_html     : str   = str()
+        self.current_constructed_html   : str   = str()
+        self.selectedFileContent        : str   = str()
         
         # Config variables
-        self.configColourMode       = ""
-        self.defaultNoteLocation    = ""
-        self.defaultOutputFolder    = ""
-        self.showTutorial           = "True"
-        self.defInConj              = "True"
-        self.getEtymology           = "False"
-        self.getUsage               = "False"
-        self.interfaceLanguage      = "English"
-        self.currentLanguage        = "English"
-        self.colourMode             = "light"
-        self.zoomFactor             = 100
+        self.configColourMode           : str   = str()
+        self.defaultNoteLocation        : str   = str()
+        self.defaultOutputFolder        : str   = str()
+        self.showTutorial               : str   = str()
+        self.defInConj                  : str   = str()
+        self.getEtymology               : str   = str()
+        self.getUsage                   : str   = str()
+        self.interfaceLanguage          : str   = str()
+        self.currentLanguage            : str   = str()
+        self.colourMode                 : str   = str()
+        self.zoomFactor                 : float = float()
+        
+        # Instantiate the manual searches database
+        self.manual_searches_db = ManualSearchItemsDb()
         
         # Style values
         self.topOffset = 40
@@ -77,17 +95,17 @@ class MainWindowGui(QWidget):
     def setupUI(self, MainWindow: QtWidgets.QMainWindow) -> None:
         setup_mainwindow(self, MainWindow)
         # Connect buttons
-        self.colourModeBtn.clicked.connect              (self.__toggleColourMode)
-        self.settingsBtn.clicked.connect                (self.__spawnSettingsDialog)
-        self.contactBtn.clicked.connect                 (self.__spawnContactDialog)
-        self.autoAnkiBtn.clicked.connect                (self.__spawnAutoAnkiDialog)
-        self.changeLangBtn.clicked.connect              (self.__spawnLanguageDialog)
-        self.saveWord.clicked.connect                   (self.__saveToken)
-        self.searchBtn.clicked.connect                  (self._searchWiktionary)
+        self.colourModeBtn.clicked.connect(self.__toggleColourMode)
+        self.settingsBtn.clicked.connect(self.__spawnSettingsDialog)
+        self.contactBtn.clicked.connect(self.__spawnContactDialog)
+        self.autoAnkiBtn.clicked.connect(self.__spawnAutoAnkiDialog)
+        self.changeLangBtn.clicked.connect(self.__spawnLanguageDialog)
+        self.saveWord.clicked.connect(self.__saveToken)
+        self.searchBtn.clicked.connect(self._manualWiktionarySearch)
         self.searchModeCombo.currentIndexChanged.connect(self.__onSearchModeChange)
 
         # Initialise html output display
-        html_content = self.__constructHtml("")
+        html_content = construct_html()
         self.searchOutputBrowser.setHtml(html_content)
         
         # Initialise config
@@ -193,23 +211,28 @@ class MainWindowGui(QWidget):
         
         config['LanguagePreferences']  = {
             'InterfaceLanauge'         : self.interfaceLanguage,
-            'SearchLanguage'           : self.currentLanguage}
+            'SearchLanguage'           : self.currentLanguage
+        }
 
         config['Interface']            = {
             'ColourMode'               : self.configColourMode,
-            'ZoomLevel'                : int(self.zoomFactor * 100)}
+            'ZoomLevel'                : int(self.zoomFactor * 100)
+        }
         
         config['Behaviour']            = {
-            'ShowTutorial'             : self.showTutorial}
+            'ShowTutorial'             : self.showTutorial
+        }
         
         config['SearchSettings']       = {
             'GetEtymology'             : self.getEtymology,
             'GetUsage'                 : self.getUsage, 
-            'defInConj'                : self.defInConj}
+            'defInConj'                : self.defInConj
+        }
         
         config['DefaultLocations']     = {
             'defaultNotesFile'         : self.defaultNoteLocation,
-            'defaultOutputFolder'      : self.defaultOutputFolder}
+            'defaultOutputFolder'      : self.defaultOutputFolder
+        }
         
         with open("config.ini", 'w') as configfile:
             config.write(configfile)                    
@@ -356,172 +379,63 @@ class MainWindowGui(QWidget):
         """
         make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue, savePth)
     
-    def _searchWiktionary(self) -> None:
+    def _manualWiktionarySearch(self) -> None:
         """Search Wiktionary for a word, phrase, or conjugation table.
-        """        
-        inputTxt = self.searchInputEdit.toPlainText()
-        inputTxt = inputTxt.strip()
-        inputTokens = ""
+        """
+        input_text = self.searchInputEdit.toPlainText()
+        input_text = input_text.strip()
         
-        # Split search terms into tokens
-        if self.manualSearchMode == "word" or self.conjugationMode == True:
-            inputTokens = inputTxt.split()
-            if not inputTokens:
-                self.searchOutputBrowser.setHtml("<p>No input. Please enter a word to get its definition.</p>")
-                return
-        else:
-            inputTokens = [inputTxt]
-        
-        # Conjugation table search
-        if self.conjugationMode == True and len(inputTokens) == 1:
-            self.__constructTableData(inputTokens)
+        if self.conjugationMode == True and self.defInConj == "True":
+            search_type = SearchType.WORD_CONJ_COMBO
         elif self.conjugationMode == True:
-            self.searchOutputBrowser.setHtml("<p>Conjugation tables can only be generated for one word at a time.</p>")
-            return
-        # Phrase search
+            search_type = SearchType.CONJUGATION
+        elif self.manualSearchMode == "word":
+            search_type = SearchType.WORD
         else:
-            defsDictsArray, defs = self.__constructDefinitionsData(inputTokens)
-            self.currentDefsStringified = defs
-            self.htmlContentText = self.currentDefsStringified
-            self.__updateHtmlDisplay()
-            self.current_definitions = defsDictsArray
-            self.__toggleSaveBtnEnabled()
-            self.displayingSavable = True
-            return
+            search_type = SearchType.PHRASE
+        
+        search_terms = input_text.split()
+        
+        db_entry_id = self.manual_searches_db.init_new_item(self.currentLanguage, input_text, search_type)
+        
+        if search_type.name == "WORD":
+            defs_construct = ""
+            for search_term in search_terms:
+                definitions_data = get_definitions(search_term, self.currentLanguage, self.getEtymology, self.getUsage)
+                self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
+                defs_construct += construct_mansearch_defs(definitions_data, search_term)
+            self.manual_searches_db.items[db_entry_id].add_unwrapped_html(defs_construct)
+            unwrapped_html_construct = construct_html(defs_construct, self.colourMode, search_type)
+            
+        elif search_type.name == "CONJUGATION" or search_type.name == "WORD_CONJ_COMBO":
+            definitions_data = {}
+            table_data = get_conjugation_table(input_text, self.currentLanguage)           
+            self.manual_searches_db.items[db_entry_id].add_raw_table(table_data)
+            
+            if search_type.name == "WORD_CONJ_COMBO":
+                definitions_data = get_definitions(input_text, self.currentLanguage, self.getEtymology, self.getUsage)
+                self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
+            
+            unwrapped_html_construct = construct_conj_table(table_data, input_text, search_type, definitions_data)
+        
+        else:  # Phrase search
+            definitions_data = get_definitions(search_terms, self.currentLanguage, self.getEtymology, self.getUsage)
+            self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
+            defs_construct = construct_mansearch_defs(definitions_data, search_terms[0])
+            unwrapped_html_construct = construct_html(defs_construct, self.colourMode, search_type)
+            
+        # Update class variables
+        self.current_unwrapped_html = unwrapped_html_construct
+        self.__updateHtmlDisplay()
+        self.__toggleSaveBtnEnabled()
+        self.displayingSavable = True
         return
     
-    def __constructTableData(self, inputTokens: list) -> list:
-        defsDictsArray = []
-        
-        for token in inputTokens:
-                self.conjWord = token
-                conjs = f"<h3>{token}</h3>"
-                conjs += get_conjugation_table(token, self.currentLanguage)
-                conjs = strip_bs4_links(conjs)
-                
-                if self.defInConj == "True":
-                    defsDictsArray.append(self.__getWikiDefinitions(token))
-                    self.wordOne = token
-                    conjs += f"<h3></h3>"
-                    definitionsString = self.__stringifyDefDict(defsDictsArray[0])
-                    conjs += definitionsString
-                
-                self.htmlContentText = conjs
-                self.__updateHtmlDisplay()
-                self.displayingSavable = True
-                self.__toggleSaveBtnEnabled()
-                
-        return defsDictsArray
-    
-    def __constructDefinitionsData(self, inputTokens: list) -> Tuple[list, str]:
-        defsDictsArray = []
-        defs = "" 
-        
-        for token in inputTokens:
-            defsDictsArray.append(self.__getWikiDefinitions(token))
-            
-            for defsDictI, defsDict in enumerate(defsDictsArray):
-                if defsDictI > 0:
-                    defs += "<hr>"
-                if defsDictI == 0:
-                    self.wordOne = inputTokens[defsDictI]
-                    
-                defs  += f"<h3>{inputTokens[defsDictI]}</h3>"
-                defStr = self.__stringifyDefDict(defsDict)
-                defs  += defStr
-                
-        return defsDictsArray, defs
-    
-    def __getWikiDefinitions(self, keyword: str) -> Union[Dict[str, List[str]], None]:
-        """Wrapper for calling the Wiktionary API.
-        
-        Arguments:
-            keyword -- The word/phrase to search for.
-            
-        Returns:
-            Dictionary containing the definitions for a word/phrase. Keys represent a grammar tag, and values are the 
-            corresponding definitions.
-        """
-        return handle_manual_def_search(keyword, self.currentLanguage, self.getEtymology, self.getUsage)
-    
-    def __stringifyDefDict(self, defsDict: dict) -> str:
-        """Convert a dictionary of definitions into a string.
-        
-        Arguments:
-            defsDict -- Dictionary containing the definitions for a word/phrase. Keys represent a grammar tag.
-            
-        Returns:
-            Stringified version of the dictionary.
-        """
-        defs_string = ""
-        if defsDict:
-            
-            for tag, definition in defsDict.items():
-                if definition:
-                    
-                    if tag != "etymology" and tag != "usage":
-                        defs_string += f"{tag.capitalize()}"
-                        for line_no, string in enumerate(definition):
-                            if line_no == 0:
-                                split_def = string.split()
-                                split_def = " ".join(split_def[1:])
-                                defs_string += f" <i>{split_def}</i>"
-                            elif line_no == 1:
-                                defs_string += "<ol>"
-                                defs_string += f"<li>{string}</li>"
-                            else:
-                                defs_string += f"<li>{string}</li>"
-                        defs_string += "</ol>"
-                        defs_string += "<br>"
-                    
-                    elif tag == "etymology" or tag == "usage":
-                        defs_string += f"<span style='color:grey;font-size:0.85em;'>{tag.capitalize()}</span>"
-                        defs_string += f"""<span style='color:grey;font-size:0.85em;'><ul><li>{definition[0]}
-                            </li></ul><br></span>"""
-                    
-                    else:
-                        defs_string += f"{tag.capitalize()}"
-                        defs_string += "<ol>"
-                        for line_no, string in enumerate(definition):
-                            defs_string += f"<li>{string}</li>"
-                        defs_string += "</ol>"
-                        defs_string += "<br>"
-        
-        return defs_string
-        
     def __updateHtmlDisplay(self) -> None:
         """Update the search display.
         """
-        self.__constructHtml(self.htmlContentText)
-        self.searchOutputBrowser.setHtml(self.htmlContent)
-    
-    def __constructHtml(self, content: str) -> str:
-        """Construct the HTML data for the front-end display. Appropriate headers are added depending on colour mode
-        and footer.
-        
-        Arguments:
-            content -- HTML data sans header and footer.
-            
-        Returns:
-            HTML data ready for display.
-        """
-        html    = ""
-        isTable = False
-        
-        # Determine if it's a conjugation table
-        if "<table" in content:
-            isTable = True
-            
-        if self.colourMode == "dark":
-            if self.conjugationMode or isTable == True:
-                html = HTML_HEADER_DARK_CONJ + content + HTML_FOOTER
-            else:
-                html = HTML_HEADER_DARK + content + HTML_FOOTER
-        else:
-            html = HTML_HEADER_LIGHT + content + HTML_FOOTER
-        
-        self.htmlContent = html
-        return html
+        constructed_html = construct_html(self.current_unwrapped_html, self.colourMode)
+        self.searchOutputBrowser.setHtml(constructed_html)
     
     # ★ SAVE LOAD TOKEN ★・・・・・・★・・・・・・★ SAVE LOAD TOKEN ★・・・・・・★・・・・・・★ SAVE LOAD TOKEN ★・・・・・・★
 
@@ -536,7 +450,6 @@ class MainWindowGui(QWidget):
         
         if self.conjugationMode:
             # Shorten word used for the display
-            word = self.conjWord
             if len(word) > 9:
                 word = word[:7] + ".."
             # Create a new button for the sidebar
@@ -548,7 +461,6 @@ class MainWindowGui(QWidget):
         
         else:            
             # Shorten word used for the display
-            word = self.wordOne
             if len(word) > 9:
                     word = word[:7] + ".."
             # Create a new button for the sidebar.
@@ -588,7 +500,7 @@ class MainWindowGui(QWidget):
         
         return EncodedSavefilesContent(**temp_savefiles_content)
     
-    def __parseTokenData(self, encodedRawContent: EncodedSavefilesContent) -> dict:
+    def __parseTokenData(self, encodedRawContent: EncodedSavefilesContent) -> SavedSidebarItems:
         """Parse the saved words file and return a list of words.
         
         Arguments:
@@ -662,9 +574,8 @@ class MainWindowGui(QWidget):
             The content of the saved word. HTML formatted, but lacks header and footer information. This is intentional
             because header content is specific to the currently applied colour mode.
         """
-        self.htmlContentText = content
-        self.__constructHtml(content)
-        self.searchOutputBrowser.setHtml(self.htmlContent)
+        self.current_unwrapped_html = content
+        self.__updateHtmlDisplay()
     
     def __deleteSavedToken(self, unique_id: str) -> None:
         """Remove a saved word by deleting its save-file content, session-variable entry, and sidebar buttons.

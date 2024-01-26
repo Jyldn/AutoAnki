@@ -15,7 +15,7 @@ class GuiSettingsDialog(object):
         self.settingsBox.clicked.connect(self.__handleApplySettings)
         
         # Setup zoom factor
-        zoomFactor = self.parent.getZoomFactor()
+        zoomFactor = self.parent.zoomFactor
         zoomFactor = self.__convertZoomLevel(zoomFactor)
         self.fontSizeSelect.setValue(zoomFactor)
         

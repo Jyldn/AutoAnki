@@ -16,7 +16,7 @@ MARKED_TOKEN    = str
 DEF_GRAMMAR_TAG = str
 DEF_ITEMS       = List[str]
 
-SPACY_TO_NLTK_TAG_MAP = {
+SPACY_TO_READABLE_TAG_MAP = {
     'ADJ'   : 'adjective',
     'ADP'   : 'preposition',
     'ADV'   : 'adverb',
@@ -304,7 +304,7 @@ def make_tags_readable(cards_arr: List[Card]) -> list:
     for card_i, card in enumerate(cards_arr):
         for bside_entry_key, bside_entry_d in card["backside_entries"].items():
             tag = bside_entry_d["grammar_tag"]
-            for spacy_tag, readable_tag in SPACY_TO_NLTK_TAG_MAP.items():
+            for spacy_tag, readable_tag in SPACY_TO_READABLE_TAG_MAP.items():
                 if spacy_tag == tag:
                     new_tag = readable_tag
                     new_cards_arr[card_i]["backside_entries"][bside_entry_key]["grammar_tag"] = new_tag
