@@ -26,11 +26,10 @@ class TutorialDialog(object):
     """Tutorial dialog that opens on startup.
     """
     def __init__(self, parent: QtWidgets.QDialog):
-        super().__init__(parent)
         self.parent = parent
         # Keep the dialog on top.
-        self.setWindowModality(QtCore.Qt.ApplicationModal) # type: ignore
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint) # type: ignore
+        # self.setWindowModality(QtCore.Qt.ApplicationModal) # type: ignore
+        # self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint) # type: ignore
         
     def setupUi(self, Dialog: QtWidgets.QDialog) -> None:
         setup_tutorial_dialog(self, Dialog)
@@ -38,7 +37,7 @@ class TutorialDialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         
-        colourMode = self.parent.getColourMode()
+        colourMode = self.parent.colour_mode
         if colourMode == "dark":
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:

@@ -22,6 +22,7 @@ import uuid
 import re
 import configparser
 import time
+import os
 
 
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -250,7 +251,7 @@ class MainWindowGui(QWidget):
             'defaultOutputFolder'     : self.default_autoanki_output_folder
         }
         
-        with open("config.ini", 'w') as config_file:
+        with open(f"{os.path.dirname(os.getcwd())}\\autodict\\.config\\config.ini", 'w') as config_file:
             config.write(config_file)                    
         self._update_language_label(self.selected_search_language)
     
@@ -622,7 +623,7 @@ class MainWindowGui(QWidget):
         """
         temp_savefiles_content = {}
         for language in self.saved_sidebar_items.keys():
-            with open(f"{LANG_CODE_REF[language]}-sf.dat", "r", encoding="utf-8") as f:
+            with open(f"{os.getcwd()}\\autoanki\\savefiles\\{LANG_CODE_REF[language]}-sf.dat", "r", encoding="utf-8") as f:
                 savefile_content = f.read()
                 f.close()
                 temp_savefiles_content[language] = savefile_content
@@ -761,7 +762,7 @@ class MainWindowGui(QWidget):
         unencoded_save_data = UnencodedSavefilesContent(**temp_unwrapped_html_d)
         encoded_save_data = encode_savefiles_content(unencoded_save_data)
         
-        with open(f"{LANG_CODE_REF[self.selected_search_language]}-sf.dat", "w", encoding="utf-8") as f:
+        with open(f"{os.getcwd()}\\autoanki\\savefiles\\{LANG_CODE_REF[self.selected_search_language]}-sf.dat", "w", encoding="utf-8") as f:
             f.write(asdict(encoded_save_data)[current_lang].decode("utf-8"))
             f.close()
     

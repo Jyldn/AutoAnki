@@ -7,7 +7,7 @@ def config_check() -> list:
     Returns:
         A list of config variables.
     """
-    if os.path.exists("config.ini"):
+    if os.path.exists(f"{os.path.dirname(os.getcwd())}\\autodict\\.config\\config.ini"):
         pass
     else:
         setup_config()
@@ -26,7 +26,7 @@ def setup_config() -> None:
     config['DefaultLocations']    = {'defaultNotesFile': 'False', 'defaultOutputFolder': 'False'}
     
     try:
-        with open("config.ini", 'w') as configfile:
+        with open(f"{os.path.dirname(os.getcwd())}\\autodict\\config.ini", 'w') as configfile:
             config.write(configfile)
             return
     except:
@@ -40,15 +40,15 @@ def get_configs() -> list:
         List of config variables.
     """
     config = configparser.ConfigParser()
-    config.read("config.ini")
+    config.read(f"{os.path.dirname(os.getcwd())}\\autodict\\.config\\config.ini")
     
     interface_language                    = config['LanguagePreferences']['InterfaceLanauge']
     search_language                       = config['LanguagePreferences']['SearchLanguage']
     colour_mode                           = config['Interface']['ColourMode']
     zoom_level                            = int(config['Interface']['ZoomLevel'])
     show_tutorial_flag                    = config['Behaviour'].getboolean('ShowTutorial')
-    get_etymology_flag                    = config['SearchSettings'].getboolean('GetEtymology')
-    get_usage_notes_flag                  = config['SearchSettings'].getboolean('GetUsage')
+    get_etymology_flag                    = config['SearchSettings'].getboolean('etymology')
+    get_usage_notes_flag                  = config['SearchSettings'].getboolean('getusage')
     display_definitions_with_conjugations = config['SearchSettings'].getboolean('defInConj')
     default_note_location                 = config['DefaultLocations']['defaultNotesFile']
     default_output_folder                 = config['DefaultLocations']['defaultOutputFolder']
