@@ -18,6 +18,6 @@ if __name__ == "__main__":
     gui.setupUI(MainWindow)
     
     MainWindow.show()
-    gui.spawnTutorialDialog()
+    gui.spawn_tutorial_dialog()
     
     sys.exit(app.exec_())

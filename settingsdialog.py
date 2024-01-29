@@ -1,5 +1,5 @@
 from PyQt5              import QtCore, QtWidgets
-from setupdialogs       import setup_setting_dialog
+from setupdialogs       import setup_settings_dialog
 import qtvscodestyle    as qtvsc
 
 
@@ -11,69 +11,72 @@ class GuiSettingsDialog(object):
     def setupUi(self, settingsDialog: QtWidgets.QDialog) -> None:
         """Sets up the settings dialog.
         """
-        setup_setting_dialog(self, settingsDialog)
-        self.settingsBox.clicked.connect(self.__handleApplySettings)
+        setup_settings_dialog(self, settingsDialog)
+        
+        self.window = settingsDialog
+        
+        self.settings_frame.clicked.connect(self.__handleApplySettings)
         
         # Setup zoom factor
-        zoomFactor = self.parent.zoomFactor
-        zoomFactor = self.__convertZoomLevel(zoomFactor)
-        self.fontSizeSelect.setValue(zoomFactor)
+        zoom_factor = self.parent.zoom_factor
+        zoom_factor = self._convert_zoom_level(zoom_factor)
+        self.font_size_select.setValue(zoom_factor)
         
         self.__retranslateUi(settingsDialog)
-        self.settingsBox.accepted.connect(settingsDialog.accept) # type: ignore
-        self.settingsBox.rejected.connect(settingsDialog.reject) # type: ignore
+        self.settings_frame.accepted.connect(settingsDialog.accept) # type: ignore
+        self.settings_frame.rejected.connect(settingsDialog.reject) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(settingsDialog)
         
-        colourMode = self.parent.colourMode
-        if colourMode == "dark":
+        colour_mode = self.parent.colour_mode
+        if colour_mode.value == "dark":
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
         else:
             stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
         
         self.window.setStyleSheet(stylesheet)
-        self.settingsFrame.setStyleSheet("QFrame {border: 0px solid dimgrey;}")    
+        self.settings_frame.setStyleSheet("QFrame {border: 0px solid dimgrey;}")    
     
     def __retranslateUi(self, settingsDialog: QtWidgets.QDialog) -> None:
         _translate = QtCore.QCoreApplication.translate
         settingsDialog.setWindowTitle(_translate("settingsDialog", "Settings"))
         
         # Interface language select
-        self.settingsLangLbl.setText(_translate("settingsDialog", "Interface Language"))
-        self.interfaceLangCB.setItemText(0, _translate("settingsDialog", "English"))
+        self.settings_language_label.setText(_translate("settingsDialog", "Interface Language"))
+        self.combobox.setItemText(0, _translate("settingsDialog", "English"))
         
         # Colour mode
-        self.settingsColMdLbl.setText(_translate("settingsDialog", "Default Colour Mode"))
-        self.defaultColourModeCB.setItemText(0, _translate("settingsDialog", "Light"))
-        self.defaultColourModeCB.setItemText(1, _translate("settingsDialog", "Dark"))
+        self.settnigs_column_middle_label.setText(_translate("settingsDialog", "Default Colour Mode"))
+        self.default_colour_mode_combo.setItemText(0, _translate("settingsDialog", "Light"))
+        self.default_colour_mode_combo.setItemText(1, _translate("settingsDialog", "Dark"))
         
         # Set colour mode selection to current config value
-        if self.parent.configColourMode == "dark":
-            self.defaultColourModeCB.setCurrentIndex(1)
+        if self.parent.config_colour_mode.value == "dark":
+            self.default_colour_mode_combo.setCurrentIndex(1)
         else:
-            self.defaultColourModeCB.setCurrentIndex(0)
+            self.default_colour_mode_combo.setCurrentIndex(0)
         
         # Font size
-        self.fontSizeSelectLbl.setText(_translate("settingsDialog", "Zoom percentage"))
+        self.font_size_select_label.setText(_translate("settingsDialog", "Zoom percentage"))
         
         # Tutorial
-        self.tutorialLbl.setText(_translate("tutorialSetting", "Show tutorial"))
+        self.tutorial_label.setText(_translate("tutorialSetting", "Show tutorial"))
         self.__checkBoxes()
         self.__getLocations()
         
         # Set text
-        self.getEtymLbl.setText(_translate("getEtymLbl", "Show etymology"))
-        self.getUsageLbl.setText(_translate("getUsageLbl", "Show usage notes"))
-        self.searchSettingsLbl.setText(_translate("searchSettingsLbl", "Manual search settings"))
-        self.generalSettingsLbl.setText(_translate("generalSettingsLbl", "General settings"))
-        self.defInConjLbl.setText(_translate("defInConjLbl", "Definition + conjugation"))
-        self.defaultLoadLbl.setText(_translate("defaultLoadLbl", "Default notes file"))
-        self.defaultSaveLbl.setText(_translate("defaultSaveLbl", "Default output folder"))
+        self.etymology_flag_label.setText(_translate("getEtymLbl", "Show etymology"))
+        self.get_usage_label.setText(_translate("getUsageLbl", "Show usage notes"))
+        self.search_settings_label.setText(_translate("searchSettingsLbl", "Manual search settings"))
+        self.general_settings_lbl.setText(_translate("generalSettingsLbl", "General settings"))
+        self.definitions_with_conjugation_label.setText(_translate("defInConjLbl", "Definition + conjugation"))
+        self.default_load_label.setText(_translate("defaultLoadLbl", "Default notes file"))
+        self.default_save_label.setText(_translate("defaultSaveLbl", "Default output folder"))
         
-    def __convertZoomLevel(self, zoomLevel: float) -> int:
+    def _convert_zoom_level(self, zoomLevel: float) -> int:
         """Converts the zoom level from a float to an int. This is because the front-end slider only accepts ints.
 
         Arguments:
-            zoomLevel -- Zoom level currently being used
+            zoomLevel: Zoom level currently being used
 
         Returns:
             Zoom level compatabile with the front-end
@@ -85,69 +88,69 @@ class GuiSettingsDialog(object):
         """Applies the selected language by updating the parent's language variable and then closes the dialog.
         """
         # Get settings variables
-        newZoomFactor = self.fontSizeSelect.value()
-        newColourSelect = self.defaultColourModeCB.currentText()
+        newZoomFactor   = self.font_size_select.value()
+        newColourSelect = self.default_colour_mode_combo.currentText()
         newColourSelect = newColourSelect.lower()
         
-        self.__applyChecks()
-        self.__applyLocations()
-        self.parent.applySettings(newZoomFactor, newColourSelect)
+        self._apply_checks()
+        self._apply_file_locations()
+        self.parent.apply_settings(newZoomFactor, newColourSelect)
         self.window.close()
     
     def __checkBoxes(self) -> None:
         """Sets the checkboxes to the current config values.
         """
-        if self.parent.showTutorial == "True":
-            self.tutorialRadio.setChecked(True)
+        if self.parent.show_tutorial_on_startup == True:
+            self.tutorial_checkbox.setChecked(True)
         else:
-            self.tutorialRadio.setChecked(False)
+            self.tutorial_checkbox.setChecked(False)
         
-        if self.parent.getEtymology == "True":
-            self.etymRadio.setChecked(True)
+        if self.parent.get_etymology_flag == True:
+            self.etymology_checkbox.setChecked(True)
         else:
-            self.etymRadio.setChecked(False)
+            self.etymology_checkbox.setChecked(False)
         
-        if self.parent.getUsage == "True":
-            self.usageRadio.setChecked(True)
+        if self.parent.get_usage_flag == True:
+            self.usage_flag_checkbox.setChecked(True)
         else:
-            self.usageRadio.setChecked(False)
+            self.usage_flag_checkbox.setChecked(False)
             
-        if self.parent.defInConj == "True":
-            self.defInConjRadio.setChecked(True)
+        if self.parent.display_definitions_with_conjugations == True:
+            self.definitions_with_conjugations_flag_checkbox.setChecked(True)
         else:
-            self.defInConjRadio.setChecked(False)
+            self.definitions_with_conjugations_flag_checkbox.setChecked(False)
     
-    def __applyChecks(self) -> None:
+    def _apply_checks(self) -> None:
         """Updates the parent's variables according to the checkbox values.
         """
-        if self.tutorialRadio.isChecked():
-            self.parent.showTutorial = "True"
+        if self.tutorial_checkbox.isChecked():
+            self.parent.show_tutorial_on_startup = True
         else:
-            self.parent.showTutorial = "False"
+            self.parent.show_tutorial_on_startup = False
             
-        if self.etymRadio.isChecked():
-            self.parent.getEtymology = "True"
+        if self.etymology_checkbox.isChecked():
+            self.parent.get_etymology_flag = True
         else:
-            self.parent.getEtymology = "False"
+            self.parent.get_etymology_flag = False
             
-        if self.usageRadio.isChecked():
-            self.parent.getUsage     = "True"
+        if self.usage_flag_checkbox.isChecked():
+            self.parent.get_usage_flag     = True
         else:
-            self.parent.getUsage     = "False"
+            self.parent.get_usage_flag     = False
             
-        if self.defInConjRadio.isChecked():
-            self.parent.defInConj    = "True"
+        if self.definitions_with_conjugations_flag_checkbox.isChecked():
+            self.parent.display_definitions_with_conjugations    = True
         else:
-            self.parent.defInConj    = "False"
+            self.parent.display_definitions_with_conjugations    = False
     
-    def __applyLocations(self) -> None:
+    def _apply_file_locations(self) -> None:
         """Updates the parent's default load and save paths.
         """
-        self.parent.defaultNoteLocation = self.defaultLoadEdit.text()
-        self.parent.defaultOutputFolder = self.defaultSaveEdit.text()
+        self.parent.default_notes_file_location = self.default_load_edit.text()
+        self.parent.default_autoanki_output_folder = self.default_save_edit.text()
         
     def __getLocations(self) -> None:
         """Sets the default load and save paths to the current config values.
         """
-        self.defaultLoadEdit.setText(self.parent.defaultNoteLocation)
-        self.defaultSaveEdit.setText(self.parent.defaultOutputFolder)
+        self.default_load_edit.setText(self.parent.default_notes_file_location)
+        self.default_save_edit.setText(self.parent.default_autoanki_output_folder)

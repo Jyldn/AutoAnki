@@ -6,27 +6,25 @@ from otherdialogs       import (GuiContactDialog, GuiChangeLangWindow, GuiAA, Tu
 from config             import config_check
 from callapi            import (get_conjugation_table)
 from makecards          import make_cards
-from htmlstrings        import (HTML_HEADER_DARK, HTML_HEADER_LIGHT, HTML_HEADER_DARK_CONJ, HTML_FOOTER, LIGHT_HTML, 
-                                DARK_HTML,CONJUGATION_SEARCH_OVERLOAD_MSG)
+from htmlstrings        import (LIGHT_HTML, DARK_HTML)
 from setupdialogs       import setup_mainwindow
 from savefiles          import (EncodedSavefilesContent, UnencodedSavefilesContent, encode_savefiles_content, 
                                 decode_savefiles_content,encode_single_entry)
 from dataclasses        import (dataclass, asdict)
 from typing             import (Union, List, Dict, Tuple)
-from manualsearchdb     import (ItemDefinitions, ManualSearchItemsDb, SearchType)
-from manualsearch       import (construct_html, construct_mansearch_defs, construct_conj_table)
+from manualsearchdb     import (ItemDefinitions, SearchType, ManualSearchItem)
+from manualsearch       import (wrap_html, construct_mansearch_defs, construct_conj_table_html)
 from callapi            import (get_conjugation_table, get_definitions)
 from typing_extensions  import (TypedDict, NotRequired)
-
+from enum               import Enum
 import qtvscodestyle    as qtvsc
-
 import uuid
 import re
 import configparser
+import time
 
 
-
-QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # type: ignore
+QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 STYLESHEET = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
 STYLESHEET_DRK = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
@@ -34,20 +32,34 @@ STYLESHEET_DRK = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
 SAVEFILE_SEPERATOR = "\n====================================\n"
 
 LANG_CODE_REF = {
-    "English"   : "en",
-    "French"    : "fr",
-    "German"    : "de",
-    "Spanish"   : "es",
-    "Latin"     : "la"
+    "English" : "en",
+    "French"  : "fr",
+    "German"  : "de",
+    "Spanish" : "es",
+    "Latin"   : "la"
 }
+
+uid = str
+sidebarUnwrappedHtml = str
 
 
 class SavedSidebarItems(TypedDict):
-    English : Dict[str, str]
-    French  : Dict[str, str]
-    German  : Dict[str, str]
-    Spanish : Dict[str, str]
-    Latin   : Dict[str, str]
+    English: Dict[uid, sidebarUnwrappedHtml]
+    French : Dict[uid, sidebarUnwrappedHtml]
+    German : Dict[uid, sidebarUnwrappedHtml]
+    Spanish: Dict[uid, sidebarUnwrappedHtml]
+    Latin  : Dict[uid, sidebarUnwrappedHtml]
+
+
+class ManualSearchModes(Enum):
+    WORD = "word"
+    CONJUGATION = "conjugation"
+    PHRASE = "phrase"
+
+
+class ColourModes(Enum):
+    DARK = "dark"
+    LIGHT = "light"
 
 
 class MainWindowGui(QWidget):
@@ -56,443 +68,560 @@ class MainWindowGui(QWidget):
         super(MainWindowGui, self).__init__()
         
         # Class variables
-        self.manualSearchMode           : str   = "word"
-        self.currentOverallMode         : str   = "search"
-        self.mainWindow                 : str   = str()
-        self.currentInputFilePath       : str   = str()
-        self.conjugationMode            : bool  = False
-        self.displayingSavable          : bool  = False
+        self.manual_search_mode                   : ManualSearchModes = ManualSearchModes.WORD
         
         # Saved items
-        self.savedItems                 : bool  = False
-        self.savedSidebarWords                  = SavedSidebarItems(English={}, French={}, German={}, 
-                                                                    Spanish={}, Latin={})
+        self.displaying_savable_item              : bool              = False
+        self.saved_sidebar_items                  : SavedSidebarItems = SavedSidebarItems(
+            English= {}, French= {}, German= {}, Spanish= {}, Latin= {}
+        )
         
         # Temp data
-        self.current_unwrapped_html     : str   = str()
-        self.current_constructed_html   : str   = str()
-        self.selectedFileContent        : str   = str()
+        self.most_recent_search_item              : ManualSearchItem  = ManualSearchItem(
+            str(), tuple(), SearchType.WORD, False, False)
+        self.current_unwrapped_html               : str               = str()
+        self.notes_file_content                   : str
+        self.notes_input_filepath                 : str
         
         # Config variables
-        self.configColourMode           : str   = str()
-        self.defaultNoteLocation        : str   = str()
-        self.defaultOutputFolder        : str   = str()
-        self.showTutorial               : str   = str()
-        self.defInConj                  : str   = str()
-        self.getEtymology               : str   = str()
-        self.getUsage                   : str   = str()
-        self.interfaceLanguage          : str   = str()
-        self.currentLanguage            : str   = str()
-        self.colourMode                 : str   = str()
-        self.zoomFactor                 : float = float()
-        
-        # Instantiate the manual searches database
-        self.manual_searches_db = ManualSearchItemsDb()
-        
-        # Style values
-        self.topOffset = 40
-    
+        self.colour_mode                          : ColourModes       = ColourModes.LIGHT
+        self.config_colour_mode                   : ColourModes       = ColourModes.LIGHT
+        self.show_tutorial_on_startup             : bool              = True
+        self.display_definitions_with_conjugations: bool              = False
+        self.get_etymology_flag                   : bool              = False
+        self.get_usage_flag                       : bool              = False
+        self.zoom_factor                          : float
+        self.default_notes_file_location          : str
+        self.default_autoanki_output_folder       : str
+        self.interface_language                   : str
+        self.selected_search_language             : str
+            
     def setupUI(self, MainWindow: QtWidgets.QMainWindow) -> None:
         setup_mainwindow(self, MainWindow)
+
         # Connect buttons
-        self.colourModeBtn.clicked.connect(self.__toggleColourMode)
-        self.settingsBtn.clicked.connect(self.__spawnSettingsDialog)
-        self.contactBtn.clicked.connect(self.__spawnContactDialog)
-        self.autoAnkiBtn.clicked.connect(self.__spawnAutoAnkiDialog)
-        self.changeLangBtn.clicked.connect(self.__spawnLanguageDialog)
-        self.saveWord.clicked.connect(self.__saveToken)
-        self.searchBtn.clicked.connect(self._manualWiktionarySearch)
-        self.searchModeCombo.currentIndexChanged.connect(self.__onSearchModeChange)
+        self.colour_mode_button.clicked.connect(self._toggle_colour_mode)
+        self.settings_button.clicked.connect(self._spawn_settings_dialog)
+        self.contact_button.clicked.connect(self.__spawnContactDialog)
+        self.autoanki_button.clicked.connect(self.__spawnAutoAnkiDialog)
+        self.current_language_button.clicked.connect(self._spawn_language_dialog)
+        self.save_word.clicked.connect(self._save_to_sidebar)
+        self.search_button.clicked.connect(self._manual_wiktionary_search)
+        self.search_mode_combo.currentIndexChanged.connect(self._on_change_of_search_mode)
 
         # Initialise html output display
-        html_content = construct_html()
-        self.searchOutputBrowser.setHtml(html_content)
+        html_content = wrap_html()
+        self.search_html_browser.setHtml(html_content)
         
         # Initialise config
-        configVars = config_check()
-        self.__applyConfig(configVars)
+        config_data = config_check()
+        self._apply_config_data(config_data)
         
         # Retranslate
-        self.__retranslateUi(MainWindow)
+        self._retranslate_ui(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
         # Apply colour mode on startup
-        if self.colourMode == "dark":
-            self.__activateDarkmode()
-            self.__updateHtmlDisplay()
+        if self.colour_mode.value == "dark":
+            self._activate_dark_mode()
+            self._update_html_display()
         else:
-            self.__activateLightmode()
-        self.__toggleSaveBtnEnabled() # Save button should be disabled at startup
+            self._activate_light_mode()
+        self._toggle_savebutton_enabled() # Save button should be disabled at startup
         
         # Load saves words
-        rawSavedWords  = self.__getTokenData()
-        savedWordsDict = self.__parseTokenData(rawSavedWords)
-        for count, id_word_pair in enumerate(savedWordsDict[self.currentLanguage].items()):
-            self.__constructSavedToken(id_word_pair, count)
+        raw_sidebar_items_data  = self._get_saved_items_data()
+        saved_sidebar_items: SavedSidebarItems = self._parse_saved_items_data(raw_sidebar_items_data)
+        
+        for savebar_item_index, sidebar_id_content_pair in enumerate(
+                saved_sidebar_items[self.selected_search_language].items()):
+            self._construct_sidebar_item_data(sidebar_id_content_pair, savebar_item_index)
     
-    def __retranslateUi(self, MainWindow: QtWidgets.QMainWindow) -> None:
+    def _retranslate_ui(self, MainWindow: QtWidgets.QMainWindow) -> None:
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "AutoAnki"))
         
         # Buttons
-        self.saveWord.setText(_translate("MainWindow", "Add"))
-        self.colourModeBtn.setText(_translate("MainWindow", "Dark Mode"))
-        self.settingsBtn.setText(_translate("MainWindow", "Settings"))
-        self.autoAnkiBtn.setText(_translate("MainWindow", "AutoAnki"))
-        self.changeLangBtn.setText(_translate("MainWindow", "Change Language"))
-        self.searchBtn.setText(_translate("MainWindow", "Search"))
-        self.contactBtn.setText(_translate("MainWindow", "Contact"))
+        self.save_word.setText(_translate("MainWindow",      "Add"))
+        self.colour_mode_button.setText(_translate("MainWindow", "Dark   Mode"))
+        self.settings_button.setText(_translate("MainWindow",   "Settings"))
+        self.autoanki_button.setText(_translate("MainWindow",   "AutoAnki"))
+        self.current_language_button.setText(_translate("MainWindow", "Change Language"))
+        self.search_button.setText(_translate("MainWindow",     "Search"))
+        self.contact_button.setText(_translate("MainWindow",    "Contact"))
         
         # Labels
-        self.sideLabel.setText(_translate("MainWindow", "Saved Words"))
-        self.sideLabel.setAlignment(Qt.AlignCenter) # type: ignore
+        self.saved_words_label.setText(_translate("MainWindow", "Saved Words"))
+        self.saved_words_label.setAlignment(Qt.AlignCenter) # type: ignore
         
-        self.__updateLangLabel(self.currentLanguage)
-        self.currentLangLabel.setAlignment(Qt.AlignCenter) # type: ignore
+        self._update_language_label(self.selected_search_language)
+        self.search_language_label.setAlignment(Qt.AlignCenter) # type: ignore
     
-    # ★ CONFIG ★・・・・・・★・・・・・・★ CONFIG ★・・・・・・★・・・・・・★ CONFIG ★・・・・・・★・・・・・・★ CONFIG ★・・・・
+    # ★ SETTINGS ★・・・・・・★・・・・・・★ CONFIG ★・・・・・・★・・・・・・★ LANGUAGE ★・・・・・・★・・・・・・★ CONFIG ★・・
     
-    def __applyConfig(self, configVars: list) -> None:
+    def _apply_config_data(self, configVars: list) -> None:
         """Apply config variables read from the config.ini file.
         
         Arguments:
-            configVars -- List of condig variables
+            configVars: List of conFig variables.
         """
         # General settings
-        self.interfaceLanguage   = configVars[0]
-        self.currentLanguage     = configVars[1]
-        self.colourMode          = configVars[2]
-        self.configColourMode    = configVars[2]
-        self.zoomFactor          = configVars[3]
-        self.showTutorial        = configVars[4]
+        self.interface_language   = configVars[0]
+        self.selected_search_language     = configVars[1]
+        
+        try:
+            self.colour_mode = ColourModes(configVars[2])
+        except ValueError:
+                print(f"Error reading config file. {configVars[2]} is not a valid colour mode.")
+        
+        try:
+            self.config_colour_mode = ColourModes(configVars[2])
+        except ValueError:
+                print(f"Error reading config file. {configVars[2]} is not a valid colour mode.")
+        
+        self.zoom_factor                           = configVars[3]
+        self.show_tutorial_on_startup              = configVars[4]
         # Search settings
-        self.getEtymology        = configVars[5]
-        self.getUsage            = configVars[6]
-        self.defInConj           = configVars[7]
-        self.defaultNoteLocation = configVars[8]
-        self.defaultOutputFolder = configVars[9]
+        self.get_etymology_flag                    = configVars[5]
+        self.get_usage_flag                        = configVars[6]
+        self.display_definitions_with_conjugations = configVars[7]
+        self.default_notes_file_location           = configVars[8]
+        self.default_autoanki_output_folder        = configVars[9]
         # Apply config
-        self.__applyZoomLvl   (self.zoomFactor)
-        self.__updateLangLabel(self.currentLanguage)
+        self._apply_zoom_factor   (self.zoom_factor)
+        self._update_language_label(self.selected_search_language)
     
-    def changeLanguage(self, newLang: str) -> None:
-        """Update the language variable.
+    def change_language(self, newLang: str) -> None:
+        """Called when the user changes the search language from the languages dialog. Becuase saved sidebar items are
+        specific to a language, the sidebar items need to be cleared and the relevant sidebar items need to be loaded.
+        The config is also updated so that the next time the program is launched, the most recently selected search-
+        language is applied. The language label is updated to reflect the new language, and the sidebar save button
+        is disabled to prevent the user from saving a word in the wrong language.
         """
         # Remove all buttons from the scroll area
-        for uid in self.savedSidebarWords[self.currentLanguage].keys():
-            word_btn    = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButton{uid}")
-            remove_btn  = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{uid}")
-            self.scrollAreaLayout.removeWidget(word_btn)
-            self.scrollAreaLayout.removeWidget(remove_btn)
-            
-        self.currentLanguage = newLang
+        self._remove_buttons()
+        previous_lang = self.selected_search_language
+        self.selected_search_language = newLang
+        self._load_buttons()
+        self.update_config()
         
-        for count, id_word_pair in enumerate(self.savedSidebarWords[self.currentLanguage].items()):
-            print("MAKING CARD BTN")
-            self.__constructSavedToken(id_word_pair, count)
-            
-        self.updateConfig()
-    
-    def applySettings(self, newZoomFactor: int, newColourMode: str) -> None:
-        """Apply settings from the settings dialog.
+        if previous_lang != newLang:
+            self.displaying_savable_item = False
+            self._toggle_savebutton_enabled()
+
+    def apply_settings(self, new_zoom_factor: int, new_colour_mode: str) -> None:
+        """Apply settings from the settings dialog to the main window and update the config file.
 
         Arguments:
-            newZoomFactor -- Zoom factor to be applied to the search display
-            newColourMode -- Light/dark mode setting to be saved to the config
+            newZoomFactor: Zoom factor to be applied to the search display
+            newColourMode: Light/dark mode setting to be saved to the config
         """
-        self.__applyZoomLvl(newZoomFactor)
-        self.configColourMode = newColourMode
-        self.updateConfig()
+        self._apply_zoom_factor(new_zoom_factor)
+        self.config_colour_mode = ColourModes(new_colour_mode)
+        self.update_config()
     
-    def updateConfig(self) -> None:
-        """Updates the config file with new variables.
+    def update_config(self) -> None:
+        """Updates the config file with current config variables.
         """
         config = configparser.ConfigParser()
         
-        config['LanguagePreferences']  = {
-            'InterfaceLanauge'         : self.interfaceLanguage,
-            'SearchLanguage'           : self.currentLanguage
+        config['LanguagePreferences'] = {
+            'InterfaceLanauge'        : self.interface_language,
+            'SearchLanguage'          : self.selected_search_language
         }
 
-        config['Interface']            = {
-            'ColourMode'               : self.configColourMode,
-            'ZoomLevel'                : int(self.zoomFactor * 100)
+        config['Interface']           = {
+            'ColourMode'              : self.config_colour_mode.value,
+            'ZoomLevel'               : str(int(self.zoom_factor * 100))
         }
         
-        config['Behaviour']            = {
-            'ShowTutorial'             : self.showTutorial
+        config['Behaviour']           = {
+            'ShowTutorial'            : str(self.show_tutorial_on_startup)
         }
         
-        config['SearchSettings']       = {
-            'GetEtymology'             : self.getEtymology,
-            'GetUsage'                 : self.getUsage, 
-            'defInConj'                : self.defInConj
+        config['SearchSettings']      = {
+            'GetEtymology'            : str(self.get_etymology_flag),
+            'GetUsage'                : str(self.get_usage_flag), 
+            'defInConj'               : str(self.display_definitions_with_conjugations)
         }
         
-        config['DefaultLocations']     = {
-            'defaultNotesFile'         : self.defaultNoteLocation,
-            'defaultOutputFolder'      : self.defaultOutputFolder
+        config['DefaultLocations']    = {
+            'defaultNotesFile'        : self.default_notes_file_location,
+            'defaultOutputFolder'     : self.default_autoanki_output_folder
         }
         
-        with open("config.ini", 'w') as configfile:
-            config.write(configfile)                    
-        self.__updateLangLabel(self.currentLanguage)
+        with open("config.ini", 'w') as config_file:
+            config.write(config_file)                    
+        self._update_language_label(self.selected_search_language)
     
-    def __updateLangLabel(self, lang: str) -> None:
-        """Update the lang label and add an emoji.
+    def _update_language_label(self, language: str) -> None:
+        """Update the language label and add an emoji.
 
         Arguments:
-            lang -- The current language.
+            language: The current language.
         """
         emoji = ""
-        if lang   == "French":
+        if language   == "French":
             emoji =  "🥖"
-        elif lang == "German":
+        elif language == "German":
             emoji =  "🥨"
-        elif lang == "Spanish":
+        elif language == "Spanish":
             emoji =  "💃"
-        elif lang == "Latin": 
+        elif language == "Latin": 
             emoji =  "🏺"
-        elif lang == "English":
+        elif language == "English":
             emoji =  "💂"
-        self.currentLangLabel.setText(f"{lang} {emoji}")
+        self.search_language_label.setText(f"{language} {emoji}")
             
-    def __applyZoomLvl(self, newZoomFactor: int) -> None:
+    def _apply_zoom_factor(self, new_zoom_factor: int) -> None:
         """Update the HTML display with a new zoom factor. The HTML display only accepts floats, so the value is 
         converted.
         
         Arguments:
-            newZoomFactor -- Zoom factor that will be applied to the HTML display after conversion.
+            newZoomFactor: Zoom factor that will be applied to the HTML display after conversion.
         """
-        zoomFactorFlt: float = newZoomFactor / 100 
-        self.zoomFactor = zoomFactorFlt
-        self.searchOutputBrowser.setZoomFactor(zoomFactorFlt)       
+        converted_zoom_factor: float = new_zoom_factor / 100 
+        self.zoom_factor = converted_zoom_factor
+        self.search_html_browser.setZoomFactor(converted_zoom_factor)       
     
-    def __onSearchModeChange(self, index: int) -> None:
+    def _on_change_of_search_mode(self, search_mode_combo_index: int) -> None:
         """Change the search mode when the user selects a different option from the combo box.
 
         Arguments:
-            index -- Index of the selected combo box item.
+            search_mode_combo_index: Index of the selected combo box item.
         """
-        mode = self.searchModeCombo.itemData(index)
-        if mode == "sentence":
-            self.manualSearchMode   = "sentence"
-            self.conjugationMode    = False
+        mode = self.search_mode_combo.itemData(search_mode_combo_index)
+        if mode == "word":
+            self.manual_search_mode = ManualSearchModes.WORD
         elif mode == "conjugation":
-            self.conjugationMode    = True
-        elif mode == "word":
-            self.manualSearchMode   = "word"
-            self.conjugationMode    = False
+            self.manual_search_mode = ManualSearchModes.CONJUGATION
+        elif mode == "sentence":
+            self.manual_search_mode = ManualSearchModes.PHRASE
     
-    def __toggleSaveBtnEnabled(self) -> None:
-        """Toggle the save button on/off. Should be off by default, and should be enabled after the user has done a 
-        search.
+    def _toggle_savebutton_enabled(self) -> None:
+        """Toggle the save button on/off.
         """
-        if self.displayingSavable is True:
-            self.saveWord.setEnabled(True)
+        if self.displaying_savable_item is True:
+            self.save_word.setEnabled(True)
         else:
-            self.saveWord.setEnabled(False)
+            self.save_word.setEnabled(False)
             
     # ★ THEME ★・・・・・・★・・・・・・★ THEME ★・・・・・・★・・・・・・★ THEME ★・・・・・・★・・・・・・★ THEME ★・・・・・・★
     
-    def __toggleColourMode(self) -> None:
-        """Toggle dark/light modes.
+    def _apply_colour_mode(self):
+        """Apply the current colour mode. The HTML display is updated to reflect the colour mode. The language label
+        is refreshed because the emojis get crusty and weird when the colour mode changes.
+        # TODO - Fix the emoji issue, they're still crusty.
         """
-        if self.colourMode == "light":
-            self.__activateDarkmode()
-        else:
-            self.__activateLightmode()
-        self.__updateHtmlDisplay()
-        self.__updateLangLabel(self.currentLanguage)
+        if self.colour_mode.value == "light":
+            self._activate_dark_mode()
+        elif self.colour_mode.value == "dark":
+            self._activate_light_mode()
+        self._update_html_display()
+        self._update_language_label(self.selected_search_language)
     
-    def __activateDarkmode(self) -> None:
-        """Apply dark mode.
+    def _toggle_colour_mode(self) -> None:
+        """Toggle dark/light modes. The HTML display is updated to reflect the new colour mode. The HTML display is 
+        updated to reflect the colour mode. The language label is refreshed because the emojis get crusty and weird 
+        when the colour mode changes.
+        # TODO - Fix the emoji issue, they're still crusty.
+        """
+        if self.colour_mode.value == "light":
+            self._activate_dark_mode()
+        elif self.colour_mode.value == "dark":
+            self._activate_light_mode()
+        self._update_html_display()
+        self._update_language_label(self.selected_search_language)
+    
+    def _activate_dark_mode(self) -> None:
+        """Apply dark mode. The stylesheet is updated to reflect the new colour mode. The border colours and general
+        styling are updated because they differ between modes and are specific changes added on top of the stylesheet. 
         """
         stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
-        self.mainWindow.setStyleSheet(stylesheet) # type: ignore
-        self.colourMode = "dark"
-        self.__reapplyBorderColours()
-        self.__applyStyleEditsDark()
-        self.colourModeBtn.setText("Light Mode")
+        self.main_window.setStyleSheet(stylesheet) # type: ignore
+        self.colour_mode = ColourModes.DARK
+        self._reapply_border_colours()
+        self._apply_style_edits_dark()
+        self.colour_mode_button.setText("Light Mode")
     
-    def __activateLightmode(self) -> None:
-        """Apply light mode.
+    def _activate_light_mode(self) -> None:
+        """Apply light mode. The stylesheet is updated to reflect the new colour mode. The border colours and general
+        styling are updated because they differ between modes and are specific changes added on top of the stylesheet. 
         """
         stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
-        self.mainWindow.setStyleSheet(stylesheet) # type: ignore
-        self.colourMode = "light"
-        self.__reapplyBorderColours()
-        self.__applyStyleEditsLight()
-        self.colourModeBtn.setText("Dark Mode")
+        self.main_window.setStyleSheet(stylesheet) # type: ignore
+        self.colour_mode = ColourModes.LIGHT
+        self._reapply_border_colours()
+        self._apply_style_edits_light()
+        self.colour_mode_button.setText("Dark Mode")
     
-    def __reapplyBorderColours(self) -> None:
+    def _reapply_border_colours(self) -> None:
         """When the theme changes, the colours of the border frames reset. These colours need to be reapplied.
         """
-        if self.colourMode == "dark":
-            self.sidebarFrame.setStyleSheet     ("QFrame {border: 1px solid dimgrey;}")
-            self.searchInputFrame.setStyleSheet ("QFrame {border: 1px solid dimgrey;}")
-            self.outputFrame.setStyleSheet      ("QFrame {border: 1px solid dimgrey;margin-top: 5px;}")
+        if self.colour_mode.value == "dark":
+            self.sidebar_frame.setStyleSheet     ("QFrame {border: 1px solid dimgrey;}")
+            self.search_input_frame.setStyleSheet ("QFrame {border: 1px solid dimgrey;}")
+            self.output_frame.setStyleSheet      ("QFrame {border: 1px solid dimgrey;margin-top: 5px;}")
         else:
-            self.sidebarFrame.setStyleSheet     ("QFrame {border: 1px solid lightgrey;}")
-            self.searchInputFrame.setStyleSheet ("QFrame {border: 1px solid lightgrey;}")
-            self.outputFrame.setStyleSheet      ("QFrame {border: 1px solid lightgrey;margin-top: 5px;}")
+            self.sidebar_frame.setStyleSheet     ("QFrame {border: 1px solid lightgrey;}")
+            self.search_input_frame.setStyleSheet ("QFrame {border: 1px solid lightgrey;}")
+            self.output_frame.setStyleSheet      ("QFrame {border: 1px solid lightgrey;margin-top: 5px;}")
     
-    def __applyStyleEditsLight(self) -> None:
-        """Styling changes (border radius, colours, etc.) applied to the current theme library.
+    def _apply_style_edits_light(self) -> None:
+        """Styling changes (border radius, colours, etc.) applied on top of the current theme.
         """
-        self.sidebarFrame.setStyleSheet(LIGHT_HTML[0])
-        self.searchInputFrame.setStyleSheet(LIGHT_HTML[1])
-        self.outputFrame.setStyleSheet(LIGHT_HTML[2])
+        self.sidebar_frame.setStyleSheet(LIGHT_HTML[0])
+        self.search_input_frame.setStyleSheet(LIGHT_HTML[1])
+        self.output_frame.setStyleSheet(LIGHT_HTML[2])
         
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollAreaLayout.setObjectName("scrollAreaLayout")
-        self.scrollAreaWidgetContents.setStyleSheet(LIGHT_HTML[3])
+        self.scroll_area_widget_contents.setObjectName("scrollAreaWidgetContents")
+        self.acroll_area_layout.setObjectName("scrollAreaLayout")
+        self.scroll_area_widget_contents.setStyleSheet(LIGHT_HTML[3])
         
-        self.searchInputEdit.setStyleSheet(LIGHT_HTML[4])
-        self.mainFrame.setStyleSheet(LIGHT_HTML[5])
-        self.saveWord.setStyleSheet(LIGHT_HTML[6])
+        self.search_input_field.setStyleSheet(LIGHT_HTML[4])
+        self.main_frame.setStyleSheet(LIGHT_HTML[5])
+        self.save_word.setStyleSheet(LIGHT_HTML[6])
         
-    def __applyStyleEditsDark(self) -> None:
-        """Styling changes (border radius, colours, etc.) applied to the current theme library.
+    def _apply_style_edits_dark(self) -> None:
+        """Styling changes (border radius, colours, etc.) applied on top of the current theme.
         """
-        self.sidebarFrame.setStyleSheet(DARK_HTML[0])
-        self.searchInputFrame.setStyleSheet(DARK_HTML[1])
-        self.outputFrame.setStyleSheet(DARK_HTML[2])  
+        self.sidebar_frame.setStyleSheet(DARK_HTML[0])
+        self.search_input_frame.setStyleSheet(DARK_HTML[1])
+        self.output_frame.setStyleSheet(DARK_HTML[2])  
         
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollAreaLayout.setObjectName("scrollAreaLayout")
-        self.scrollAreaWidgetContents.setStyleSheet(DARK_HTML[3])   
+        self.scroll_area_widget_contents.setObjectName("scrollAreaWidgetContents")
+        self.acroll_area_layout.setObjectName("scrollAreaLayout")
+        self.scroll_area_widget_contents.setStyleSheet(DARK_HTML[3])   
         
-        self.searchInputEdit.setStyleSheet(DARK_HTML[4])  
-        self.mainFrame.setStyleSheet(DARK_HTML[5])
-        self.saveWord.setStyleSheet(DARK_HTML[6])
+        self.search_input_field.setStyleSheet(DARK_HTML[4])  
+        self.main_frame.setStyleSheet(DARK_HTML[5])
+        self.save_word.setStyleSheet(DARK_HTML[6])
 
-    # ★ WIKI ★・・・・・・★・・・・・・★ WIKI ★・・・・・・★・・・・・・★ WIKI ★・・・・・・★・・・・・・★ WIKI ★・・・・・・★・・
+    # ★ AUTO ANKI ★・・・・・・★・・・・・・★ AUTO ANKI ★・・・・・・★・・・・・・★ AUTO ANKI ★・・・・・・★・・・・・・★ AUTO 
     
-    def makeCards(self, deckName: str, messageQueue, savePth: str) -> None:
+    def make_cards(self, deckName: str, messageQueue, savePth: str) -> None:
         """Make Anki cards from the user-selected text file.
         
         Arguments:
-            deckName -- Name used in the Anki input field and used to name the output file
-            messageQueue -- Message queue used to report progress to the user
-            savePth -- Path for the output file
+            deckName: Name used in the Anki input field and used to name the output file
+            messageQueue: Message queue used to report progress to the user
+            savePth: Path for the output file
         """
-        make_cards(self.currentInputFilePath, self.currentLanguage, deckName, messageQueue, savePth)
+        make_cards(self.notes_input_filepath, self.selected_search_language, deckName, messageQueue, savePth)
     
-    def _manualWiktionarySearch(self) -> None:
-        """Search Wiktionary for a word, phrase, or conjugation table.
-        """
-        input_text = self.searchInputEdit.toPlainText()
-        input_text = input_text.strip()
+    # ★ MANUAL SEARCH ★・・・・・・★・・・・・・★ MANUAL SEARCH ★・・・・・・★・・・・・・★ MANUAL SEARCH ★・・・・・・★・・・・ 
+    
+    def _manual_wiktionary_search(self) -> None:
+        """Search Wiktionary for a word, phrase, or conjugation table. Three types of searches can be done: word,
+        conjugation, or phrase. The search type is determined by the combo box. This search type is then converted
+        to a more specific search type that considers whether the user wants to search for not only a conjugation
+        (if they are searching for a conjugation), but a combination of the two. These definitions are then cleaned
+        to remove visually confusing elements, and the HTML is then finally constructed according to the colour mode.
+        This completed HTML string is then sent to the HTML display and viewed by the user. 
         
-        if self.conjugationMode == True and self.defInConj == "True":
+        The unwrapped HTML is stored in a temp variable, so that if the user changes colour mode while viewing the
+        result, the header and footer can be added to the retrieved HTML according to colour mode.
+        
+        Calling this function enables the save button, which allows the user to save the current search to the sidebar.
+        """        
+        selected_search_language = self.selected_search_language
+        search_string = self.search_input_field.toPlainText()
+        search_string = search_string.strip()
+        search_tokens = tuple(search_string.split())
+        search_type = self._get_search_term()
+        etymology_flag = self.get_etymology_flag
+        get_usage_flag = self.get_usage_flag
+        
+        manual_search_item = ManualSearchItem(selected_search_language, search_tokens, search_type, etymology_flag,
+            get_usage_flag)
+        
+        manual_search_item, search_successful = self._construct_unwrapped_html(manual_search_item)
+        if not search_successful:
+            unwrapped_html = "<h3>Search failed</h3>"
+        else:
+            unwrapped_html = manual_search_item.unwrapped_html_construct
+        
+        self.most_recent_search_item = manual_search_item
+        self.current_unwrapped_html = unwrapped_html
+        self._update_html_display()
+        self.displaying_savable_item = True
+        self._toggle_savebutton_enabled()
+
+    def _get_search_term(self) -> SearchType:
+        """Convert the combo box's search mode to a more specific search type that considers whether the user
+        wants to search for not only a conjugation, but a combination of the two.
+
+        Returns:
+            SearchType used to determine the type of search to be performed by the API call.
+        """
+        if self.manual_search_mode == ManualSearchModes.CONJUGATION and self.display_definitions_with_conjugations:
             search_type = SearchType.WORD_CONJ_COMBO
-        elif self.conjugationMode == True:
+        elif self.manual_search_mode == ManualSearchModes.CONJUGATION:
             search_type = SearchType.CONJUGATION
-        elif self.manualSearchMode == "word":
+        elif self.manual_search_mode == ManualSearchModes.WORD:
             search_type = SearchType.WORD
         else:
             search_type = SearchType.PHRASE
+        return search_type
+
+    def _construct_unwrapped_html(self, manual_search_item: ManualSearchItem) -> Tuple[ManualSearchItem, bool]:
+        """Wrapper function to construct the HTML that will be displayed to the user. The HTML is constructed 
+        differently depending on the type of search.
+
+        Arguments:
+            manual_search_item: ManualSearchItem object containing the search term and all other information gathered.
+
+        Returns:
+            ManualSearchItem: Object containing all relevant information about the completed search. 
+            bool - Whether the search was successful.
+        """
+        if manual_search_item.search_type.name == "WORD":
+            manual_search_item, search_successful = self._manual_word_search(manual_search_item)
         
-        search_terms = input_text.split()
+        elif (manual_search_item.search_type.name == "CONJUGATION" or 
+                manual_search_item.search_type.name == "WORD_CONJ_COMBO"):            
+            manual_search_item, search_successful = self._manual_conjugation_search(manual_search_item)
+
+        else: # Phrase search/catchall
+            manual_search_item, search_successful = self._manual_phrase_search(manual_search_item)
         
-        db_entry_id = self.manual_searches_db.init_new_item(self.currentLanguage, input_text, search_type)
+        return manual_search_item, search_successful
+
+    def _manual_word_search(self, manual_search_item: ManualSearchItem) -> Tuple[ManualSearchItem, bool]:
+        """Search Wiktionary for a word. If the search is successful, the HTML is constructed (without the header and 
+        footer) and added to the ManualSearchItem object. The HTML is stored in the unwrapped_html_construct attribute,
+        which does not contain the HTML header and footer, which is later added according to the colour mode.
+
+        Arguments:
+            manual_search_item: ManualSearchItem object containing the search term and all other information gathered.
+
+        Returns:
+            ManualSearchItem: Object containing all relevant information about the completed search. 
+            bool - Whether the search was successful.
+        """
+        unwrapped_html_construct = ""
+        for token_i, search_token in enumerate(manual_search_item.search_tokens):
+            
+            definitions_data = get_definitions(search_token, manual_search_item.search_language, 
+                manual_search_item.etymology_flag, manual_search_item.usage_notes_flag)       
+            if definitions_data == None:
+                return manual_search_item, False
+            
+            if token_i > 0:
+                unwrapped_html_construct += "<hr>"
+            unwrapped_html_construct += construct_mansearch_defs(definitions_data, search_token)
         
-        if search_type.name == "WORD":
-            defs_construct = ""
-            for search_term in search_terms:
-                definitions_data = get_definitions(search_term, self.currentLanguage, self.getEtymology, self.getUsage)
-                self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
-                defs_construct += construct_mansearch_defs(definitions_data, search_term)
-            self.manual_searches_db.items[db_entry_id].add_unwrapped_html(defs_construct)
-            unwrapped_html_construct = construct_html(defs_construct, self.colourMode, search_type)
-            
-        elif search_type.name == "CONJUGATION" or search_type.name == "WORD_CONJ_COMBO":
-            definitions_data = {}
-            table_data = get_conjugation_table(input_text, self.currentLanguage)           
-            self.manual_searches_db.items[db_entry_id].add_raw_table(table_data)
-            
-            if search_type.name == "WORD_CONJ_COMBO":
-                definitions_data = get_definitions(input_text, self.currentLanguage, self.getEtymology, self.getUsage)
-                self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
-            
-            unwrapped_html_construct = construct_conj_table(table_data, input_text, search_type, definitions_data)
-        
-        else:  # Phrase search
-            definitions_data = get_definitions(search_terms, self.currentLanguage, self.getEtymology, self.getUsage)
-            self.manual_searches_db.items[db_entry_id].add_raw_defs(definitions_data)
-            defs_construct = construct_mansearch_defs(definitions_data, search_terms[0])
-            unwrapped_html_construct = construct_html(defs_construct, self.colourMode, search_type)
-            
-        # Update class variables
-        self.current_unwrapped_html = unwrapped_html_construct
-        self.__updateHtmlDisplay()
-        self.__toggleSaveBtnEnabled()
-        self.displayingSavable = True
-        return
+        manual_search_item.add_unwrapped_html(unwrapped_html_construct)
+        return manual_search_item, True
     
-    def __updateHtmlDisplay(self) -> None:
+    def _manual_conjugation_search(self, manual_search_item: ManualSearchItem) -> Tuple[ManualSearchItem, bool]:
+        """Search Wiktionary for a conjugation table. If the user has selected to display definitions with the
+        conjugation table, the definitions are also retrieved and added to the ManualSearchItem object.
+
+        Arguments:
+            manual_search_item: ManualSearchItem object containing the search term and all other information gathered.
+
+        Returns:
+            ManualSearchItem: Object containing all relevant information about the completed search. 
+            bool - Whether the search was successful.
+        """
+        table_data = get_conjugation_table(manual_search_item.search_tokens[0], manual_search_item.search_language) 
+        if table_data == None:
+            return manual_search_item, False
+        manual_search_item.add_raw_table(table_data)
+        
+        if manual_search_item.search_type.name == "WORD_CONJ_COMBO":
+            definitions_data = get_definitions(manual_search_item.search_tokens[0], manual_search_item.search_language,
+                manual_search_item.etymology_flag, manual_search_item.usage_notes_flag)
+            if definitions_data == None:
+                return manual_search_item, False
+            manual_search_item.add_raw_defs(definitions_data)
+        else:
+            manual_search_item.add_raw_defs(ItemDefinitions())
+        
+        unwrapped_html = construct_conj_table_html(manual_search_item.raw_html_table, 
+            manual_search_item.search_tokens[0], manual_search_item.search_type, manual_search_item.raw_definitions)
+        manual_search_item.add_unwrapped_html(unwrapped_html)
+        
+        return manual_search_item, True
+    
+    def _manual_phrase_search(self, manual_search_item: ManualSearchItem) -> Tuple[ManualSearchItem, bool]:
+        """Search Wiktionary for a phrase. If the search is successful, the HTML is constructed (without the header and
+        footer) and added to the ManualSearchItem object. The HTML is stored in the unwrapped_html_construct attribute,
+        which does not contain the HTML header and footer, which is later added according to the colour mode.
+
+        Arguments:
+            manual_search_item: ManualSearchItem object containing the search term and all other information gathered.
+
+        Returns:
+            ManualSearchItem: Object containing all relevant information about the completed search. 
+            bool - Whether the search was successful.
+        """
+        definitions_data = get_definitions(manual_search_item.search_tokens[0], manual_search_item.search_language, 
+            manual_search_item.etymology_flag, manual_search_item.usage_notes_flag)
+        if definitions_data == None:
+                return manual_search_item, False
+        manual_search_item.add_raw_defs(definitions_data)
+        
+        unwrapped_html_construct = construct_mansearch_defs(manual_search_item.raw_definitions, 
+            manual_search_item.search_tokens[0])
+        manual_search_item.add_unwrapped_html(unwrapped_html_construct)
+        
+        return manual_search_item, True
+    
+    def _update_html_display(self) -> None:
         """Update the search display.
         """
-        constructed_html = construct_html(self.current_unwrapped_html, self.colourMode)
-        self.searchOutputBrowser.setHtml(constructed_html)
+        constructed_html = wrap_html(self.current_unwrapped_html, self.colour_mode.value)
+        self.search_html_browser.setHtml(constructed_html)
     
-    # ★ SAVE LOAD TOKEN ★・・・・・・★・・・・・・★ SAVE LOAD TOKEN ★・・・・・・★・・・・・・★ SAVE LOAD TOKEN ★・・・・・・★
+    # ★ SAVE SIDEBAR ITEM ★・・・・・・★・・・・・・★ DELETE SIDEBAR ITEM ★・・・・・・★・・・・・・★ LOAD SIDEBAR ITEM ★・・・
 
-    def __saveToken(self) -> None:
+    def _save_to_sidebar(self) -> None:
         """Saves a word to the sidebar. Saved words are associated with a language so that only words for the current
         language are displayed. Words are saved to a file (one file per language), and the sidebar is populated 
         with buttons that load the saved words.
         """
         # Save the word content and associate with a unique ID
-        unique_id = str(uuid.uuid1(node=None, clock_seq=None))
-        self.savedSidebarWords[self.currentLanguage][unique_id] = self.htmlContentText
+        sidebar_item_uid = self.most_recent_search_item.uid
+        self.saved_sidebar_items[self.selected_search_language][sidebar_item_uid] = (
+            self.most_recent_search_item.unwrapped_html_construct)
+        button_header = self.most_recent_search_item.search_tokens[0]
         
-        if self.conjugationMode:
-            # Shorten word used for the display
-            if len(word) > 9:
-                word = word[:7] + ".."
-            # Create a new button for the sidebar
-            newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            number = len(self.savedSidebarWords[self.currentLanguage])
-            newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word}")
+        # Shorten word used for the display
+        if len(button_header) > 9:
+            button_header = button_header[:7] + ".."
         
-        else:            
-            # Shorten word used for the display
-            if len(word) > 9:
-                    word = word[:7] + ".."
-            # Create a new button for the sidebar.
-            newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-            number = len(self.savedSidebarWords[self.currentLanguage])
-            newWordBtn.setObjectName(f"sideButton{unique_id}")
-            self.scrollAreaLayout.addWidget(newWordBtn, 7+number, 0, 1, 1)
-            newWordBtn.setText(f"{word}")
-            
-        newWordBtn.clicked.connect(lambda: self.__renderSavedToken(
-            self.savedSidebarWords[self.currentLanguage][unique_id]))
+        # Create a new button for the sidebar
+        newWordBtn = QtWidgets.QPushButton(self.sidebar_inner_top_frame)
+        number     = len(self.saved_sidebar_items[self.selected_search_language])
+        newWordBtn.setObjectName(f"sideButton{sidebar_item_uid}")
+        self.acroll_area_layout.addWidget(newWordBtn, 7+number, 0, 1, 1)
+        newWordBtn.setText(f"{button_header}")
+        
+        newWordBtn.clicked.connect(lambda: self._render_sidebar_item(
+            self.saved_sidebar_items[self.selected_search_language][sidebar_item_uid]))
+        
         # Create remove button
-        newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        newWordBtnRmv.setObjectName(f"sideButtonRmv{unique_id}")
-        self.scrollAreaLayout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
+        newWordBtnRmv = QtWidgets.QPushButton(self.sidebar_inner_top_frame)
+        newWordBtnRmv.setObjectName(f"sideButtonRmv{sidebar_item_uid}")
+        self.acroll_area_layout.addWidget(newWordBtnRmv, 7+number, 1, 1, 1)
         newWordBtnRmv.setText("-")
-        newWordBtnRmv.clicked.connect(lambda: self.__deleteSavedToken(unique_id))
+        newWordBtnRmv.clicked.connect(lambda: self._delete_sidebar_item(sidebar_item_uid))
+        
         # Save word content to file (just the HTML content, not the formatted HTML string used for display)
-        unencodedEntry = self.htmlContentText + SAVEFILE_SEPERATOR
-        encodedEntry = encode_single_entry(unencodedEntry).decode("utf-8")
-        with open(f"{LANG_CODE_REF[self.currentLanguage]}-sf.dat", "a", encoding="utf-8") as f:
-            f.write(encodedEntry)
-            f.close()
+        self.displaying_savable_item = False
+        self._toggle_savebutton_enabled()
+        self._update_sidebar_savefile()
     
-    def __getTokenData(self) -> EncodedSavefilesContent:
+    def _get_saved_items_data(self) -> EncodedSavefilesContent:
         """Get the encoded save-content.
         
         Returns:
             Encoded save-content.
         """
         temp_savefiles_content = {}
-        for language in self.savedSidebarWords.keys():
+        for language in self.saved_sidebar_items.keys():
             with open(f"{LANG_CODE_REF[language]}-sf.dat", "r", encoding="utf-8") as f:
                 savefile_content = f.read()
                 f.close()
@@ -500,11 +629,11 @@ class MainWindowGui(QWidget):
         
         return EncodedSavefilesContent(**temp_savefiles_content)
     
-    def __parseTokenData(self, encodedRawContent: EncodedSavefilesContent) -> SavedSidebarItems:
+    def _parse_saved_items_data(self, encodedRawContent: EncodedSavefilesContent) -> SavedSidebarItems:
         """Parse the saved words file and return a list of words.
         
         Arguments:
-            encodedRawContent -- Encoded save-content.
+            encodedRawContent: Encoded save-content.
             
         Returns:
             Dictionary of saved words.
@@ -513,172 +642,199 @@ class MainWindowGui(QWidget):
         
         for language, savedContent in asdict(unencodedRawSaveContent).items():
             savedItems = savedContent.split(SAVEFILE_SEPERATOR)
-            # Remove the last entry (it is empty).
-            savedItems.pop()
-            # Save the retrieved words to the class variable.
+            savedItems.pop() # Remove the last entry (it is empty).
+            
             for item in savedItems:
                 uniqueId = str(uuid.uuid1(node=None, clock_seq=None))
-                self.savedSidebarWords[language][uniqueId] = item
+                self.saved_sidebar_items[language][uniqueId] = item
             
-        return self.savedSidebarWords
+        return self.saved_sidebar_items
     
-    def __constructSavedToken(self, id_word_pair: tuple, count) -> None:
+    def _construct_sidebar_item_data(self, id_word_pair: tuple, count) -> None:
         """Generate the saved words buttons for the sidebar.
         
         Arguments:
-            id_word_pair -- Tuple containing unique ID and word content.
-            count -- Number of words already saved.
+            id_word_pair: Tuple containing unique ID and word content.
+            count: Number of words already saved.
         """
-        # Create a new button for the sidebar.
-        newWordBtn = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        newWordBtn.setObjectName(f"sideButton{id_word_pair[0]}")
-        self.scrollAreaLayout.addWidget(newWordBtn, 8+count, 0, 1, 1)
+        if id_word_pair[1] == "":
+            return
         
-        # Create remove button
-        newWordBtnRmv = QtWidgets.QPushButton(self.sidebarInnerTopFrame)
-        newWordBtnRmv.setObjectName(f"sideButtonRmv{id_word_pair[0]}")
-        self.scrollAreaLayout.addWidget(newWordBtnRmv, 8+count, 1, 1, 1)
-        newWordBtnRmv.setText("-")
-        newWordBtnRmv.setMaximumSize(QtCore.QSize(25, 16777215))
-        newWordBtnRmv.clicked.connect(lambda: self.__deleteSavedToken(id_word_pair[0]))
-        
-        # Regex expression that finds the first header in the string and extracts the word.
-        match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
-        
-        # Get the word, needed for the button
-        if match != None:
-            word = match.group(1)
-            if len(word) > 9:
-                    word = word[:7] + ".."     
-            newWordBtn.setText(f"{word}")
-            
-            # Determine if it's a conjugation table.
-            if "<table" in id_word_pair[1]:
-                if len(word) > 9:
-                    word = word[:7] + ".."
-                newWordBtn.setText(f"{word}") 
-        
-        # Dynamically connect button to function.
-        newWordBtn.clicked.connect(
-            lambda: self.__renderSavedToken(
-                self.savedSidebarWords[self.currentLanguage][id_word_pair[0]]
-                )
-            )
-    
-    def __renderSavedToken(self, content: str) -> None:
-        """Load a saved word into the front-end output.
+        # Create a new button for the sidebar
+        new_sidebar_button = QtWidgets.QPushButton(self.sidebar_inner_top_frame)
+        new_sidebar_button.setObjectName(f"sideButton{id_word_pair[0]}")
+        self.acroll_area_layout.addWidget(new_sidebar_button, 8+count, 0, 1, 1)
 
-        Parameters
-        ----------
-        content : str
-            The content of the saved word. HTML formatted, but lacks header and footer information. This is intentional
-            because header content is specific to the currently applied colour mode.
+        # Create remove button
+        new_sidebar_removal_button = QtWidgets.QPushButton(self.sidebar_inner_top_frame)
+        new_sidebar_removal_button.setObjectName(f"sideButtonRmv{id_word_pair[0]}")
+        self.acroll_area_layout.addWidget(new_sidebar_removal_button, 8+count, 1, 1, 1)
+        new_sidebar_removal_button.setText("-")
+        new_sidebar_removal_button.setMaximumSize(QtCore.QSize(25, 16777215))
+        new_sidebar_removal_button.clicked.connect(lambda: self._delete_sidebar_item(id_word_pair[0]))
+
+        # Finds the first header in the string and extracts the word
+        header_match = re.search(r"<h3>(\w+)</h3>", id_word_pair[1])
+
+        # Get the word, needed for the button
+        if header_match == None:
+            return        
+        header = header_match.group(1)
+        
+        # Shorten the header if it is too long
+        if len(header) > 9:
+            header = header[:7] + ".."     
+        new_sidebar_button.setText(f"{header}")
+
+        # Determine if it's a conjugation table
+        if "<table" in id_word_pair[1]:
+            if len(header) > 9:
+                header = header[:7] + ".."
+            new_sidebar_button.setText(f"{header}") 
+
+        # Dynamically connect button to function
+        new_sidebar_button.clicked.connect(
+            lambda: self._render_sidebar_item(
+                self.saved_sidebar_items[self.selected_search_language][id_word_pair[0]]
+            )
+        )
+    
+    def _render_sidebar_item(self, content: str) -> None:
+        """Render a sidebar item when the user clicks on a sidebar button.
+
+        Arguments:
+            content: HTML content to be rendered.
         """
         self.current_unwrapped_html = content
-        self.__updateHtmlDisplay()
+        self.displaying_savable_item = False
+        self._toggle_savebutton_enabled()
+        self._update_html_display()
     
-    def __deleteSavedToken(self, unique_id: str) -> None:
-        """Remove a saved word by deleting its save-file content, session-variable entry, and sidebar buttons.
+    def _load_buttons(self) -> None:
+        """Load the saved words buttons for the sidebar.
+        """
+        for count, id_word_pair in enumerate(self.saved_sidebar_items[self.selected_search_language].items()):
+            self._construct_sidebar_item_data(id_word_pair, count)
+    
+    def _delete_sidebar_item(self, unique_id: str) -> None:
+        """Remove a saved word by deleting its save-file content, temp dictionary entry, and sidebar buttons.
         
         Arguments:
-            unique_id -- _description_
+            unique_id: Unique ID of the word to be deleted, which is linked to its sidebar buttons.
         """
         # Remove the button.
-        word_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButton{unique_id}")
-        remove_btn = self.sidebarInnerTopFrame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{unique_id}")
-        self.scrollAreaLayout.removeWidget(word_btn)
-        self.scrollAreaLayout.removeWidget(remove_btn)
+        item_button   = self.sidebar_inner_top_frame.findChild(QtWidgets.QPushButton, f"sideButton{unique_id}")
+        remove_button = self.sidebar_inner_top_frame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{unique_id}")
+        self.acroll_area_layout.removeWidget(item_button)
+        self.acroll_area_layout.removeWidget(remove_button)
 
-        # Remove the word from the dict.
-        print(f"Deleting saved word at key {unique_id}")
-        self.savedSidebarWords[self.currentLanguage].pop(unique_id)
-        # Update the saved words file.
-        self.__updateTokenFile()
+        # Remove the word from the dict
+        self.saved_sidebar_items[self.selected_search_language].pop(unique_id)
+        self._update_sidebar_savefile()
+        # Reload buttons to reorder GUI placement indices # ! this is crusty as, pls fix
+        self.change_language(self.selected_search_language)
+        
+    def _remove_buttons(self) -> None:
+        """Remove all sidebar buttons. Used to clear the sidebar when the user changes the search language before new
+        buttons are rendered.
+        """
+        for uid in self.saved_sidebar_items[self.selected_search_language].keys():
+            word_btn   = self.sidebar_inner_top_frame.findChild(QtWidgets.QPushButton, f"sideButton{uid}")
+            remove_btn = self.sidebar_inner_top_frame.findChild(QtWidgets.QPushButton, f"sideButtonRmv{uid}")
+            self.acroll_area_layout.removeWidget(word_btn)
+            self.acroll_area_layout.removeWidget(remove_btn)
+            word_btn.setParent(None)
+            remove_btn.setParent(None)
     
-    def __updateTokenFile(self) -> None:
+    def _update_sidebar_savefile(self) -> None:
         """Update the saved items file with the session's saved words. Can be used to lazily update the file after
         deleting an item.
         """
-        with open(f"{LANG_CODE_REF[self.currentLanguage]}-sf.dat", "w", encoding="utf-8") as f:
-            for content in self.savedSidebarWords[self.currentLanguage].values():
-                encodedSaveItem = encode_single_entry(content + SAVEFILE_SEPERATOR).decode("utf-8")
-                f.write(encodedSaveItem)
+        current_lang = self.selected_search_language
+        temp_unwrapped_html_d = {}
+        for language in self.saved_sidebar_items.keys():
+            temp_unwrapped_html = ""
+            for unwrapped_html in self.saved_sidebar_items[language].values():
+                temp_unwrapped_html += unwrapped_html + SAVEFILE_SEPERATOR
+            temp_unwrapped_html_d[language] = temp_unwrapped_html
+        
+        unencoded_save_data = UnencodedSavefilesContent(**temp_unwrapped_html_d)
+        encoded_save_data = encode_savefiles_content(unencoded_save_data)
+        
+        with open(f"{LANG_CODE_REF[self.selected_search_language]}-sf.dat", "w", encoding="utf-8") as f:
+            f.write(asdict(encoded_save_data)[current_lang].decode("utf-8"))
             f.close()
     
     # ★ SPAWN DIALOGS ★・・・・・・★・・・・・・★ SPAWN DIALOGS ★・・・・・・★・・・・・・★ SPAWN DIALOGS ★・・・・・・★・・・・
     
-    def __spawnSettingsDialog(self) -> None:
+    def _spawn_settings_dialog(self) -> None:
         """Bring up the settings dialog.
         """
-        self.settingsDlg = QtWidgets.QDialog()
-        self.UISettings = GuiSettingsDialog(self)
-        self.UISettings.setupUi(self.settingsDlg)
-
-        # Colour mode styling
-        if self.colourMode == "dark":
-            self.settingsDlg.setStyleSheet(STYLESHEET_DRK)
-        else:
-            self.settingsDlg.setStyleSheet(STYLESHEET)
+        self.settings_dialog = QtWidgets.QDialog()
+        self.settings_gui = GuiSettingsDialog(self)
+        self.settings_gui.setupUi(self.settings_dialog)
         
-        self.settingsDlg.show()
+        if self.colour_mode.value == "dark":
+            self.settings_dialog.setStyleSheet(STYLESHEET_DRK)
+        else:
+            self.settings_dialog.setStyleSheet(STYLESHEET)
+        
+        self.settings_dialog.show()
 
-    def __spawnLanguageDialog(self) -> None:
+    def _spawn_language_dialog(self) -> None:
         """Bring up the language selector dialog.
         """
-        self.windowLangs = QtWidgets.QDialog()
-        self.UILangs = GuiChangeLangWindow(self)
-        self.UILangs.setupUi(self.windowLangs)
+        self.change_language_dialog = QtWidgets.QDialog()
+        self.change_language_gui = GuiChangeLangWindow(self)
+        self.change_language_gui.setupUi(self.change_language_dialog)
         
-        # Colour mode styling
-        if self.colourMode == "dark":
-            self.windowLangs.setStyleSheet(STYLESHEET_DRK)
+        if self.colour_mode.value == "dark":
+            self.change_language_dialog.setStyleSheet(STYLESHEET_DRK)
         else:
-            self.windowLangs.setStyleSheet(STYLESHEET)
+            self.change_language_dialog.setStyleSheet(STYLESHEET)
         
-        self.windowLangs.show()
+        # print(self.most_recent_search_item)
+        self.change_language_dialog.show()
         
     def __spawnContactDialog(self) -> None:
         """Bring up the contact dialog.
         """
-        self.windowContact = QtWidgets.QDialog()
-        self.UIContact = GuiContactDialog()
-        self.UIContact.setupUi(self.windowContact)
+        self.constact_dialog = QtWidgets.QDialog()
+        self.contact_gui = GuiContactDialog()
+        self.contact_gui.setupUi(self.constact_dialog)
         
-        # Colour mode styling
-        if self.colourMode == "dark":
-            self.windowContact.setStyleSheet(STYLESHEET_DRK)
+        if self.colour_mode.value == "dark":
+            self.constact_dialog.setStyleSheet(STYLESHEET_DRK)
         else:
-            self.windowContact.setStyleSheet(STYLESHEET)
+            self.constact_dialog.setStyleSheet(STYLESHEET)
         
-        self.windowContact.show()
+        self.constact_dialog.show()
         
     def __spawnAutoAnkiDialog(self) -> None:
         """Bring up the AutoAnki dialog.
         """
-        self.windowAa = QtWidgets.QDialog()
-        self.UIAa = GuiAA(self)
-        self.UIAa.setupUi(self.windowAa)
+        self.autoanki_dialog = QtWidgets.QDialog()
+        self.autoanki_gui = GuiAA(self)
+        self.autoanki_gui.setupUi(self.autoanki_dialog)
         
         # Colour mode styling
-        if self.colourMode == "dark":
-            self.windowAa.setStyleSheet(STYLESHEET_DRK)
+        if self.colour_mode.value == "dark":
+            self.autoanki_dialog.setStyleSheet(STYLESHEET_DRK)
         else:
-            self.windowAa.setStyleSheet(STYLESHEET)
+            self.autoanki_dialog.setStyleSheet(STYLESHEET)
         
-        self.windowAa.show()
+        self.autoanki_dialog.show()
         
-    def spawnTutorialDialog(self) -> None:
+    def spawn_tutorial_dialog(self) -> None:
         """Bring up the language selector dialog.
         """
-        if self.showTutorial == "True":
+        if self.show_tutorial_on_startup == True:
             self.windowTute = QtWidgets.QDialog()
             self.UITute = TutorialDialog(self)
             self.UITute.setupUi(self.windowTute)
             self.windowTute.show()
-        else:
-            pass
     
-    def addUserFile(self) -> None:
+    def add_user_file(self) -> None:
         """Opens a file explorer and saves the user's file.
         """
         dlg = QtWidgets.QFileDialog()
@@ -686,9 +842,8 @@ class MainWindowGui(QWidget):
         
         if dlg.exec_():
             filenames = dlg.selectedFiles()
-            self.currentInputFilePath = filenames[0]
-            
+            self.notes_input_filepath = filenames[0]
             f = open(filenames[0], 'r', encoding="utf-8")
             with f:
                 data = f.read()
-                self.selectedFileContent = data
+                self.notes_file_content = data

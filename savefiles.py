@@ -1,6 +1,6 @@
 from base64         import (b64encode, b64decode)
 from dataclasses    import (dataclass, asdict)
-
+from enum           import Enum
 
 IMPLEMENTED_LANGUAGES = ["English", "French", "German", "Latin", "Spanish"]
 
@@ -9,22 +9,22 @@ IMPLEMENTED_LANGUAGES = ["English", "French", "German", "Latin", "Spanish"]
 class EncodedSavefilesContent:
     """A string encoded with base64 holding the content of saved search terms.
     """
-    English : bytes
-    French  : bytes
-    German  : bytes
-    Latin   : bytes
-    Spanish : bytes
+    English: bytes
+    French : bytes
+    German : bytes
+    Latin  : bytes
+    Spanish: bytes
 
 
 @dataclass(frozen=True, order=True)
 class UnencodedSavefilesContent:
     """Unencoded strings holding the content of saved search terms, retrieved from their corresponding .dat file.
     """
-    English : str
-    French  : str
-    German  : str
-    Latin   : str
-    Spanish : str
+    English: str
+    French : str
+    German : str
+    Latin  : str
+    Spanish: str
 
 
 def encode_savefiles_content(unencoded_savefiles_content: UnencodedSavefilesContent) -> EncodedSavefilesContent:
@@ -39,8 +39,7 @@ def encode_savefiles_content(unencoded_savefiles_content: UnencodedSavefilesCont
     """
     temp_encoded_dict = {}
     for language, unencoded_content in asdict(unencoded_savefiles_content).items():
-        ascii_encoded_content = unencoded_content.encode("utf-8")
-        b64_encoded_content = b64encode(ascii_encoded_content)
+        b64_encoded_content         = b64encode(bytes(unencoded_content, "utf-8"))
         temp_encoded_dict[language] = b64_encoded_content
     
     return EncodedSavefilesContent(**temp_encoded_dict)   
@@ -57,8 +56,8 @@ def decode_savefiles_content(encoded_savefiles_content: EncodedSavefilesContent)
     """
     temp_unencoded_dict = {}
     for language, encoded_content in asdict(encoded_savefiles_content).items():
-        b64_decoded_content = b64decode(encoded_content)
-        ascii_decoded_content = b64_decoded_content.decode("utf-8")
+        b64_decoded_content           = b64decode(encoded_content)
+        ascii_decoded_content         = b64_decoded_content.decode("utf-8")
         temp_unencoded_dict[language] = ascii_decoded_content
     
     return UnencodedSavefilesContent(**temp_unencoded_dict)
@@ -73,6 +72,5 @@ def encode_single_entry(unencoded_entry: str) -> bytes:
     Returns:
         bytes: The encoded entry. Note that this is a bytes object, not a string.
     """
-    ascii_encoded_content = unencoded_entry.encode("utf-8")
-    b64_encoded_content = b64encode(ascii_encoded_content)
+    b64_encoded_content   = b64encode(bytes(unencoded_entry, "utf-8"))
     return b64_encoded_content

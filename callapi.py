@@ -7,27 +7,29 @@ import re
 import requests
 from typing import Union
 from manualsearchdb     import ItemDefinitions
+import time
 
 
 # Logger
-logger = logging.getLogger(__name__)
+logger    = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(f"{__name__}.log", mode='w')
+handler   = logging.FileHandler(f"{__name__}.log", mode = 'w')
 formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def get_conjugation_table(search_token: str, language: str) -> str:
+def get_conjugation_table(search_token: str, language: str) -> Union[str, None]:
     """Grab the conjugation table from Wiktionary. This is done by webscraping the page. Although the API does return
     conjugation tables, it would require rebuilding the HTML for the table, so scraping is easier.
 
     Arguments:
-        search_token -- The word to search for.
-        language -- Selected language.
+        search_token: The word to search for.
+        language: Selected search language.
 
     Returns:
-        HTML content of the conjugation table.
+        str: HTML content of the conjugation table.
+        None: If the conjugation table could not be found.
     """
     base_url = "https://en.wiktionary.org/wiki/"
     wik_url      = f"{base_url}{search_token}"
@@ -53,18 +55,18 @@ def get_conjugation_table(search_token: str, language: str) -> str:
             if table:
                 return str(table)
             else:
-                return "Could not find conjugation table."
+                return None # Could not find conjugation table
         else:
-            return "Could not find conjugation header"
+            return None # Could not find conjugation header
     else:
-        return "Language section not found."
+        return None # Language section not found
 
 
 def strip_bs4_links(html_content: str) -> str:
     """Remove links from the HTML content. This is done because links are visually messy and not needed.
 
     Arguments:
-        html_content -- HTML content to strip links from.
+        html_content: HTML content to strip links from.
 
     Returns:
         HTML content with links removed.
@@ -75,8 +77,8 @@ def strip_bs4_links(html_content: str) -> str:
     return str(soup)
 
 
-def get_definitions(search_token: str, language: str, get_etymology: str ="False", get_usage_notes: str ="False"
-                    ) -> ItemDefinitions:
+def get_definitions(search_token: str, language: str, etym_flag: bool=False, usage_flag: bool =False
+                    ) -> Union[ItemDefinitions, None]:
     """Get the definitions for a word from Wiktionary. Uses the WiktionaryParser library to get the definitions, but
     also manually calls the Wiktionary API to get the etymology and usage notes, as the WiktionaryParser library does 
     not support usage notes ಠ_ಠ.
@@ -88,36 +90,48 @@ def get_definitions(search_token: str, language: str, get_etymology: str ="False
     conditional.
     
     Arguments:
-        language -- Selected language.
-        search_token -- The word/phrase to search for.
+        language: Selected language.
+        search_token:  The word/phrase to search for.
 
     Keyword Arguments:
-        get_etymology -- Whether to access and save etymology. (default: {"False"})
-        get_usage_notes -- Whether to manually call the Wiktionary API and get usage notes. (default: {"False"})
+        get_etymology: Whether to access and save etymology. (default: {"False"})
+        get_usage_notes:  Whether to manually call the Wiktionary API and get usage notes. (default: {"False"})
 
     Returns:
-        Dictionary of definitions for the individual search-term. Keys represent grammar tags.
+        ItemDefinitions: Definitions for the individual search-term. Keys represent grammar tags.
+        None: If the search term could not be found.
     """
     parser = WiktionaryParser()
-    wik_parser_result = parser.fetch(search_token, language)
-    
+    # ! This seems to return definitions for words from similar languages, not just the selected language. 
+    # Example: sprak (Dutch) has no German definition, but the parser returns the Dutch definition when searching in
+    # the German language. Kind of cool, but might be confusing, as it is presented as if it is a valid German
+    # definition.
+    # TODO: Either disable this functionality, or add a disclaimer in the definition result that the 'related' 
+    # TODO: definition is not from the selected language. 
+    wik_parser_result = parser.fetch(search_token, language)   
+
     definitions = {
-        "noun"          : None,
-        "verb"          : None,
-        "adjective"     : None,
-        "adverb"        : None,
-        "pronoun"       : None,
-        "preposition"   : None,
-        "particle"      : None,
-        "conjunction"   : None,
-        "article"       : None,
-        "numeral"       : None,
-        "interjection"  : None,
-        "exclamation"   : None,
-        "determiner"    : None,
-        "etymology"     : None,
-        "usage"         : None
+        "noun"        : tuple(str()),
+        "verb"        : tuple(str()),
+        "adjective"   : tuple(str()),
+        "adverb"      : tuple(str()),
+        "pronoun"     : tuple(str()),
+        "preposition" : tuple(str()),
+        "particle"    : tuple(str()),
+        "conjunction" : tuple(str()),
+        "article"     : tuple(str()),
+        "numeral"     : tuple(str()),
+        "interjection": tuple(str()),
+        "exclamation" : tuple(str()),
+        "determiner"  : tuple(str()),
+        "etymology"   : tuple(str()),
+        "usage"       : tuple(str())    
     }
+    
+    if len(wik_parser_result) == 0:
+        return None
+    if len(wik_parser_result[0]["definitions"]) == 0:
+        return None
     
     for definition in wik_parser_result:
         for part_of_speech in definition["definitions"]:
@@ -148,27 +162,26 @@ def get_definitions(search_token: str, language: str, get_etymology: str ="False
             elif part_of_speech["partOfSpeech"] == "determiner":
                 definitions["determiner"]     = part_of_speech["text"]
         
-        if get_etymology == "True":
+        if etym_flag == True:
             if wik_parser_result[0]["etymology"] != "":
-                definitions["etymology"] = [wik_parser_result[0]["etymology"]]
+                definitions["etymology"] = (wik_parser_result[0]["etymology"],)
         
-        if get_usage_notes == "True":
-            page_content = call_api_raw(search_token)
-            if page_content is not None:
-                r_lang = re.escape("==" + language + "==")
-                try:
-                    lang_section = re.search(rf'{r_lang}\n(.*?)(?=\n==[^=]|$)', page_content, re.DOTALL)
-                    if lang_section is not None:
-                        lang_content = lang_section.group(1)
-                        usage_section = re.findall(r'===Usage notes===\n(.*?)(\n==|\n===|$|$)', lang_content, re.DOTALL)
-                        if not usage_section:
-                            usage_section = re.findall(r'====Usage notes====\n(.*?)(\n==|\n===|$)', lang_content, re.DOTALL)
-                        try:
-                            definitions["usage"] = usage_section[0]
-                        except:
-                            pass
-                except:
-                    logger.warning(f"Manual API call found nothing for search_token: {search_token}")
+        if usage_flag == True:
+            page_html = call_api_raw(search_token)
+            if page_html is None:
+                break
+            
+            language_header = re.escape("==" + language + "==")
+            language_section = re.search(rf'{language_header}\n(.*?)(?=\n==[^=]|$)', page_html, re.DOTALL)
+            if language_section is None:
+                break
+            
+            language_section_html = language_section.group(1)
+            language_section = re.findall(r'===Usage notes===\n(.*?)(\n==|\n===|$|$)', language_section_html, re.DOTALL)
+            if not language_section: # Because Wiktionary can be inconsistent, try another variation of the header
+                language_section = re.findall(r'====Usage notes====\n(.*?)(\n==|\n===|$)', language_section_html, re.DOTALL)
+            if language_section:
+                definitions["usage"] = language_section[0]
         
         item_definitions = ItemDefinitions(**definitions)
         return item_definitions
@@ -178,18 +191,19 @@ def call_api_raw(search_token: str) -> Union[str, None]:
     """Manually call the Wiktionary API and get the raw page content.
 
     Arguments:
-        search_token -- The word/phrase to search for.
+        search_token: The word/phrase to search for.
 
     Returns:
-        Raw page content.
+        str: Raw page content.
+        None: If the search term could not be found.
     """
     url = "https://en.wiktionary.org/w/api.php"
     params = {
-        "action": "query",
-        "titles": search_token,
-        "prop": "revisions",
-        "rvprop": "content",
-        "format": "json",
+        "action" : "query",
+        "titles" : search_token,
+        "prop"   : "revisions",
+        "rvprop" : "content",
+        "format" : "json",
         "rvslots": "*"
     }
     response = requests.get(url, params=params)    
@@ -211,7 +225,7 @@ def clean_wikitext(definitions: list) -> list:
     containing brackets, obscure linguistic tags, etc.
 
     Arguments:
-        definitions -- List of definitions to clean.
+        definitions: Definitions to clean.
 
     Returns:
         Cleaned list of definitions.
@@ -224,6 +238,15 @@ def clean_wikitext(definitions: list) -> list:
         temp_cleaned_definition_line = temp_cleaned_definition_line.replace("(", "<span style='color:grey;font-size:0.85em;'>")
         temp_cleaned_definition_line = temp_cleaned_definition_line.replace("]", "</span>")
         temp_cleaned_definition_line = temp_cleaned_definition_line.replace("[", "<span style='color:grey;font-size:0.85em;'>")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("{{", "<i>")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("}}", "</i>")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("[[", "<i>")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("]]", "</i>")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("m|de|", "")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("uxi|de|", "")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("|", ", ")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace("t=", "translation = ")
+        temp_cleaned_definition_line = temp_cleaned_definition_line.replace(": ", "")
         
         if def_i == 0:
             temp_cleaned_definition_line = temp_cleaned_definition_line.replace("plural ", "plural: ")

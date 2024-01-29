@@ -61,8 +61,8 @@ class TutorialDialog(object):
         """Close the tutorial dialog and update the config file to reflect the user's choice.
         """
         if self.radioButton.isChecked():
-            self.parent.showTutorial = False
-            self.parent.updateConfig()
+            self.parent.show_tutorial_on_startup = False
+            self.parent.update_config()
         self.window.close()
 
 
@@ -76,7 +76,7 @@ class GuiAA(object):
     def setupUi(self, Dialog: QtWidgets.QDialog) -> None:
         setup_guiaa_dialog(self, Dialog)
         # Connect the custom buttons to their respective slots
-        self.pushButton.clicked.connect(self.__openFile)
+        self.pushButton.clicked.connect(self._open_fileile)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
         self.makeCardsButton.clicked.connect(self.__makeCards)
         self.cancelButton.clicked.connect(Dialog.reject)
@@ -88,20 +88,20 @@ class GuiAA(object):
         self.headerLbl.setText(_translate("Dialog", "🀄 AutoAnki Card Generator 🀄"))
         self.label_2.setText(_translate("Dialog", "Deck name"))
         self.pushButton.setText(_translate("Dialog", "Open"))
-        self.lineEdit.setText(self.parent.defaultNoteLocation)
+        self.lineEdit.setText(self.parent.default_notes_file_location)
 
-    def __openFile(self) -> None:
+    def _open_fileile(self) -> None:
         """Opens a file explorer.
         """
-        self.parent.addFile()
-        self.lineEdit.setText(self.parent.currentInputFilePath)
+        self.parent.add_user_file()
+        self.lineEdit.setText(self.parent.notes_input_filepath)
         self.explorerUsed = True
         
     def __makeCards(self) -> None:
         """Start the card-making process.
         """
         if self.explorerUsed is False:
-            self.__openFileDefault()
+            self._open_file_default()
         
         deckName = self.lineEdit_2.text()
         if deckName == "":
@@ -121,8 +121,8 @@ class GuiAA(object):
         self.consoleDisplay.setFont(default_font)
         
         # Start the card-making process in a new thread
-        thread = threading.Thread(target=self.parent.makeCards, args=(deckName, self.messageQueue, 
-                                                                    self.parent.defaultOutputFolder))
+        thread = threading.Thread(target=self.parent.make_cards, args=(deckName, self.messageQueue, 
+            self.parent.default_autoanki_output_folder))
         thread.daemon = True
         thread.start()
         
@@ -133,14 +133,14 @@ class GuiAA(object):
 
         self.overlay.show()
         
-    def __openFileDefault(self) -> None:
-        filename = self.parent.defaultNoteLocation
-        self.parent.currentInputFilePath = filename
+    def _open_file_default(self) -> None:
+        filename = self.parent.default_notes_file_location
+        self.parent.notes_input_filepath = filename
         
         f = open(filename, 'r', encoding="utf-8")
         with f:
             data = f.read()
-            self.parent.selectedFileContent = data
+            self.parent.notes_file_content = data
             
     def append_to_console_display(self, text) -> None:
         """Append text to the console display.
@@ -190,7 +190,7 @@ class GuiChangeLangWindow(object):
     def setupUi(self, changeLangWindow: QtWidgets.QDialog) -> None:
         setup_changelang_dialog(self, changeLangWindow)
         
-        self.changeLangConf.clicked.connect(self.__handleApply)
+        self.changeLangConf.clicked.connect(self._handle_apply)
 
         # Change language list
         self.langsList = QtWidgets.QListWidget(self.changeLangWFrame)
@@ -220,10 +220,10 @@ class GuiChangeLangWindow(object):
         self.gridLayout_4.addWidget(self.changeLangWFrame, 0, 0, 1, 1)
         self.gridLayout_4.addWidget(self.changeLangConf, 1, 0, 1, 1)
         
-        self.__retranslateUi(changeLangWindow)
+        self._retranslate_ui(changeLangWindow)
         QtCore.QMetaObject.connectSlotsByName(changeLangWindow)
     
-    def __retranslateUi(self, changeLangWindow: QtWidgets.QDialog) -> None:
+    def _retranslate_ui(self, changeLangWindow: QtWidgets.QDialog) -> None:
         _translate = QtCore.QCoreApplication.translate
         changeLangWindow.setWindowTitle(_translate("changeLangWindow", "Language Settings"))
         __sortingEnabled = self.langsList.isSortingEnabled()
@@ -252,10 +252,10 @@ class GuiChangeLangWindow(object):
                 u_item.setHidden(True)
                 
         self.langsList.setSortingEnabled(__sortingEnabled)
-        self.langsList.clicked.connect(self.__updateSelection)
+        self.langsList.clicked.connect(self._update_selection)
         
         # Apply the program's currently selected language to the list
-        langIndex = self.__indexLang()
+        langIndex = self._index_language()
         if langIndex   == 1:
             langItem   =  item1
         elif langIndex == 2:
@@ -277,28 +277,28 @@ class GuiChangeLangWindow(object):
         else:
             langItem = None 
         if langItem != None:
-            self.__highlightCurrentLang(langItem)
+            self._highlight_currentLang(langItem)
     
-    def __handleApply(self) -> None:
+    def _handle_apply(self) -> None:
         """Applies the selected language by updating the main window language variable.
         """
         if self.tempLang:
-            self.parent.changeLanguage(self.tempLang)
+            self.parent.change_language(self.tempLang)
         self.window.close()
     
-    def __highlightCurrentLang(self, item: QtWidgets.QListWidgetItem) -> None:
+    def _highlight_currentLang(self, item: QtWidgets.QListWidgetItem) -> None:
         """Highlight the currently selected language on the selection list.
         """
         self.langsList.setCurrentItem(item)
         self.langsList.setFocus()
     
-    def __updateTempLangVar(self, lang: str) -> None:
+    def _update_temp_language_var(self, lang: str) -> None:
         """Updates the language var used to save, temporarily, when a user clicks on a language list object, but is yet 
         to save that as their selection.
         """
         self.tempLang = lang
     
-    def __getCurrentLangSelection(self) -> str:
+    def _get_current_lang_selection(self) -> str:
         """Get the currently selected language from the list of languages GUI element.
         """
         selection = self.langsList.currentRow()
@@ -306,16 +306,16 @@ class GuiChangeLangWindow(object):
         selection = LANGS[str(selection)]
         return selection
     
-    def __updateSelection(self) -> None:
+    def _update_selection(self) -> None:
         """Update the program with the currently selected (temporary, not yet applied) language selection from the list.
         """
-        selection = self.__getCurrentLangSelection()
-        self.__updateTempLangVar(selection)
+        selection = self._get_current_lang_selection()
+        self._update_temp_language_var(selection)
     
-    def __indexLang(self) -> Union[int, None]:
+    def _index_language(self) -> Union[int, None]:
         """Determine which list element a language corresponds with.
         """
-        lang = self.parent.currentLanguage
+        lang = self.parent.selected_search_language
         # print(lang)
         if lang   == "Arabic":
             return 1
