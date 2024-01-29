@@ -105,7 +105,7 @@ def make_cards(txt_file_pth: str, language: str, deck_name: str, messageQueue, s
                 lemma = lemma.lower()
             
             cards_arr[card_i]["backside_entries"][target]["lemma"]       = lemma
-            cards_arr[card_i]["backside_entries"][target]["all_defs"]    = get_definitions(lemma, language) 
+            cards_arr[card_i]["backside_entries"][target]["all_defs"]    = get_definitions(lemma, language, grammar_tag=grammar_tag) 
             cards_arr[card_i]["backside_entries"][target]["grammar_tag"] = grammar_tag           
         
     # Make things readable
@@ -346,13 +346,14 @@ def remove_irrelevant_defs(cards_arr: list) -> list:
                         relv_defs     = relevant_def
                         relv_def_found = True
             
-            if (not relv_def_found or target_type == "phrase") and raw_defs != None:  # Use the longest definition available
+            if (not relv_def_found or target_type == "phrase"):  # Use the longest definition available
                 longest = max(asdict(raw_defs).values(), key=len)
-                if target_type == "word":
+                longest = list(longest)
+                if target_type == "word" and len(longest) > 0:
                     longest.append(f"Note: using {grammar_tag} def.")
                 relv_defs = longest
             
-            elif raw_defs == None:
+            elif not relv_def_found:
                 relv_defs = ["No No definition found."] # TODO: Fix this hacky solution of repeating the first word
     
             new_c_arr[card_i]["backside_entries"][bside_entry_key]["relv_defs"] = relv_defs

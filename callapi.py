@@ -77,8 +77,8 @@ def strip_bs4_links(html_content: str) -> str:
     return str(soup)
 
 
-def get_definitions(search_token: str, language: str, etym_flag: bool=False, usage_flag: bool =False
-                    ) -> Union[ItemDefinitions, None]:
+def get_definitions(search_token: str, language: str, etym_flag: bool=False, usage_flag: bool =False, 
+                    grammar_tag: str="") -> Union[ItemDefinitions, None]:
     """Get the definitions for a word from Wiktionary. Uses the WiktionaryParser library to get the definitions, but
     also manually calls the Wiktionary API to get the etymology and usage notes, as the WiktionaryParser library does 
     not support usage notes ಠ_ಠ.
@@ -125,13 +125,13 @@ def get_definitions(search_token: str, language: str, etym_flag: bool=False, usa
         "exclamation" : tuple(str()),
         "determiner"  : tuple(str()),
         "etymology"   : tuple(str()),
-        "usage"       : tuple(str())    
+        "usage"       : tuple(str())
     }
     
-    if len(wik_parser_result) == 0:
-        return None
-    if len(wik_parser_result[0]["definitions"]) == 0:
-        return None
+    # if len(wik_parser_result) == 0:
+    #     return None
+    # if len(wik_parser_result[0]["definitions"]) == 0:
+    #     return None
     
     for definition in wik_parser_result:
         for part_of_speech in definition["definitions"]:
@@ -139,8 +139,14 @@ def get_definitions(search_token: str, language: str, etym_flag: bool=False, usa
                 definitions["noun"]           = part_of_speech["text"]
             elif part_of_speech["partOfSpeech"] == "verb":
                 definitions["verb"]           = part_of_speech["text"]
+            
+            # Because Stanza tags participles as adjectives, we index them as being an adjective. Participle
+            # usually indicate that they're participles in the definition (as opposed to the grammar tag) anyway.
             elif part_of_speech["partOfSpeech"] == "adjective":
                 definitions["adjective" ]     = part_of_speech["text"]
+            elif part_of_speech["partOfSpeech"] == "participle":
+                definitions["adjective" ]     = part_of_speech["text"]
+            
             elif part_of_speech["partOfSpeech"] == "adverb":
                 definitions["adverb"]         = part_of_speech["text"]
             elif part_of_speech["partOfSpeech"] == "pronoun":
@@ -161,6 +167,9 @@ def get_definitions(search_token: str, language: str, etym_flag: bool=False, usa
                 definitions["exclamation"]    = part_of_speech["text"]
             elif part_of_speech["partOfSpeech"] == "determiner":
                 definitions["determiner"]     = part_of_speech["text"]
+        
+        if language == "German" and grammar_tag == "ADJ" and definitions["adjective"] == tuple(""):
+            definitions = double_check_german_participle_adjective(search_token, grammar_tag, parser, definitions)
         
         if etym_flag == True:
             if wik_parser_result[0]["etymology"] != "":
@@ -218,6 +227,42 @@ def call_api_raw(search_token: str) -> Union[str, None]:
             return None
     else:
         return None
+
+
+def double_check_german_participle_adjective(search_token: str, grammar_tag: str, 
+        parser: WiktionaryParser, definitions: dict) -> dict:
+    """It is rare for Wiktionary to have present partciple entries for German adjectives, but the definition for 
+    these adjectives can be deduced from the verb definition. To find the verb definition of a German present 
+    participle, the participle ending is removed. Luckily these participles follow a consistent pattern of
+    ending in -d, so the ending is removed and the verb definition is returned, with a disclaimer noting that 
+    this is the verb definition, but should be relevant enough to be used as the adjective definition.
+
+    Arguments:
+        search_token: The word/phrase to search for.
+        grammar_tag: The grammar tag of the search term.
+        parser: WiktionaryParser object.
+        definitions: Dictionary of definitions.
+
+    Returns:
+        dict: Updated dictionary of definitions with verb definition being used as the adjective participle definition.
+    """
+    # Remove the particple ending from the adjective
+    if search_token[-1] == "d":
+        search_token = search_token[:-1]
+    else:
+        return definitions
+    
+    wik_parser_result = parser.fetch(search_token, "German")
+    
+    for definition in wik_parser_result:
+        for part_of_speech in definition["definitions"]:
+            if part_of_speech["partOfSpeech"] == "verb":
+                definitions["adjective"] = part_of_speech["text"]
+                # Notify the user that the verb definition is being used
+                # TODO: Fix this hacky workaround for how the first word in line 0 is deleted
+                definitions["adjective"][0] = "string_to_scrifice ( <br>Verb definition used for adjective participle definition,<br> ) " + definitions["adjective"][0]
+    
+    return definitions
 
 
 def clean_wikitext(definitions: list) -> list:
