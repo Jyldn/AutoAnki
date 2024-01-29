@@ -3,9 +3,9 @@ from PyQt5              import QtWidgets, QtCore, QtGui
 from PyQt5              import QtWebEngineWidgets
 from PyQt5.QtWidgets    import QGraphicsDropShadowEffect
 from PyQt5.QtGui        import QColor
-from config             import config_check
 from PyQt5.QtWidgets    import QTextEdit
 from PyQt5.QtCore       import Qt
+
 
 SHADOW_INTENSITY = 50
 SHADOW_BLUR_INTENSITY = 15

@@ -43,8 +43,7 @@ SPACY_TO_READABLE_TAG_MAP = {
 
 
 class BacksideEntriesData(TypedDict):
-    """Data for an individual entry on a card's backside.
-    """
+    """Data for an individual entry on a card's backside."""
     all_defs    : ItemDefinitions
     relv_defs   : List[str]
     grammar_tag : str
@@ -53,8 +52,7 @@ class BacksideEntriesData(TypedDict):
 
 
 class Card(TypedDict):
-    """Data for an individual card.
-    """
+    """Data for an individual card."""
     frontside_text: str
     backside_entries: Dict[MARKED_TOKEN, BacksideEntriesData]
 
@@ -62,16 +60,6 @@ class Card(TypedDict):
 def make_cards(txt_file_pth: str, language: str, deck_name: str, messageQueue, s_folder_pth: str ="") -> None: 
     """Main function for making Anki cards. This function is called when the user clicks the "Make Cards" button. Most
     of the work is done by other functions functions, and this main function handles the flow of data between them.
-    
-    Arguments:
-        txt_file_pth: File path to the user's input text file
-        language: Current language
-        deck_name: Name of the Anki deck. Used for formatting the Anki import and naming the cards import file.
-        messageQueue: Message queue object sent from the front-end
-    
-    Keyword Arguments:
-        s_folder_pth: Folder the user wishes the save the file to. Empty strings default to the working directory.
-            (default: {""})
     """
     feed_msg_queue("start", messageQueue)
     input_file_text = read_sentence_file(txt_file_pth)
@@ -144,9 +132,6 @@ def make_cards(txt_file_pth: str, language: str, deck_name: str, messageQueue, s
 def read_sentence_file(txt_file_pth: str) -> Union[str, None]:
     """Reads the user's input text file.
 
-    Arguments:
-        txt_file_pth: Path to the user's text file
-    
     Returns:
         Text from the user's text file
     """
@@ -163,11 +148,8 @@ def find_marked_tokens(cards_arr: List[Card]) -> List[Card]:
     An individual word is marked with a preceeding asterisk: *word
     A phrase is marked with wrapping hashtags: #phrase#
     
-    Arguments:
-        cards_arr: 
-    
     Returns:
-        _description_
+        Array of cards with marked tokens added to the backside entries.
     """
     pattern_word   = r"\*(\w+)"
     pattern_phrase = r"#(.*?)#"
@@ -192,14 +174,7 @@ def find_marked_tokens(cards_arr: List[Card]) -> List[Card]:
 
 
 def get_nlp(language: str) -> Union[spacy_stanza.Language, None, spacy.Language]:
-    """Get the language processor for the selected language.
-    
-    Arguments:
-        language: _description_
-        
-    Returns:
-        _description_
-    """
+    """Get the language processor for the selected language."""
     if language == "Arabic":
         stanza.download("ar")
         nlp     = spacy_stanza.load_pipeline("ar", package="padt", processors='tokenize,mwt,pos,lemma', use_gpu=True)
@@ -271,12 +246,6 @@ def strip_punctuation(text: str) -> str:
     Remove apostrophes in the middle of words, but ensure a space is put in their place. 
     This is needed for French so that the lemmatiser doesn't tokenise words with their contracted articles.
     Also removes the asterisks and hashtags used to mark tokens.
-    
-    Arguments:
-        text: String to remove punctuation from
-    
-    Returns:
-        String with punctuation removed
     """
     new_text = ''
     for i in range(len(text)):
@@ -300,11 +269,8 @@ def make_tags_readable(cards_arr: List[Card]) -> list:
     """Converts the grammar tags from the Spacy format to a readable format. This is done mainly for the benefit of
     easily saving readable grammar tags to the Anki file, but also makes debugging easier.
     
-    Arguments:
-        cards_arr: Array of cards
-    
     Returns:
-        Array of cards with readable grammar tags
+        Array of cards with readable grammar tags.
     """
     new_cards_arr = cards_arr
     for card_i, card in enumerate(cards_arr):
@@ -324,11 +290,8 @@ def remove_irrelevant_defs(cards_arr: list) -> list:
     Relevant definitions are used for the Anki card and all others are ignored. This is done to reduce information
     overload on the card: only the definitions for this gramamtical context are used.
     
-    Arguments:
-        cards_arr: Array of cards
-    
     Returns:
-        Array of cards with populated relevant definitions entry
+        Array of cards with populated relevant definitions entry.
     """
     new_c_arr = cards_arr
     for card_i, card in enumerate(cards_arr):        
@@ -370,12 +333,8 @@ def format_card(card: dict, deck_name: str) -> str:
     
     See https://docs.ankiweb.net/importing/text-files.html for more information.
 
-    Arguments:
-        card: Card data
-        deck_name: Name of the Anki deck assigned by user
-
     Returns:
-        Formatted card data
+        Formatted card data.
     """
     fside_text = card["frontside_text"]
     
@@ -422,15 +381,7 @@ def format_card(card: dict, deck_name: str) -> str:
 
 
 def export_cards(full_file_path: str, anki_input: str) -> bool:
-    """Export the Anki cards to a text file.
-
-    Arguments:
-        full_file_path: File path for saving the Anki import file
-        anki_input: Final Anki import data
-
-    Returns:
-        _description_
-    """
+    """Export the Anki cards to a text file."""
     try:
         with open(full_file_path, 'w', encoding="utf-8") as file:
             file.write(anki_input)
@@ -445,13 +396,13 @@ def feed_msg_queue(message: str, messageQueue, total_cards=None, card_num=None, 
     Messages should be non-technical and written in plain language.
 
     Arguments:
-        message: Message to send to the user
-        messageQueue: Message queue object sent from the front-end
+        message: Message to send to the user.
+        messageQueue: Message queue object sent from the front-end.
 
     Keyword Arguments:
-        total_cards: Total number of cards (default: {None})
-        card_num: Card number currently being worked on (default: {None})
-        file_path: Path that the Anki import will be/is saved to (default: {None})
+        total_cards: Total number of cards (default: {None}).
+        card_num: Card number currently being worked on (default: {None}).
+        file_path: Path that the Anki import will be/is saved to (default: {None}).
     """
     q_msgs = {
         "start"         : "AutoAnki Started.",

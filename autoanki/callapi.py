@@ -1,13 +1,11 @@
 from bs4                import BeautifulSoup
 from wiktionaryparser   import WiktionaryParser
-from typing             import List, Dict
+from manualsearchdb     import ItemDefinitions
+from typing             import Union
 import logging
 import requests
 import re
 import requests
-from typing import Union
-from manualsearchdb     import ItemDefinitions
-import time
 
 
 # Logger
@@ -22,14 +20,6 @@ logger.addHandler(handler)
 def get_conjugation_table(search_token: str, language: str) -> Union[str, None]:
     """Grab the conjugation table from Wiktionary. This is done by webscraping the page. Although the API does return
     conjugation tables, it would require rebuilding the HTML for the table, so scraping is easier.
-
-    Arguments:
-        search_token: The word to search for.
-        language: Selected search language.
-
-    Returns:
-        str: HTML content of the conjugation table.
-        None: If the conjugation table could not be found.
     """
     base_url = "https://en.wiktionary.org/wiki/"
     wik_url      = f"{base_url}{search_token}"
@@ -63,14 +53,7 @@ def get_conjugation_table(search_token: str, language: str) -> Union[str, None]:
 
 
 def strip_bs4_links(html_content: str) -> str:
-    """Remove links from the HTML content. This is done because links are visually messy and not needed.
-
-    Arguments:
-        html_content: HTML content to strip links from.
-
-    Returns:
-        HTML content with links removed.
-    """
+    """Remove links from the HTML content. This is done because links are visually messy and not needed."""
     soup = BeautifulSoup(html_content, 'html.parser')
     for link in soup.find_all('a'):
         link.replace_with(link.text)
@@ -88,18 +71,6 @@ def get_definitions(search_token: str, language: str, etym_flag: bool=False, usa
     Usage notes searches significantly slow the program due to the doubling up of API calls, so the additional call is
     only made if the user has selected to get the notes. In an attempt to increase speed, etymology calls are also 
     conditional.
-    
-    Arguments:
-        language: Selected language.
-        search_token:  The word/phrase to search for.
-
-    Keyword Arguments:
-        get_etymology: Whether to access and save etymology. (default: {"False"})
-        get_usage_notes:  Whether to manually call the Wiktionary API and get usage notes. (default: {"False"})
-
-    Returns:
-        ItemDefinitions: Definitions for the individual search-term. Keys represent grammar tags.
-        None: If the search term could not be found.
     """
     parser = WiktionaryParser()
     # ! This seems to return definitions for words from similar languages, not just the selected language. 
@@ -197,15 +168,7 @@ def get_definitions(search_token: str, language: str, etym_flag: bool=False, usa
 
 
 def call_api_raw(search_token: str) -> Union[str, None]:
-    """Manually call the Wiktionary API and get the raw page content.
-
-    Arguments:
-        search_token: The word/phrase to search for.
-
-    Returns:
-        str: Raw page content.
-        None: If the search term could not be found.
-    """
+    """Manually call the Wiktionary API and get the raw page content."""
     url = "https://en.wiktionary.org/w/api.php"
     params = {
         "action" : "query",
@@ -237,12 +200,6 @@ def double_check_german_participle_adjective(search_token: str, grammar_tag: str
     ending in -d, so the ending is removed and the verb definition is returned, with a disclaimer noting that 
     this is the verb definition, but should be relevant enough to be used as the adjective definition.
 
-    Arguments:
-        search_token: The word/phrase to search for.
-        grammar_tag: The grammar tag of the search term.
-        parser: WiktionaryParser object.
-        definitions: Dictionary of definitions.
-
     Returns:
         dict: Updated dictionary of definitions with verb definition being used as the adjective participle definition.
     """
@@ -268,12 +225,6 @@ def double_check_german_participle_adjective(search_token: str, grammar_tag: str
 def clean_wikitext(definitions: list) -> list:
     """Cleans the text pulled from Wiktionary to be more readable. Without cleaning, the text is very messy,
     containing brackets, obscure linguistic tags, etc.
-
-    Arguments:
-        definitions: Definitions to clean.
-
-    Returns:
-        Cleaned list of definitions.
     """
     cleaned_definitions = []
     

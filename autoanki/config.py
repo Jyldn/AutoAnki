@@ -1,11 +1,12 @@
 import os
 import configparser
 
+
 def config_check() -> list:
     """Checks if the config file exists, if not, creates it.
 
     Returns:
-        A list of config variables.
+        List of config variables.
     """
     if os.path.exists(f"{os.path.dirname(os.getcwd())}\\autodict\\.config\\config.ini"):
         pass
@@ -16,8 +17,7 @@ def config_check() -> list:
 
 
 def setup_config() -> None:
-    """Creates a config file with default values.
-    """
+    """Creates a config file with default values."""
     config = configparser.ConfigParser()
     config['LanguagePreferences'] = {'InterfaceLanauge': 'English', 'SearchLanguage': 'English'}
     config['Interface']           = {'ColourMode': 'light', 'ZoomLevel': '100'}

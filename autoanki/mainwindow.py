@@ -300,8 +300,7 @@ class MainWindowGui(QWidget):
             self.manual_search_mode = ManualSearchModes.PHRASE
     
     def _toggle_savebutton_enabled(self) -> None:
-        """Toggle the save button on/off.
-        """
+        """Toggle the save button on/off."""
         if self.displaying_savable_item is True:
             self.save_word.setEnabled(True)
         else:
@@ -357,8 +356,7 @@ class MainWindowGui(QWidget):
         self.colour_mode_button.setText("Dark Mode")
     
     def _reapply_border_colours(self) -> None:
-        """When the theme changes, the colours of the border frames reset. These colours need to be reapplied.
-        """
+        """When the theme changes, the colours of the border frames reset. These colours need to be reapplied."""
         if self.colour_mode.value == "dark":
             self.sidebar_frame.setStyleSheet     ("QFrame {border: 1px solid dimgrey;}")
             self.search_input_frame.setStyleSheet ("QFrame {border: 1px solid dimgrey;}")
@@ -369,8 +367,7 @@ class MainWindowGui(QWidget):
             self.output_frame.setStyleSheet      ("QFrame {border: 1px solid lightgrey;margin-top: 5px;}")
     
     def _apply_style_edits_light(self) -> None:
-        """Styling changes (border radius, colours, etc.) applied on top of the current theme.
-        """
+        """Styling changes (border radius, colours, etc.) applied on top of the current theme."""
         self.sidebar_frame.setStyleSheet(LIGHT_HTML[0])
         self.search_input_frame.setStyleSheet(LIGHT_HTML[1])
         self.output_frame.setStyleSheet(LIGHT_HTML[2])
@@ -571,8 +568,7 @@ class MainWindowGui(QWidget):
         return manual_search_item, True
     
     def _update_html_display(self) -> None:
-        """Update the search display.
-        """
+        """Update the search display."""
         constructed_html = wrap_html(self.current_unwrapped_html, self.colour_mode.value)
         self.search_html_browser.setHtml(constructed_html)
     

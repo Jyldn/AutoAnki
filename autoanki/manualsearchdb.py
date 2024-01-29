@@ -1,9 +1,7 @@
 from enum           import Enum
-from dataclasses    import (dataclass, asdict)
-from typing         import (Tuple, Union, Optional)
+from dataclasses    import dataclass
+from typing         import (Tuple, Optional)
 from uuid           import uuid1
-import uuid
-import pprint
 
 
 @dataclass
@@ -37,8 +35,7 @@ class ItemDefinitions:
 
 
 class ManualSearchItem:
-    """Holds information about a word/phrase that a user has manually searched for.
-    """
+    """Holds information about a word/phrase that a user has manually searched for."""
     def __init__(self, search_language: str, search_tokens: Tuple[str, ...], search_type: SearchType, etymology_flag: bool,
             usage_notes_flag: bool):
         self.uid                     : str             = str(uuid1(node=None, clock_seq=None))
@@ -67,22 +64,3 @@ class ManualSearchItem:
     
     def add_unwrapped_html(self, unwrapped_html_construct: str) -> None:
         self.unwrapped_html_construct = unwrapped_html_construct
-    
-    def __get_optional_attr_str(self, attribute: Union[str, ItemDefinitions]) -> str:
-        """Returns a string representation of an attribute if it exists.
-
-        Arguments:
-            attribute: Attribute of which to get a string representation
-
-        Returns:
-            String representation of the attribute
-        """
-        print_str_additions = ""
-        if type(attribute) is ItemDefinitions:
-            attr_dict = asdict(attribute)
-            for gramamr_tag, definition in attr_dict.items():
-                if definition != None:
-                    print_str_additions += f"\n    {gramamr_tag}: {definition}"
-        else:
-            print_str_additions += f"\n{attribute}"
-        return print_str_additions

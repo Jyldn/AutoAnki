@@ -1,10 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtWidgets, QtCore, QtGui
 import qtvscodestyle as qtvsc
+from setupdialogs   import (setup_tutorial_dialog, setup_guiaa_dialog, setup_contact_dialog, setup_changelang_dialog)
+from typing         import Union
 import queue
 import threading
-from setupdialogs import setup_tutorial_dialog, setup_guiaa_dialog, setup_contact_dialog, setup_changelang_dialog
-from typing import Union
 import labeldata
 
 

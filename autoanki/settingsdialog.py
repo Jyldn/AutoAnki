@@ -9,8 +9,6 @@ class GuiSettingsDialog(object):
         self.parent = parent
     
     def setupUi(self, settingsDialog: QtWidgets.QDialog) -> None:
-        """Sets up the settings dialog.
-        """
         setup_settings_dialog(self, settingsDialog)
         
         self.window = settingsDialog
@@ -73,20 +71,12 @@ class GuiSettingsDialog(object):
         self.default_save_label.setText(_translate("defaultSaveLbl", "Default output folder"))
         
     def _convert_zoom_level(self, zoomLevel: float) -> int:
-        """Converts the zoom level from a float to an int. This is because the front-end slider only accepts ints.
-
-        Arguments:
-            zoomLevel: Zoom level currently being used
-
-        Returns:
-            Zoom level compatabile with the front-end
-        """
+        """Converts the zoom level from a float to an int. This is because the front-end slider only accepts ints."""
         zoomLevel = int(zoomLevel* 100)
         return zoomLevel
     
     def __handleApplySettings(self) -> None:
-        """Applies the selected language by updating the parent's language variable and then closes the dialog.
-        """
+        """Applies the selected language by updating the parent's language variable and then closes the dialog."""
         # Get settings variables
         newZoomFactor   = self.font_size_select.value()
         newColourSelect = self.default_colour_mode_combo.currentText()
@@ -98,8 +88,7 @@ class GuiSettingsDialog(object):
         self.window.close()
     
     def __checkBoxes(self) -> None:
-        """Sets the checkboxes to the current config values.
-        """
+        """Sets the checkboxes to the current config values."""
         if self.parent.show_tutorial_on_startup == True:
             self.tutorial_checkbox.setChecked(True)
         else:
@@ -121,8 +110,7 @@ class GuiSettingsDialog(object):
             self.definitions_with_conjugations_flag_checkbox.setChecked(False)
     
     def _apply_checks(self) -> None:
-        """Updates the parent's variables according to the checkbox values.
-        """
+        """Updates the parent's variables according to the checkbox values."""
         if self.tutorial_checkbox.isChecked():
             self.parent.show_tutorial_on_startup = True
         else:
@@ -144,13 +132,11 @@ class GuiSettingsDialog(object):
             self.parent.display_definitions_with_conjugations    = False
     
     def _apply_file_locations(self) -> None:
-        """Updates the parent's default load and save paths.
-        """
+        """Updates the parent's default load and save paths."""
         self.parent.default_notes_file_location = self.default_load_edit.text()
         self.parent.default_autoanki_output_folder = self.default_save_edit.text()
         
     def __getLocations(self) -> None:
-        """Sets the default load and save paths to the current config values.
-        """
+        """Sets the default load and save paths to the current config values."""
         self.default_load_edit.setText(self.parent.default_notes_file_location)
         self.default_save_edit.setText(self.parent.default_autoanki_output_folder)
