@@ -5,12 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug autocard",
+            "name": "Debug autoanki",
             "type": "python",
             "request": "launch",
-            "program": "./autocard.py",
+            "program": "./autoanki_polyglot/autoanki_polyglot.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false,
+        },
+        {
+            "name": "Debug parser",
+            "type": "python",
+            "request": "launch",
+            "program": "./autoanki_polyglot/wiktionary_polyglotparser.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "Debug tests",
+            "type": "python",
+            "request": "launch",
+            "program": "./autoanki_polyglot/debug.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
         }
     ]
 }

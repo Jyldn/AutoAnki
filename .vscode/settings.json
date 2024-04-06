@@ -1,0 +1,9 @@
+{
+    "editor.guides.highlightActiveIndentation": true,
+    "editor.guides.bracketPairs": "active",
+    "editor.lineNumbers": "relative",
+    "editor.cursorBlinking": "solid",
+    "debug.terminal.clearBeforeReusing": true,
+    "code-runner.clearPreviousOutput": true,
+    "debug.allowBreakpointsEverywhere": true
+}
